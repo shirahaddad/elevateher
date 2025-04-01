@@ -20,11 +20,11 @@ const teamMembers = {
   },
 };
 
-export default async function TeamMemberBio({
-  params,
-}: {
-  params: { slug: string };
-}) {
+type PageProps = {
+  params: { slug: string }
+}
+
+export default function Page({ params }: PageProps) {
   const member = teamMembers[params.slug as keyof typeof teamMembers];
 
   if (!member) {
