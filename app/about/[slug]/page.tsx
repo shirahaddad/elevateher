@@ -24,7 +24,6 @@ export default async function Page({
   params,
 }: {
   params: { slug: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const member = teamMembers[params.slug as keyof typeof teamMembers];
 
