@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center">
+      <section className="relative min-h-[60vh] sm:min-h-[70vh] md:h-screen flex items-center justify-center py-12 sm:py-16">
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/hero-background.jpg"
@@ -18,15 +18,15 @@ export default function Home() {
         </div>
         <div className="relative z-10 text-center text-white px-4">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 md:mb-6 tracking-tight">
               ELEVATE(HER).TECH
             </h1>
-            <p className="text-xl md:text-2xl lg:text-3xl mb-8 font-medium tracking-wide">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 md:mb-8 font-medium tracking-wide">
               EMPOWER | INNOVATE | LEAD
             </p>
             <Link
               href="/team"
-              className="inline-block bg-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-purple-700 transition-colors"
+              className="inline-block bg-purple-600 text-white px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full text-sm sm:text-base md:text-lg font-semibold hover:bg-purple-700 transition-colors"
             >
               Work with Us
             </Link>
@@ -35,50 +35,50 @@ export default function Home() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20 px-4 bg-purple-50">
+      <section className="py-8 sm:py-12 md:py-16 px-4 bg-purple-50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-16 text-purple-900">Our Services</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-6 sm:mb-8 md:mb-12 text-purple-900">Our Services</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {/* 1 on 1 Coaching */}
-            <div className="bg-white p-8 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-semibold mb-4 text-purple-900">1 on 1 Coaching</h3>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-white p-5 sm:p-6 md:p-8 rounded-lg shadow-lg">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 md:mb-4 text-purple-900">1 on 1 Coaching</h3>
+              <p className="text-gray-600 mb-3 sm:mb-4 md:mb-6 text-sm sm:text-base">
                 Personalized guidance to help you navigate your tech career journey
                 and achieve your goals.
               </p>
               <Link
                 href="/services/coaching"
-                className="text-purple-600 font-semibold hover:text-purple-700"
+                className="text-purple-600 font-semibold hover:text-purple-700 text-sm sm:text-base"
               >
                 Learn More →
               </Link>
             </div>
 
             {/* Community */}
-            <div className="bg-white p-8 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-semibold mb-4 text-purple-900">Community</h3>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-white p-5 sm:p-6 md:p-8 rounded-lg shadow-lg">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 md:mb-4 text-purple-900">Community</h3>
+              <p className="text-gray-600 mb-3 sm:mb-4 md:mb-6 text-sm sm:text-base">
                 Join a supportive network of women in tech, share experiences, and
                 grow together.
               </p>
               <Link
                 href="/services/community"
-                className="text-purple-600 font-semibold hover:text-purple-700"
+                className="text-purple-600 font-semibold hover:text-purple-700 text-sm sm:text-base"
               >
                 Learn More →
               </Link>
             </div>
 
             {/* Workshops */}
-            <div className="bg-white p-8 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-semibold mb-4 text-purple-900">Workshops</h3>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-white p-5 sm:p-6 md:p-8 rounded-lg shadow-lg">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 md:mb-4 text-purple-900">Workshops</h3>
+              <p className="text-gray-600 mb-3 sm:mb-4 md:mb-6 text-sm sm:text-base">
                 Interactive sessions designed to enhance your skills and boost your
                 confidence in tech.
               </p>
               <Link
                 href="/services/workshops"
-                className="text-purple-600 font-semibold hover:text-purple-700"
+                className="text-purple-600 font-semibold hover:text-purple-700 text-sm sm:text-base"
               >
                 Learn More →
               </Link>
