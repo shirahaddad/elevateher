@@ -20,19 +20,18 @@ const teamMembers = {
   },
 };
 
-interface PageProps {
+type Props = {
   params: {
     slug: string;
   };
-}
+  searchParams: { [key: string]: string | string[] | undefined };
+};
 
-export default function AboutPage({ params }: PageProps) {
-  const { slug } = params;
-
-  const member = teamMembers[slug as keyof typeof teamMembers];
+export default function TeamMemberBio({ params }: Props) {
+  const member = teamMembers[params.slug as keyof typeof teamMembers];
 
   if (!member) {
-    return <div>Team member not found</div>;
+    notFound();
   }
 
   return (
