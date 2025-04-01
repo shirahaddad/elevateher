@@ -30,6 +30,7 @@ export default function Header() {
           </div>
         </div>
       </nav>
+      <p className="text-lg text-gray-600">We&apos;re here to help.</p>
     </header>
   );
 } 

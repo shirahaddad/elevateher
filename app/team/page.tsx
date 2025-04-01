@@ -60,7 +60,7 @@ export default function Team() {
           </Link>
         </div>
 
-        <p>We&apos;re here to support your journey.</p>
+        <p className="text-xl text-gray-600">We&apos;re here to support your journey.</p>
       </div>
     </div>
   );

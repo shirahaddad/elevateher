@@ -16,11 +16,12 @@ export default function Privacy() {
           <div>
             <h2 className="text-2xl font-bold text-purple-900 mb-4">1. Information We Collect</h2>
             <p className="text-sm text-gray-500 mb-4">Effective Date: March 1st, 2025<br />Last Updated: March 1st, 2025</p>
-            <p>We collect and process the following types of information:</p>
-            <ul className="list-none space-y-2">
-              <li>🔹 Personal Information: Name, email address, phone number, job title, company name.</li>
-              <li>🔹 Usage Data: Website interactions, IP address, browser type (collected via cookies).</li>
-              <li>🔹 Marketing Preferences: Opt-in/opt-out choices for emails and communications.</li>
+            <p>We collect information that you provide directly to us, including:</p>
+            <ul>
+              <li>Name and contact information (email address, phone number)</li>
+              <li>Professional information (job title, company)</li>
+              <li>Communication preferences</li>
+              <li>Information you provide through our contact forms or questionnaires</li>
             </ul>
           </div>
 
@@ -37,12 +38,12 @@ export default function Privacy() {
 
           <div>
             <h2 className="text-2xl font-bold text-purple-900 mb-4">3. How We Use Your Information</h2>
-            <p>We use your data to:</p>
-            <ul className="list-none space-y-2">
-              <li>✅ Provide coaching services and respond to inquiries.</li>
-              <li>✅ Send newsletters, resources, or promotional materials (you can opt out anytime).</li>
-              <li>✅ Improve our offerings and analyze website traffic (via cookies and analytics).</li>
-              <li>✅ Comply with legal requirements.</li>
+            <p>We use the information we collect to:</p>
+            <ul>
+              <li>Provide and improve our services</li>
+              <li>Communicate with you about our services</li>
+              <li>Send you updates and marketing materials (with your consent)</li>
+              <li>Respond to your inquiries</li>
             </ul>
           </div>
 
