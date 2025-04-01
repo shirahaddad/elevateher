@@ -5,7 +5,7 @@ const teamMembers = {
   shira: {
     name: 'Shira Haddad',
     role: 'Leadership Guru & Career Coach',
-    image: '/images/shira.jpg',
+    image: '/images/shira.webp',
   },
   cassandra: {
     name: 'Cassandra Dinh-Moore',

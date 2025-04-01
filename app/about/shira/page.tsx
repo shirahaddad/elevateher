@@ -10,7 +10,7 @@ export default function ShiraBio() {
           <div className="w-full md:w-1/3">
             <div className="relative h-[400px] w-[280px] mx-auto">
               <Image
-                src="/images/shira.jpg"
+                src="/images/shira.webp"
                 alt="Shira Haddad"
                 fill
                 sizes="(max-width: 768px) 280px, 280px"
