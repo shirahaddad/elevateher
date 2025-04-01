@@ -1,67 +1,48 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function Team() {
+const teamMembers = {
+  shira: {
+    name: 'Shira Haddad',
+    role: 'Leadership Guru & Career Coach',
+    image: '/images/shira.jpg',
+  },
+  cassandra: {
+    name: 'Cassandra Dinh-Moore',
+    role: 'Career Coach & Developer of Talent',
+    image: '/images/cassie.jpg',
+  },
+};
+
+export default function TeamPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-5xl mx-auto px-8 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Work with Us</h1>
-        </div>
+    <main className="min-h-screen bg-white">
+      <div className="container mx-auto px-4 py-16">
+        <h1 className="text-4xl font-bold text-center text-purple-900 mb-12">Our Team</h1>
         
-        <div className="grid md:grid-cols-2 gap-16">
-          {/* Shira Haddad */}
-          <Link href="/about/shira" className="block">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 max-w-[320px] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {Object.entries(teamMembers).map(([slug, member]) => (
+            <Link 
+              key={slug} 
+              href={`/about/${slug}`}
+              className="group block bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 max-w-[320px] mx-auto"
+            >
               <div className="relative h-[240px] w-[168px] mx-auto">
                 <Image
-                  src="/images/shira.jpg"
-                  alt="Shira Haddad"
+                  src={member.image}
+                  alt={member.name}
                   fill
-                  className="object-cover rounded-xl"
+                  className="object-contain"
                 />
               </div>
               <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4 text-purple-900">Shira Haddad</h2>
-                <span className="inline-block text-purple-600 font-semibold hover:text-purple-700 text-base">
-                  Bio →
-                </span>
+                <h2 className="text-2xl font-bold text-purple-900 mb-2">{member.name}</h2>
+                <p className="text-purple-600">{member.role}</p>
               </div>
-            </div>
-          </Link>
-
-          {/* Cassandra Dinh-Moore */}
-          <Link href="/about/cassandra" className="block">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 max-w-[320px] mx-auto">
-              <div className="relative h-[240px] w-[168px] mx-auto">
-                <Image
-                  src="/images/cassie.jpg"
-                  alt="Cassandra Dinh-Moore"
-                  fill
-                  className="object-cover rounded-xl"
-                />
-              </div>
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4 text-purple-900">Cassandra Dinh-Moore</h2>
-                <span className="inline-block text-purple-600 font-semibold hover:text-purple-700 text-base">
-                  Bio →
-                </span>
-              </div>
-            </div>
-          </Link>
+            </Link>
+          ))}
         </div>
-
-        <div className="text-center mt-16">
-          <Link
-            href="/questionnaire"
-            className="inline-block bg-purple-600 text-white px-10 py-3 rounded-full text-lg font-semibold hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl"
-          >
-            I'm Ready
-          </Link>
-        </div>
-
-        <p className="text-xl text-gray-600">We&apos;re here to support your journey.</p>
       </div>
-    </div>
+    </main>
   );
 } 
