@@ -59,6 +59,8 @@ export default function Team() {
             I'm Ready
           </Link>
         </div>
+
+        <p>We&apos;re here to support your journey.</p>
       </div>
     </div>
   );

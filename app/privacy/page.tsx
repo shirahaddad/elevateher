@@ -6,7 +6,11 @@ export default function Privacy() {
         
         <div className="prose prose-lg max-w-none text-gray-600 space-y-8">
           <p className="text-lg">
-            Elevate(Her).Tech ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect your personal information when you interact with us, including through our website and LinkedIn Lead Gen Forms.
+            At Elevate Her, we take your privacy seriously. This Privacy Policy explains how we collect, use, and protect your personal information when you use our website and services.
+          </p>
+
+          <p>
+            By using our website, you agree to the collection and use of information in accordance with this policy.
           </p>
 
           <div>

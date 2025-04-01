@@ -34,7 +34,7 @@ export default function Questionnaire() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Start Your Journey</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Take the first step towards your leadership goals. Fill out the form below and we'll get back to you within 24 hours.
+            We&apos;re excited to learn more about you and your goals. Fill out the form below and we'll get back to you within 24 hours.
           </p>
         </div>
 
