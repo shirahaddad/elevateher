@@ -32,7 +32,9 @@ export default function TeamPage() {
                   src={member.image}
                   alt={member.name}
                   fill
+                  sizes="(max-width: 768px) 168px, 168px"
                   className="object-contain"
+                  priority={slug === 'shira'}
                 />
               </div>
               <div className="p-6">

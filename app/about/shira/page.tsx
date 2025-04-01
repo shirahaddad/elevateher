@@ -13,7 +13,9 @@ export default function ShiraBio() {
                 src="/images/shira.jpg"
                 alt="Shira Haddad"
                 fill
+                sizes="(max-width: 768px) 280px, 280px"
                 className="object-cover rounded-xl"
+                priority
               />
             </div>
           </div>
