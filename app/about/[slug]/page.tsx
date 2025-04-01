@@ -20,14 +20,11 @@ const teamMembers = {
   },
 };
 
-type Props = {
-  params: {
-    slug: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
-};
-
-export default function TeamMemberBio({ params }: Props) {
+export default async function TeamMemberBio({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const member = teamMembers[params.slug as keyof typeof teamMembers];
 
   if (!member) {
