@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 // This would typically come from a database or CMS
 const teamMembers = {
@@ -19,12 +20,16 @@ const teamMembers = {
   },
 };
 
-export default function TeamMemberBio({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const member = teamMembers[params.slug as keyof typeof teamMembers];
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
+
+export default function AboutPage({ params }: PageProps) {
+  const { slug } = params;
+
+  const member = teamMembers[slug as keyof typeof teamMembers];
 
   if (!member) {
     return <div>Team member not found</div>;
