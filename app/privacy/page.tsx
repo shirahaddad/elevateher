@@ -6,7 +6,7 @@ export default function Privacy() {
         
         <div className="prose prose-lg max-w-none text-gray-600 space-y-8">
           <p className="text-lg">
-            At Elevate Her, we take your privacy seriously. This Privacy Policy explains how we collect, use, and protect your personal information when you use our website and services.
+            At Elevate(Her), we take your privacy seriously. This Privacy Policy explains how we collect, use, and protect your personal information when you use our website and services.
           </p>
 
           <p>
