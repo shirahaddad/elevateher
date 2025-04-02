@@ -11,16 +11,16 @@ export const metadata: Metadata = {
   description: "Empowering women through coaching and community",
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
+      { url: '/favicon_2.ico' },
+      { url: '/favicon-16x16_2.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32_2.png', sizes: '32x32', type: 'image/png' }
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
+      { url: '/apple-touch-icon_2.png', sizes: '180x180', type: 'image/png' }
     ],
     other: [
-      { url: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' }
+      { url: '/android-chrome-192x192_2.png', sizes: '192x192', type: 'image/png' },
+      { url: '/android-chrome-512x512_2.png', sizes: '512x512', type: 'image/png' }
     ]
   },
   manifest: "/manifest.json",
