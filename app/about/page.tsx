@@ -28,10 +28,10 @@ export default function About() {
             Get Started
           </Link>
           <Link
-            href="/team"
+            href="/coaches"
             className="inline-block bg-white text-purple-600 border-2 border-purple-600 px-8 py-3 rounded-full text-lg font-semibold hover:bg-purple-50 transition-colors shadow-lg hover:shadow-xl text-center"
           >
-            Meet Our Team
+            Meet the Coaches
           </Link>
         </div>
       </div>

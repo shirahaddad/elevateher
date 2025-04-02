@@ -2,21 +2,20 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-// This would typically come from a database or CMS
 const teamMembers = {
   shira: {
     name: 'Shira Haddad (she/her)',
     title: 'Executive Coach & Leadership Development Specialist',
     bio: 'With over 15 years of experience in executive coaching and leadership development, Sarah has helped hundreds of women leaders achieve their career goals. She specializes in helping women navigate workplace challenges, develop their leadership style, and build confidence in their decision-making abilities.',
-    image: '/images/team-member-1.jpg',
-    linkedin: 'https://linkedin.com/in/sarah-johnson',
+    image: '/images/shira.webp',
+    linkedin: 'https://www.linkedin.com/in/shirahaddad/',
   },
   cassie: {
     name: 'Cassandra Dinh-Moore',
     title: 'Career Strategist & Professional Development Coach',
     bio: 'Cassie brings a unique perspective to career coaching, combining her background in organizational psychology with practical business experience. She helps women identify their strengths, develop strategic career plans, and build the skills needed to advance in their chosen fields.',
-    image: '/images/team-member-2.jpg',
-    linkedin: 'https://linkedin.com/in/emily-chen',
+    image: '/images/cassie.jpg',
+    linkedin: 'https://www.linkedin.com/in/cassiedinh-moore/',
   },
 };
 
