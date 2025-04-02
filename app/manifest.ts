@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Elevate Her',
-    short_name: 'Elevate Her',
+    name: 'Elevate(Her)',
+    short_name: 'Elevate(Her)',
     description: 'Empowering women through coaching and community',
     start_url: '/',
     display: 'standalone',
@@ -11,13 +11,8 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#6B46C1',
     icons: [
       {
-        src: '/favicon/icon',
+        src: '/favicon.ico',
         sizes: '32x32',
-        type: 'image/png',
-      },
-      {
-        src: '/favicon/apple-icon',
-        sizes: '180x180',
         type: 'image/png',
       },
     ],
