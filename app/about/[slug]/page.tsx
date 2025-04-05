@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 const teamMembers = {
   shira: {
     name: 'Shira Haddad (she/her)',
-    title: 'Executive Coach & Leadership Development Specialist',
+    title: 'Engineering Leader & Career Coach',
     bio: 'With over 15 years of experience in executive coaching and leadership development, Sarah has helped hundreds of women leaders achieve their career goals. She specializes in helping women navigate workplace challenges, develop their leadership style, and build confidence in their decision-making abilities.',
     image: '/images/shira.webp',
     linkedin: 'https://www.linkedin.com/in/shirahaddad/',

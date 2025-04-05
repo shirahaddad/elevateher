@@ -7,7 +7,7 @@ const coaches = [
   {
     slug: 'shira',
     name: 'Shira Haddad',
-    title: 'Executive Coach & Leadership Development Specialist',
+    title: 'Engineering Leader & Career Coach',
     image: '/images/shira.webp',
     linkedin: 'https://www.linkedin.com/in/shirahaddad/',
   },
@@ -31,13 +31,15 @@ export default function CoachesPage() {
               <Link href={`/about/${coach.slug}`} className="block">
                 <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-200 hover:scale-[1.02]">
                   <div className="relative h-[300px] rounded-lg overflow-hidden">
+                    <div className="rounded-lg">
                     <Image
                       src={coach.image}
                       alt={coach.name}
                       fill
-                      className="object-contain object-top rounded-lg"
+                      className="object-contain object-top"
                       sizes="(max-width: 768px) 100vw, 50vw"
                     />
+                    </div>
                   </div>
                   <div className="p-4">
                     <h2 className="text-xl font-bold text-purple-900 mb-1">{coach.name}</h2>
