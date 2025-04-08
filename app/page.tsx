@@ -24,6 +24,17 @@ export default function Home() {
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 md:mb-8 font-medium tracking-wide">
               EMPOWER | INNOVATE | LEAD
             </p>
+            <div className="mt-64 sm:mt-96 md:mt-[32rem]">
+              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium tracking-wide leading-relaxed">
+                Let's elevate your leadership, amplify your voice, and align your next move with your purpose.{' '}
+                <Link 
+                  href="/questionnaire" 
+                  className="text-purple-200 hover:text-purple-100 transition-colors duration-200 underline"
+                >
+                  Start here.
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </section>
