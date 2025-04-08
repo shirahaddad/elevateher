@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative min-h-[60vh] sm:min-h-[70vh] md:h-screen flex items-center justify-center py-12 sm:py-16">
+      <section className="relative min-h-[45vh] sm:min-h-[55vh] md:h-screen flex items-center justify-center py-6 sm:py-10">
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/hero-background.jpg"
@@ -18,14 +18,14 @@ export default function Home() {
         </div>
         <div className="relative z-10 text-center text-white px-4">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 md:mb-6 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 md:mb-4 tracking-tight">
               ELEVATE(HER).TECH
             </h1>
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 md:mb-8 font-medium tracking-wide">
               EMPOWER | INNOVATE | LEAD
             </p>
-            <div className="mt-64 sm:mt-96 md:mt-[32rem]">
-              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium tracking-wide leading-relaxed">
+            <div className="mt-24 sm:mt-48 md:mt-[24rem]">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium tracking-wide leading-relaxed">
                 Let's elevate your leadership, amplify your voice, and align your next move with your purpose.{' '}
                 <Link 
                   href="/questionnaire" 
