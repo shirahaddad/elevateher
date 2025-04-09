@@ -29,19 +29,19 @@ export default function Services() {
               <ul className="space-y-2 sm:space-y-3 text-gray-600 text-sm sm:text-base">
                 <li className="flex items-start">
                   <span className="text-purple-500 mr-2">•</span>
-                  Personalized career development plans
+                  Tailored series plan
                 </li>
                 <li className="flex items-start">
                   <span className="text-purple-500 mr-2">•</span>
-                  Leadership skill development
+                  Goals exploration
                 </li>
                 <li className="flex items-start">
                   <span className="text-purple-500 mr-2">•</span>
-                  Confidence building and self-advocacy
+                  Career roadmapping
                 </li>
                 <li className="flex items-start">
                   <span className="text-purple-500 mr-2">•</span>
-                  Work-life balance strategies
+                  Two-coaches support system
                 </li>
               </ul>
             </div>
