@@ -7,8 +7,8 @@ import Footer from "../components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Elevate(Her)",
-  description: "Empowering women through coaching and community",
+  title: "ElevateHer",
+  description: "Empowering women in tech through coaching and mentorship",
   icons: {
     icon: [
       { url: '/favicon_2.ico' },
