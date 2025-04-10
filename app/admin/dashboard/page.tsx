@@ -14,6 +14,7 @@ interface Submission {
   linkedin: string | null;
   additional_info: string | null;
   mailing_list: boolean;
+  processed: boolean;
 }
 
 export default function AdminDashboard() {
@@ -22,25 +23,75 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchSubmissions = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('questionnaire_submissions')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setSubmissions(data || []);
-      } catch (err) {
-        setError('Failed to fetch submissions');
-        console.error('Error fetching submissions:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchSubmissions();
   }, []);
+
+  const fetchSubmissions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('questionnaire_submissions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setSubmissions(data || []);
+    } catch (err) {
+      setError('Failed to fetch submissions');
+      console.error('Error fetching submissions:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProcessedChange = async (id: string, processed: boolean) => {
+    try {
+      const response = await fetch('/api/admin/submissions', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, processed }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update processed status');
+      }
+
+      setSubmissions(submissions.map(submission => 
+        submission.id === id ? { ...submission, processed } : submission
+      ));
+    } catch (err) {
+      console.error('Error updating processed status:', err);
+      setError(err instanceof Error ? err.message : 'Failed to update processed status');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this submission?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/submissions', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete submission');
+      }
+
+      setSubmissions(submissions.filter(submission => submission.id !== id));
+    } catch (err) {
+      console.error('Error deleting submission:', err);
+      setError('Failed to delete submission');
+    }
+  };
 
   if (loading) {
     return (
@@ -80,6 +131,8 @@ export default function AdminDashboard() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LinkedIn</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Additional Info</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mailing List</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">P</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">D</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -102,26 +155,29 @@ export default function AdminDashboard() {
                       {submission.time_commitment}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {submission.linkedin ? (
-                        <a 
-                          href={submission.linkedin} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-purple-600 hover:text-purple-900"
-                        >
-                          View Profile
-                        </a>
-                      ) : (
-                        'Not provided'
-                      )}
+                      {submission.linkedin || '-'}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
-                      <div className="whitespace-pre-wrap">
-                        {submission.additional_info || 'None'}
-                      </div>
+                      <div className="whitespace-pre-wrap">{submission.additional_info || '-'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {submission.mailing_list ? 'Yes' : 'No'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                      <input
+                        type="checkbox"
+                        checked={submission.processed || false}
+                        onChange={(e) => handleProcessedChange(submission.id, e.target.checked)}
+                        className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                      />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                      <button
+                        onClick={() => handleDelete(submission.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}

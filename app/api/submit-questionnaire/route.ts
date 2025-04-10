@@ -1,35 +1,78 @@
 import { NextResponse } from 'next/server';
+import { sendQuestionnaireEmail } from '@/lib/email';
 import { supabase } from '@/lib/supabase';
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.json();
+    const data = await request.json();
+    console.log('Received questionnaire data:', JSON.stringify(data, null, 2));
+
+    // Validate required fields
+    const missingFields = [];
+    if (!data.email) missingFields.push('email');
+    if (!data.goals) missingFields.push('goals');
+    if (!data.skills) missingFields.push('skills');
+    if (!data.timeCommitment) missingFields.push('timeCommitment');
+
+    if (missingFields.length > 0) {
+      console.error('Missing required fields:', missingFields);
+      return NextResponse.json(
+        { error: `Missing required fields: ${missingFields.join(', ')}` },
+        { status: 400 }
+      );
+    }
 
     // Save to database
-    const { data, error } = await supabase
+    const { data: dbData, error: dbError } = await supabase
       .from('questionnaire_submissions')
       .insert([
         {
-          email: formData.email,
-          goals: formData.goals,
-          skills: formData.skills,
-          other_skill: formData.otherSkill,
-          time_commitment: formData.timeCommitment,
-          linkedin: formData.linkedin,
-          additional_info: formData.additionalInfo,
-          mailing_list: formData.mailingList,
+          email: data.email,
+          goals: data.goals,
+          skills: data.skills,
+          other_skill: data.otherSkill,
+          time_commitment: data.timeCommitment,
+          linkedin: data.linkedin,
+          additional_info: data.additionalInfo,
+          mailing_list: data.mailingList,
         },
       ]);
 
-    if (error) {
-      throw error;
+    if (dbError) {
+      console.error('Database error:', dbError);
+      return NextResponse.json(
+        { error: 'Failed to save submission to database' },
+        { status: 500 }
+      );
     }
 
+    // Send email
+    console.log('Attempting to send email...');
+    const result = await sendQuestionnaireEmail(data);
+
+    if (!result.success) {
+      console.error('Email sending failed:', result.error);
+      return NextResponse.json(
+        { 
+          error: 'Failed to send email',
+          details: result.error
+        },
+        { status: 500 }
+      );
+    }
+
+    console.log('Questionnaire processed successfully');
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error processing submission:', error);
+    console.error('Error processing questionnaire:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Full error details:', error);
+    
     return NextResponse.json(
-      { error: 'Failed to process submission' },
+      { 
+        error: 'Internal server error',
+        details: errorMessage
+      },
       { status: 500 }
     );
   }
