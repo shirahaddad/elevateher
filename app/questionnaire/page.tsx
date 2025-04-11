@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Questionnaire() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ export default function Questionnaire() {
     linkedin: '',
     additionalInfo: '',
     mailingList: false,
+    source: searchParams.get('source') || '',
   });
 
   const skillsOptions = [

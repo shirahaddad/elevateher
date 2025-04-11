@@ -35,6 +35,7 @@ export async function POST(request: Request) {
           linkedin: data.linkedin,
           additional_info: data.additionalInfo,
           mailing_list: data.mailingList,
+          source: data.source,
         },
       ]);
 

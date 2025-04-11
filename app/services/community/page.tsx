@@ -5,7 +5,7 @@ export default function Community() {
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Community</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Join a supportive network of ambitious women leaders
+            Coming soon - Join a supportive network of ambitious women leaders
           </p>
         </div>
       </div>
