@@ -13,11 +13,11 @@ const series = [
     details: {
       bestFor: 'Women exploring a new leadership path or preparing for a role change who want targeted support and momentum.',
       included: [
-        '3 one-on-one coaching sessions',
-        'Strengths-based assessment & leadership style evaluation',
-        'Resume review + custom action plan',
-        'Interview prep or goal alignment strategy',
-        '1 asynchronous support exchange between sessions (voice/text/email)'
+        '🌱 3 one-on-one coaching sessions',
+        '📊 Strengths-based assessment & leadership style evaluation',
+        '📝 Resume review + custom action plan',
+        '🎯 Interview prep or goal alignment strategy',
+        '💬 1 asynchronous support exchange between sessions (voice/text/email)'
       ],
       outcome: 'Clarity on your leadership identity and next steps toward an aligned role.'
     }
@@ -31,12 +31,12 @@ const series = [
     details: {
       bestFor: 'Women stepping into a new leadership role or looking to level up with confidence and strategic direction.',
       included: [
-        '6 one-on-one coaching sessions',
-        'Full leadership style & career clarity assessment',
-        'Resume + LinkedIn alignment session',
-        'Behavioral interview prep & storytelling practice',
-        'Goal tracking & weekly action items',
-        '3 asynchronous support exchanges between sessions (voice/text/email)'
+        '🌱 6 one-on-one coaching sessions',
+        '📊 Full leadership style & career clarity assessment',
+        '📝 Resume + LinkedIn alignment session',
+        '🎯 Behavioral interview prep & storytelling practice',
+        '📈 Goal tracking & weekly action items',
+        '💬 3 asynchronous support exchanges between sessions (voice/text/email)'
       ],
       outcome: 'Confidence, strategy, and assets in place to lead boldly or land the role that\'s meant for you.'
     }
@@ -50,12 +50,12 @@ const series = [
     details: {
       bestFor: 'Women in tech ready for major growth, role transitions, or defining their personal brand.',
       included: [
-        '9 one-on-one coaching sessions',
-        'In-depth leadership identity & mindset framework',
-        'Resume, LinkedIn, & personal brand overhaul',
-        'Mock interviews, presentations, or stakeholder conversation feedback',
-        'Personalized career strategy map',
-        'Unlimited asynchronous support between sessions (voice/text/email)'
+        '🌱 9 one-on-one coaching sessions',
+        '📊 In-depth leadership identity & mindset framework',
+        '📝 Resume, LinkedIn, & personal brand overhaul',
+        '🎯 Mock interviews, presentations, or stakeholder conversation feedback',
+        '📈 Personalized career strategy map',
+        '💬 Unlimited asynchronous support between sessions (voice/text/email)'
       ],
       outcome: 'Executive-level clarity, communication, and presence—ready for whatever\'s next.'
     }
@@ -102,9 +102,11 @@ export default function Coaching() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-purple-800 mb-2">What's Included:</h4>
-                    <ul className="list-disc list-inside text-gray-700 text-sm space-y-1">
+                    <ul className="list-none text-gray-700 text-sm space-y-1">
                       {item.details.included.map((point, idx) => (
-                        <li key={idx}>{point}</li>
+                        <li key={idx} className="flex items-start gap-2">
+                          <span>{point}</span>
+                        </li>
                       ))}
                     </ul>
                   </div>
