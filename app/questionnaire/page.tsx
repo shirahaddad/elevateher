@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function Questionnaire() {
+function QuestionnaireForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -266,5 +266,13 @@ export default function Questionnaire() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function Questionnaire() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <QuestionnaireForm />
+    </Suspense>
   );
 } 
