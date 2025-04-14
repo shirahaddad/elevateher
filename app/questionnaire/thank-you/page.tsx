@@ -1,5 +1,7 @@
 'use client';
 
+import { Metadata } from 'next';
+
 export default function ThankYou() {
   return (
     <div className="min-h-screen py-16 bg-white">
