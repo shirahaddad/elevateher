@@ -35,7 +35,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} ElevateHer. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Elevate(Her). All rights reserved.</p>
         </div>
       </div>
     </footer>

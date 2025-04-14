@@ -13,7 +13,7 @@ if (!ADMIN_EMAIL) {
 
 // At this point, TypeScript knows these are not undefined
 const resend = new Resend(RESEND_API_KEY);
-const fromEmail: string = 'ElevateHer <onboarding@resend.dev>';
+const fromEmail: string = 'Elevate(Her) <onboarding@resend.dev>';
 const adminEmail: string = ADMIN_EMAIL;
 
 export async function sendQuestionnaireEmail(data: {

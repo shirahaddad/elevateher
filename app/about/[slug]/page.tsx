@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 
 const teamMembers = {
   shira: {
@@ -18,6 +19,16 @@ const teamMembers = {
     linkedin: 'https://www.linkedin.com/in/cassiedinh-moore/',
   },
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  return {
+    title: 'Elevate(Her)',
+  };
+}
 
 export default async function Page({
   params,

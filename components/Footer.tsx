@@ -49,7 +49,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-6 pt-4 border-t border-purple-800 text-center text-sm text-purple-100">
-          <p>&copy; {new Date().getFullYear()} ElevateHer. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Elevate(Her). All rights reserved.</p>
         </div>
       </div>
     </footer>
