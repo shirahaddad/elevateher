@@ -17,7 +17,7 @@ export default function Services() {
         <div className="text-center mb-8 sm:mb-12 md:mb-16">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 text-purple-900 tracking-tight">Our Services</h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            Comprehensive support for your career growth and leadership development
+            Book your first free session with us and see how we can support your career growth.
           </p>
         </div>
 
