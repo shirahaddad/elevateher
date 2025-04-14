@@ -24,9 +24,10 @@ export async function sendQuestionnaireEmail(data: {
   timeCommitment: string;
   linkedin: string;
   additionalInfo: string;
+  source: string;
   mailingList: boolean;
 }) {
-  const { email, goals, skills, otherSkill, timeCommitment, linkedin, additionalInfo, mailingList } = data;
+  const { email, goals, skills, otherSkill, timeCommitment, linkedin, additionalInfo, source, mailingList } = data;
 
   const skillsList = [...skills, otherSkill].filter(Boolean).join(', ');
 
@@ -38,6 +39,7 @@ export async function sendQuestionnaireEmail(data: {
     <p><strong>Time Commitment:</strong> ${timeCommitment}</p>
     <p><strong>LinkedIn:</strong> ${linkedin || 'Not provided'}</p>
     <p><strong>Additional Info:</strong> ${additionalInfo || 'None'}</p>
+    <p><strong>Source:</strong> ${source || 'None'}</p>
     <p><strong>Mailing List:</strong> ${mailingList ? 'Yes' : 'No'}</p>
   `;
 
