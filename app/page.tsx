@@ -28,10 +28,10 @@ export default function Home() {
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium tracking-wide leading-relaxed">
                 Let's elevate your leadership, amplify your voice, and align your next move with your purpose.{' '}
                 <Link 
-                  href="/questionnaire" 
+                  href="/learn-more" 
                   className="text-purple-200 hover:text-purple-100 transition-colors duration-200 underline"
                 >
-                  Start here.
+                  Learn More.
                 </Link>
               </p>
             </div>

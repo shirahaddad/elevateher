@@ -82,3 +82,55 @@ export async function sendQuestionnaireEmail(data: {
     };
   }
 } 
+
+export async function sendLearnMoreEmail(data: {
+  name: string;
+  email: string;
+}) {
+  const { name, email } = data;
+
+  const html = `
+    <h1>New Learn More Submission</h1>
+    <p><strong>Email:</strong> ${name}</p>
+    <p><strong>Email:</strong> ${email}</p>
+  `;
+
+  try {
+    console.log('Email configuration:', {
+      from: fromEmail,
+      to: adminEmail,
+      subject: 'New Learn More Submission',
+      hasHtml: !!html
+    });
+
+    const { data: resendData, error } = await resend.emails.send({
+      from: fromEmail,
+      to: adminEmail,
+      subject: 'New Learn More Submission',
+      html,
+    });
+
+    if (error) {
+      console.error('Resend API error details:', {
+        message: error.message,
+        name: error.name
+      });
+      throw error;
+    }
+
+    console.log('Email sent successfully. Response:', resendData);
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending email. Full error:', error);
+    const errorDetails = error instanceof Error ? {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    } : 'Unknown error occurred';
+    
+    return { 
+      success: false, 
+      error: errorDetails
+    };
+  }
+} 

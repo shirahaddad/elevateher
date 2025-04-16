@@ -55,7 +55,7 @@ function QuestionnaireForm() {
         throw new Error('Failed to submit form');
       }
 
-      router.push('/questionnaire/thank-you');
+      router.push('/thank-you');
     } catch (err) {
       setError('There was an error submitting your form. Please try again.');
       console.error('Form submission error:', err);
@@ -112,7 +112,7 @@ function QuestionnaireForm() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              What&apos;s your email? *
+              What&apos;s your email?
             </label>
             <input
               type="email"
@@ -130,7 +130,7 @@ function QuestionnaireForm() {
               htmlFor="goals"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              What would you like to get out of working with a coach? *
+              What would you like to get out of working with a coach?
             </label>
             <textarea
               id="goals"
@@ -145,7 +145,7 @@ function QuestionnaireForm() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              What skills are you most interested in developing? Choose at least 3, no more than 7. *
+              What skills are you most interested in developing? Please try to choose at least 3, no more than 7.
             </label>
             <div className="space-y-2">
               {skillsOptions.map((skill) => (
@@ -183,7 +183,7 @@ function QuestionnaireForm() {
               htmlFor="timeCommitment"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Are you able to commit at least an hour a week to activities related to your coaching sessions? *
+              Are you able to commit at least an hour a week to activities related to your coaching sessions?
             </label>
             <select
               id="timeCommitment"
