@@ -9,6 +9,7 @@ function QuestionnaireForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
+    client_name: '',
     email: '',
     goals: '',
     skills: [] as string[],
@@ -107,6 +108,23 @@ function QuestionnaireForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8 bg-white rounded-2xl shadow-xl p-8">
+        <div>
+            <label
+              htmlFor="client_name"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              What's your name?
+            </label>
+            <textarea
+              id="client_name"
+              name="client_name"
+              value={formData.client_name}
+              onChange={handleChange}
+              required
+              className="w-[300px] h-[40px] text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            />
+          </div>
+
           <div>
             <label
               htmlFor="email"

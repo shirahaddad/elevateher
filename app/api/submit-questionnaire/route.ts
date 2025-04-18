@@ -9,6 +9,7 @@ export async function POST(request: Request) {
 
     // Validate required fields
     const missingFields = [];
+    if (!data.client_name) missingFields.push('client_name');
     if (!data.email) missingFields.push('email');
     if (!data.goals) missingFields.push('goals');
     if (!data.skills) missingFields.push('skills');
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
       .from('questionnaire_submissions')
       .insert([
         {
+          client_name: data.client_name,
           email: data.email,
           goals: data.goals,
           skills: data.skills,

@@ -17,6 +17,7 @@ const fromEmail: string = 'Elevate(Her) <no-reply@elevateher.tech>';
 const adminEmail: string = ADMIN_EMAIL;
 
 export async function sendQuestionnaireEmail(data: {
+  client_name: string;
   email: string;
   goals: string;
   skills: string[];
@@ -27,12 +28,13 @@ export async function sendQuestionnaireEmail(data: {
   source: string;
   mailingList: boolean;
 }) {
-  const { email, goals, skills, otherSkill, timeCommitment, linkedin, additionalInfo, source, mailingList } = data;
+  const { client_name, email, goals, skills, otherSkill, timeCommitment, linkedin, additionalInfo, source, mailingList } = data;
 
   const skillsList = [...skills, otherSkill].filter(Boolean).join(', ');
 
   const html = `
     <h1>New Questionnaire Submission</h1>
+    <p><strong>Name:</strong> ${client_name}</p>
     <p><strong>Email:</strong> ${email}</p>
     <p><strong>Goals:</strong> ${goals}</p>
     <p><strong>Skills to Develop:</strong> ${skillsList}</p>
