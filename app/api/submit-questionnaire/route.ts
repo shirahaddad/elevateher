@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sendQuestionnaireEmail } from '@/lib/email';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(request: Request) {
   try {
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     // Save to database
-    const { data: dbData, error: dbError } = await supabase
+    const { data: dbData, error: dbError } = await supabaseAdmin
       .from('questionnaire_submissions')
       .insert([
         {
