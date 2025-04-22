@@ -88,13 +88,15 @@ export async function sendQuestionnaireEmail(data: {
 export async function sendLearnMoreEmail(data: {
   name: string;
   email: string;
+  mailingList: boolean;
 }) {
-  const { name, email } = data;
+  const { name, email, mailingList } = data;
 
   const html = `
     <h1>New Learn More Submission</h1>
     <p><strong>Name:</strong> ${name}</p>
     <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Mailing List:</strong> ${mailingList ? 'Yes' : 'No'}</p>
   `;
 
   try {

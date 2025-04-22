@@ -27,6 +27,7 @@ export async function POST(request: Request) {
         {
           name: data.name,
           email: data.email,
+          mailing_list: data.mailingList,
         },
       ]);
 

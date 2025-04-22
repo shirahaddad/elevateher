@@ -11,6 +11,7 @@ function LearnMoreForm() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    mailingList: false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,6 +104,20 @@ function LearnMoreForm() {
               required
               className="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
             />
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="mailingList"
+              name="mailingList"
+              checked={formData.mailingList}
+              onChange={handleChange}
+              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+            />
+            <label htmlFor="mailingList" className="ml-2 text-sm text-gray-700">
+              Sure, add me to your mailing list.
+            </label>
           </div>
 
           {error && (
