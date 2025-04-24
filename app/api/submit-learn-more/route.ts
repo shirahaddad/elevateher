@@ -40,14 +40,14 @@ export async function POST(request: Request) {
     }
 
     // Send email
-    console.log('Attempting to send email...');
+    console.log('Attempting to send email to admin...');
     const result = await sendLearnMoreEmail(data);
 
     if (!result.success) {
-      console.error('Email sending failed:', result.error);
+      console.error('Email sending to admin failed:', result.error);
       return NextResponse.json(
         { 
-          error: 'Failed to send email',
+          error: 'Failed to send email to admin',
           details: result.error
         },
         { status: 500 }
