@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import PostCard from '@/components/blog/PostCard';
+import type { ListPostsResponse } from '@/types/blog';
 
 export default function BlogPage() {
   return (

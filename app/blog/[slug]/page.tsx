@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import type { GetPostResponse } from '@/types/blog';
 
 interface BlogPostPageProps {
   params: {
