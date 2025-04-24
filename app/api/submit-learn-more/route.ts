@@ -1,10 +1,17 @@
 import { NextResponse } from 'next/server';
 import { sendLearnMoreEmail } from '@/lib/email';
+import { sendLearnMoreEmailProspect } from '@/lib/email';
 import { supabaseAdmin } from '@/lib/supabase';
+
+interface LearnMoreData {
+  name: string;
+  email: string;
+  mailingList: boolean;
+}
 
 export async function POST(request: Request) {
   try {
-    const data = await request.json();
+    const data = await request.json() as LearnMoreData;
     console.log('Received learn-more data:', JSON.stringify(data, null, 2));
 
     // Validate required fields
@@ -39,16 +46,34 @@ export async function POST(request: Request) {
       );
     }
 
-    // Send email
+    // Send email to admin
     console.log('Attempting to send email to admin...');
-    const result = await sendLearnMoreEmail(data);
+    const resultAdmin = await sendLearnMoreEmail(data);
 
-    if (!result.success) {
-      console.error('Email sending to admin failed:', result.error);
+    if (!resultAdmin.success) {
+      console.error('Email sending to admin failed:', resultAdmin.error);
       return NextResponse.json(
         { 
           error: 'Failed to send email to admin',
-          details: result.error
+          details: resultAdmin.error
+        },
+        { status: 500 }
+      );
+    }
+
+    // Send email to prospect
+    console.log('Attempting to send welcome email to prospect...');
+    const resultWelcome = await sendLearnMoreEmailProspect({
+      email: data.email,
+      name: data.name
+    });
+
+    if (!resultWelcome.success) {
+      console.error('Email sending to prospect failed:', resultWelcome.error);
+      return NextResponse.json(
+        { 
+          error: 'Failed to send email to prospect',
+          details: resultWelcome.error
         },
         { status: 500 }
       );

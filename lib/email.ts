@@ -138,3 +138,62 @@ export async function sendLearnMoreEmail(data: {
     };
   }
 } 
+
+export async function sendLearnMoreEmailProspect(data: { email: string; name: string }) {
+  const { email, name } = data;
+  const firstName = name.split(' ')[0]; // Get first word of the name
+
+  const html = `
+    <p>Hi ${firstName},</p>
+    <p>We are Shira and Cassie, nice to meet you!</p>
+    <p>Thank you for your interest in Elevate(Her).Tech Coaching.</p>
+    <p>Our mission is to help as many professionals in tech step into their power with purpose. Whether you're newly promoted or eyeing your next big move, our unique two-coach approach gives you double the insight, strategy, and support from the start.</p>
+    <p>We blend real-world tech leadership experience with proven coaching methods to help you grow with clarity, confidence, and impact.</p>
+    <p>This isn't just career coaching—it's career elevation.</p>
+    <br/>
+    <p>Not sure where to begin? Book a free 25 min information session with us <a href="https://calendly.com/shira-haddad/elevateher-info-session">here</a>.</p>
+    <p>Ready to elevate? Book your free 60 min intake session <a href="https://calendly.com/shira-haddad/elevate-her-joint-intake">now!</a></p>
+    <br/>
+    <p>We can't wait to get to know you.</p>
+    <p>Shira and Cassie<br/><a href="ElevateHer.Tech">ElevateHer.Tech</p>
+  `;
+
+  try {
+    console.log('Email configuration:', {
+      from: fromEmail,
+      to: email,
+      subject: 'Learn more about Elevate(Her)!',
+      hasHtml: !!html
+    });
+
+    const { data: resendData, error } = await resend.emails.send({
+      from: fromEmail,
+      to: email,
+      subject: 'Learn more about Elevate(Her)!',
+      html,
+    });
+
+    if (error) {
+      console.error('Resend API error details:', {
+        message: error.message,
+        name: error.name
+      });
+      throw error;
+    }
+
+    console.log('Email sent successfully. Response:', resendData);
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending email. Full error:', error);
+    const errorDetails = error instanceof Error ? {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    } : 'Unknown error occurred';
+    
+    return { 
+      success: false, 
+      error: errorDetails
+    };
+  }
+} 
