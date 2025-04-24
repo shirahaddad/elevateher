@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { samplePosts } from '@/lib/dev/sample-data';
+import { samplePosts } from '../_dev/sample-data';
 
 interface BlogPostPageProps {
   params: {

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import PostCard from '@/components/blog/PostCard';
-import { samplePosts } from '@/lib/dev/sample-data';
+import { samplePosts } from './_dev/sample-data';
 
 type Author = 'Shira' | 'Cassie' | 'Team';
 
