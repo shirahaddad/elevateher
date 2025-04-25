@@ -1,7 +1,82 @@
+'use client';
+
 import Link from 'next/link';
-import type { Author } from '@/app/blog/sample-data';
+import { useState } from 'react';
+import MarkdownEditor from '@/components/blog/MarkdownEditor';
+import type { CreatePostRequest } from '@/types/blog';
+
+const AUTHORS = ['Shira', 'Cassie', 'Team'] as const;
+const TAGS = [
+  'Career Growth',
+  'Mindset',
+  'Professional Development',
+  'Leadership',
+  'Technology',
+  'Personal Growth',
+  'Networking',
+  'Workplace',
+] as const;
 
 export default function NewBlogPostPage() {
+  const [formData, setFormData] = useState<Partial<CreatePostRequest>>({
+    title: '',
+    content: '',
+    excerpt: '',
+    authorId: '',
+    tags: [],
+    isDraft: true
+  });
+
+  const [slug, setSlug] = useState('');
+  const excerptCharCount = formData.excerpt?.length || 0;
+  const EXCERPT_LIMIT = 150;
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setFormData(prev => ({ ...prev, title: newTitle }));
+    setSlug(generateSlug(newTitle));
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlug(e.target.value);
+  };
+
+  const handleExcerptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setFormData(prev => ({ ...prev, excerpt: e.target.value }));
+  };
+
+  const handleContentChange = (newContent: string | undefined) => {
+    setFormData(prev => ({ ...prev, content: newContent || '' }));
+  };
+
+  const handleAuthorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData(prev => ({ ...prev, authorId: e.target.value }));
+  };
+
+  const handleTagChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const options = e.target.options;
+    const selectedTags: string[] = [];
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].selected) {
+        selectedTags.push(options[i].value);
+      }
+    }
+    setFormData(prev => ({ ...prev, tags: selectedTags }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Implement post creation
+    console.log({ ...formData, slug });
+  };
+
   return (
     <main className="min-h-screen bg-white">
       {/* Header */}
@@ -29,7 +104,7 @@ export default function NewBlogPostPage() {
       {/* Form Section */}
       <section className="py-8">
         <div className="max-w-4xl mx-auto px-4">
-          <form className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Title */}
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700">
@@ -38,7 +113,8 @@ export default function NewBlogPostPage() {
               <input
                 type="text"
                 id="title"
-                name="title"
+                value={formData.title}
+                onChange={handleTitleChange}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                 placeholder="Enter post title"
               />
@@ -52,7 +128,8 @@ export default function NewBlogPostPage() {
               <input
                 type="text"
                 id="slug"
-                name="slug"
+                value={slug}
+                onChange={handleSlugChange}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                 placeholder="enter-post-slug"
               />
@@ -65,14 +142,41 @@ export default function NewBlogPostPage() {
               </label>
               <select
                 id="author"
-                name="author"
+                value={formData.authorId}
+                onChange={handleAuthorChange}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:ring-purple-500"
               >
                 <option value="">Select author</option>
-                <option value="Shira">Shira</option>
-                <option value="Cassie">Cassie</option>
-                <option value="Team">Team</option>
+                {AUTHORS.map((author) => (
+                  <option key={author} value={author}>
+                    {author}
+                  </option>
+                ))}
               </select>
+            </div>
+
+            {/* Tags */}
+            <div>
+              <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
+                Tags
+              </label>
+              <select
+                id="tags"
+                multiple
+                value={formData.tags}
+                onChange={handleTagChange}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                size={4}
+              >
+                {TAGS.map((tag) => (
+                  <option key={tag} value={tag}>
+                    {tag}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-sm text-gray-500">
+                Hold Ctrl (Windows) or Command (Mac) to select multiple tags
+              </p>
             </div>
 
             {/* Excerpt */}
@@ -82,38 +186,25 @@ export default function NewBlogPostPage() {
               </label>
               <textarea
                 id="excerpt"
-                name="excerpt"
+                value={formData.excerpt}
+                onChange={handleExcerptChange}
                 rows={3}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                 placeholder="Brief description of the post"
               />
-            </div>
-
-            {/* Tags */}
-            <div>
-              <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
-                Tags
-              </label>
-              <input
-                type="text"
-                id="tags"
-                name="tags"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                placeholder="Enter tags separated by commas"
-              />
+              <p className={`mt-1 text-sm ${excerptCharCount > EXCERPT_LIMIT ? 'text-red-500' : 'text-gray-500'}`}>
+                {excerptCharCount}/{EXCERPT_LIMIT} characters
+              </p>
             </div>
 
             {/* Content */}
             <div>
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
                 Content
               </label>
-              <textarea
-                id="content"
-                name="content"
-                rows={12}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:ring-purple-500 font-mono"
-                placeholder="Write your post content in markdown..."
+              <MarkdownEditor
+                value={formData.content || ''}
+                onChange={handleContentChange}
               />
             </div>
 
