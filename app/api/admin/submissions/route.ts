@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function PATCH(request: Request) {
   try {
@@ -69,6 +70,25 @@ export async function DELETE(request: Request) {
     console.error('Error processing request:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('questionnaire_submissions')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Error fetching submissions:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch submissions' },
       { status: 500 }
     );
   }

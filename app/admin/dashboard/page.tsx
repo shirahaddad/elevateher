@@ -1,22 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-
-interface Submission {
-  id: string;
-  created_at: string;
-  email: string;
-  goals: string;
-  skills: string[];
-  other_skill: string | null;
-  time_commitment: string;
-  linkedin: string | null;
-  additional_info: string | null;
-  mailing_list: boolean;
-  processed: boolean;
-  source: string | null;
-}
+import { Submission } from '@/types/submission';
 
 export default function AdminDashboard() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -29,16 +15,17 @@ export default function AdminDashboard() {
 
   const fetchSubmissions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('questionnaire_submissions')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setSubmissions(data || []);
+      setLoading(true);
+      const response = await fetch('/api/admin/submissions');
+      if (!response.ok) {
+        throw new Error('Failed to fetch submissions');
+      }
+      const data = await response.json();
+      setSubmissions(data);
+      setError(null);
     } catch (err) {
-      setError('Failed to fetch submissions');
       console.error('Error fetching submissions:', err);
+      setError('Failed to load submissions');
     } finally {
       setLoading(false);
     }
@@ -125,12 +112,10 @@ export default function AdminDashboard() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Goals</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Skills</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Commitment</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LinkedIn</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Additional Info</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mailing List</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">P</th>
@@ -144,6 +129,9 @@ export default function AdminDashboard() {
                       {new Date(submission.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {submission.client_name || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {submission.email}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
@@ -152,15 +140,6 @@ export default function AdminDashboard() {
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {submission.skills.join(', ')}
                       {submission.other_skill && `, ${submission.other_skill}`}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {submission.time_commitment}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {submission.linkedin || '-'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
-                      <div className="whitespace-pre-wrap">{submission.additional_info || '-'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {submission.mailing_list ? 'Yes' : 'No'}
