@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import MarkdownEditor from '@/components/blog/MarkdownEditor';
 import type { CreatePostRequest } from '@/types/blog';
+import ImageUploader from '@/components/blog/ImageUploader';
 
 const AUTHORS = ['Shira', 'Cassie', 'Team'] as const;
 const TAGS = [
@@ -234,42 +235,12 @@ export default function NewBlogPostPage() {
             </div>
 
             {/* Main Image (placeholder) */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Main Image
-              </label>
-              <div className="flex items-center gap-4">
-                <div className="w-32 h-20 bg-gray-100 border border-gray-300 rounded flex items-center justify-center text-gray-400 overflow-hidden">
-                  {/* Image preview or placeholder */}
-                  {imagePreview ? (
-                    <img src={imagePreview} alt={imageAlt || 'Image preview'} className="object-cover w-full h-full" />
-                  ) : (
-                    <span className="text-xs">No image</span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <label htmlFor="main-image-upload" className="inline-block cursor-pointer bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors text-sm font-semibold">
-                    Choose Image
-                  </label>
-                  <input
-                    id="main-image-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Image alt text (for accessibility)"
-                    value={imageAlt}
-                    onChange={handleImageAltChange}
-                    disabled={!selectedImage}
-                    className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-sm"
-                  />
-                </div>
-              </div>
-              <p className="mt-1 text-xs text-gray-500">Image upload coming soon</p>
-            </div>
+            <ImageUploader
+              selectedImage={selectedImage}
+              imageAlt={imageAlt}
+              onImageChange={setSelectedImage}
+              onImageAltChange={setImageAlt}
+            />
 
             {/* Actions */}
             <div className="flex justify-end gap-4">
