@@ -32,6 +32,7 @@ export default function AdminDashboard() {
   };
 
   const handleProcessedChange = async (id: string, processed: boolean) => {
+    console.log('handleProcessedChange called with:', { id, processed });
     try {
       const response = await fetch('/api/admin/submissions', {
         method: 'PATCH',
@@ -41,7 +42,9 @@ export default function AdminDashboard() {
         body: JSON.stringify({ id, processed }),
       });
 
+      console.log('API response status:', response.status);
       const data = await response.json();
+      console.log('API response data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to update processed status');
@@ -151,7 +154,10 @@ export default function AdminDashboard() {
                       <input
                         type="checkbox"
                         checked={submission.processed || false}
-                        onChange={(e) => handleProcessedChange(submission.id, e.target.checked)}
+                        onChange={(e) => {
+                          console.log('Checkbox changed:', e.target.checked);
+                          handleProcessedChange(submission.id, e.target.checked);
+                        }}
                         className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                       />
                     </td>

@@ -23,7 +23,7 @@ export interface Post {
   authorId: string;
   publishedAt: string;
   updatedAt: string;
-  isDraft: boolean;
+  is_published: boolean;
   coverImage?: string;
   seoDescription?: string;
 }
@@ -49,7 +49,7 @@ export interface CreatePostRequest {
   content: string;
   excerpt: string;
   authorId: string;
-  isDraft?: boolean;
+  is_published?: boolean;
   tags?: string[]; // Array of tag IDs
   coverImage?: string;
   seoDescription?: string;
@@ -90,7 +90,7 @@ export interface DeletePostResponse {
 export interface PostFilters {
   authorId?: string;
   tagId?: string;
-  isDraft?: boolean;
+  is_published?: boolean;
   searchQuery?: string;
   startDate?: string;
   endDate?: string;

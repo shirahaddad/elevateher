@@ -5,15 +5,17 @@ import { supabaseAdmin } from '@/lib/supabase';
 export async function PATCH(request: Request) {
   try {
     const { id, processed } = await request.json();
+    console.log('PATCH request received with:', { id, processed });
 
     if (!id || typeof processed !== 'boolean') {
+      console.log('Invalid request data:', { id, processed });
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('questionnaire_submissions')
       .update({ processed })
       .eq('id', id);
@@ -31,6 +33,7 @@ export async function PATCH(request: Request) {
       );
     }
 
+    console.log('Successfully updated submission:', { id, processed });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error processing request:', error);

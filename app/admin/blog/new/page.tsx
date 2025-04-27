@@ -25,7 +25,7 @@ export default function NewBlogPostPage() {
     excerpt: '',
     authorId: '',
     tags: [],
-    isDraft: true
+    is_published: false
   });
 
   const [slug, setSlug] = useState('');
@@ -34,6 +34,8 @@ export default function NewBlogPostPage() {
   const [imageAlt, setImageAlt] = useState('');
   const excerptCharCount = formData.excerpt?.length || 0;
   const EXCERPT_LIMIT = 150;
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const generateSlug = (title: string) => {
     return title
@@ -97,10 +99,94 @@ export default function NewBlogPostPage() {
     setImageAlt(e.target.value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Log form data, image, and alt text
-    console.log({ ...formData, slug, image: selectedImage, imageAlt });
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      // Validate form data
+      if (!formData.title || !formData.content || !formData.authorId || !slug) {
+        const missingFields = [];
+        if (!formData.title) missingFields.push('title');
+        if (!formData.content) missingFields.push('content');
+        if (!formData.authorId) missingFields.push('author');
+        if (!slug) missingFields.push('slug');
+        console.log('Missing required fields:', missingFields);
+        setError(`Please fill in all required fields: ${missingFields.join(', ')}`);
+        return;
+      }
+
+      // Check excerpt length if it exists
+      if (formData.excerpt && formData.excerpt.length > EXCERPT_LIMIT) {
+        console.log('Excerpt too long:', formData.excerpt.length);
+        setError(`Excerpt must be ${EXCERPT_LIMIT} characters or less`);
+        return;
+      }
+
+      // Upload image if selected
+      let coverImage = null;
+      if (selectedImage) {
+        console.log('Uploading image...');
+        const formData = new FormData();
+        formData.append('image', selectedImage);
+        formData.append('alt', imageAlt);
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          console.error('Image upload failed:', error);
+          throw new Error('Failed to upload image');
+        }
+
+        const { url } = await response.json();
+        console.log('Image uploaded successfully:', url);
+        coverImage = url;
+      }
+
+      // Create the post
+      console.log('Submitting post data:', {
+        ...formData,
+        slug,
+        coverImage,
+        imageAlt,
+      });
+
+      const response = await fetch('/api/admin/blog', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          author_name: formData.authorId,
+          slug,
+          coverImage,
+          imageAlt,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Post creation failed:', error);
+        throw new Error(error.error || 'Failed to create post');
+      }
+
+      const result = await response.json();
+      console.log('Post created successfully:', result);
+
+      // Redirect to the blog list page
+      window.location.href = '/admin/blog';
+    } catch (err) {
+      console.error('Error creating post:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create post');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -250,12 +336,12 @@ export default function NewBlogPostPage() {
                 <button
                   type="button"
                   role="switch"
-                  aria-checked={formData.isDraft ? 'true' : 'false'}
-                  onClick={() => setFormData(prev => ({ ...prev, isDraft: !prev.isDraft }))}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${formData.isDraft ? 'bg-gray-300' : 'bg-purple-600'}`}
+                  aria-checked={formData.is_published ? 'true' : 'false'}
+                  onClick={() => setFormData(prev => ({ ...prev, is_published: !prev.is_published }))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${!formData.is_published ? 'bg-gray-300' : 'bg-purple-600'}`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.isDraft ? 'translate-x-6' : 'translate-x-1'}`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${!formData.is_published ? 'translate-x-6' : 'translate-x-1'}`}
                   />
                 </button>
                 <span className="text-sm text-gray-700">Save as draft</span>
@@ -268,11 +354,18 @@ export default function NewBlogPostPage() {
               </Link>
               <button
                 type="submit"
-                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+                disabled={isSubmitting}
+                className={`bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                Create Post
+                {isSubmitting ? 'Creating...' : 'Create Post'}
               </button>
             </div>
+
+            {error && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-red-600">{error}</p>
+              </div>
+            )}
           </form>
         </div>
       </section>
