@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import imageCompression from 'browser-image-compression';
 
 interface ImageUploaderProps {
   selectedImage: File | null;
@@ -14,6 +15,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   onImageAltChange,
 }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (selectedImage) {
@@ -28,17 +30,52 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedImage]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const validateImage = (file: File): boolean => {
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (!validTypes.includes(file.type)) {
+      setError('Please upload a valid image file (JPEG, PNG, or GIF).');
+      return false;
+    }
+
+    if (file.size > maxSize) {
+      setError('Image size should not exceed 5MB.');
+      return false;
+    }
+
+    setError(null);
+    return true;
+  };
+
+  const resizeImage = async (file: File): Promise<File> => {
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 800,
+      useWebWorker: true,
+    };
+    return await imageCompression(file, options);
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
-    onImageChange(file || null);
-    if (file) {
-      // Auto-generate alt text from file name
-      const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
-      const formattedAlt = nameWithoutExt
-        .replace(/[-_]+/g, ' ')
-        .replace(/\b\w/g, c => c.toUpperCase());
-      onImageAltChange(formattedAlt);
+    if (file && validateImage(file)) {
+      try {
+        const resizedFile = await resizeImage(file);
+        onImageChange(resizedFile);
+        // Auto-generate alt text from file name
+        const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
+        const formattedAlt = nameWithoutExt
+          .replace(/[-_]+/g, ' ')
+          .replace(/\b\w/g, c => c.toUpperCase());
+        onImageAltChange(formattedAlt);
+      } catch (error) {
+        setError('Failed to resize image. Please try again.');
+        onImageChange(null);
+        onImageAltChange('');
+      }
     } else {
+      onImageChange(null);
       onImageAltChange('');
     }
   };
@@ -81,6 +118,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           />
         </div>
       </div>
+      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
       <p className="mt-1 text-xs text-gray-500">Image upload coming soon</p>
     </div>
   );

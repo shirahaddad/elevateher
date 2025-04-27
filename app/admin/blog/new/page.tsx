@@ -243,7 +243,23 @@ export default function NewBlogPostPage() {
             />
 
             {/* Actions */}
-            <div className="flex justify-end gap-4">
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-4 items-end sm:items-center">
+              {/* Draft/Publish Switch */}
+              <div className="flex items-center gap-2 mb-2 sm:mb-0">
+                <span className="text-sm text-gray-700">Publish</span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={formData.isDraft ? 'true' : 'false'}
+                  onClick={() => setFormData(prev => ({ ...prev, isDraft: !prev.isDraft }))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${formData.isDraft ? 'bg-gray-300' : 'bg-purple-600'}`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.isDraft ? 'translate-x-6' : 'translate-x-1'}`}
+                  />
+                </button>
+                <span className="text-sm text-gray-700">Save as draft</span>
+              </div>
               <Link
                 href="/admin/blog"
                 className="px-4 py-2 text-gray-700 hover:text-gray-800"
