@@ -20,7 +20,7 @@ export interface Post {
   slug: string;
   content: string;
   excerpt: string;
-  authorId: string;
+  author_name: string;
   publishedAt: string;
   updatedAt: string;
   is_published: boolean;
@@ -48,7 +48,7 @@ export interface CreatePostRequest {
   title: string;
   content: string;
   excerpt: string;
-  authorId: string;
+  author_name: string;
   is_published?: boolean;
   tags?: string[]; // Array of tag IDs
   coverImage?: string;
@@ -88,7 +88,7 @@ export interface DeletePostResponse {
 // Query Parameters
 
 export interface PostFilters {
-  authorId?: string;
+  author_name?: string;
   tagId?: string;
   is_published?: boolean;
   searchQuery?: string;

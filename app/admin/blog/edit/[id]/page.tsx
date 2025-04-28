@@ -73,7 +73,7 @@ export default function EditBlogPostPage() {
         mode="edit"
         initialData={{
           ...post,
-          authorId: post.author_name,
+          author_name: post.author_name,
           isPublished: post.is_published,
           coverImage: post.image_url || '',
           imageAlt: post.image_alt || '',
