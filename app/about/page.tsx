@@ -2,23 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-
-const coaches = [
-  {
-    slug: 'shira',
-    name: 'Shira Haddad',
-    title: 'Engineering Leader & Career Coach',
-    image: '/images/shira.webp',
-    linkedin: 'https://www.linkedin.com/in/shirahaddad/',
-  },
-  {
-    slug: 'cassandra',
-    name: 'Cassandra Dinh-Moore',
-    title: 'Career Strategist & Professional Development Coach',
-    image: '/images/cassie.jpg',
-    linkedin: 'https://www.linkedin.com/in/cassiedinh-moore/',
-  },
-];
+import { TEAM } from '@/lib/team';
 
 export default function About() {
   return (
@@ -28,18 +12,18 @@ export default function About() {
         
         <div className="prose prose-lg max-w-none text-gray-600 space-y-6 mb-16">
           <p>
-            We help professionals in tech step into their power with purpose. Whether you’re newly promoted or eyeing your next big move, our unique two-coaches approach gives you double the insight, strategy, and support.
+            We help professionals in tech step into their power with purpose. Whether you're newly promoted or eyeing your next big move, our unique two-coaches approach gives you double the insight, strategy, and support.
           </p>
           <p>
             We blend real-world tech leadership experience with proven coaching methods to help you grow with clarity, confidence, and impact. 
           </p>
           <p>
-            This isn’t just career coaching—it’s career elevation.
+            This isn't just career coaching—it's career elevation.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {coaches.map((coach) => (
+          {TEAM.map((coach) => (
             <div key={coach.slug} className="group relative">
               <Link href={`/about/${coach.slug}`} className="block">
                 <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-200 hover:scale-[1.02]">

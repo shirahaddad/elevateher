@@ -52,7 +52,7 @@ export async function POST(request: Request) {
           title: data.title,
           content: data.content,
           excerpt: data.excerpt || null,
-          author_name: data.authorId,
+          author_name: data.author_name,
           slug: data.slug,
           is_published: data.is_published || false,
           image_url: data.coverImage ? `/images/blog/${data.coverImage.split('/').pop()}` : null,
