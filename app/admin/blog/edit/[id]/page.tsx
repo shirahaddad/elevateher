@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import BlogPostForm from '@/components/BlogPostForm';
+import BlogPostForm from '@/components/blog/BlogPostForm';
 
 interface Post {
   id: string;
