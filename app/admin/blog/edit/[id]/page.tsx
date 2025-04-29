@@ -14,6 +14,7 @@ interface Post {
   is_published: boolean;
   image_url: string | null;
   image_alt: string | null;
+  tags?: string[];
 }
 
 export default function EditBlogPostPage() {
@@ -74,9 +75,10 @@ export default function EditBlogPostPage() {
         initialData={{
           ...post,
           author_name: post.author_name,
-          isPublished: post.is_published,
+          is_published: post.is_published,
           coverImage: post.image_url || '',
           imageAlt: post.image_alt || '',
+          tags: post.tags || [],
         }}
       />
     </div>
