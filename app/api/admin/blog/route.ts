@@ -30,6 +30,7 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
     console.log('Creating new blog post with data:', data);
+    console.log('Tags data:', data.tags);
 
     // Validate required fields
     const requiredFields = ['title', 'content', 'author_name', 'slug'];
@@ -80,20 +81,25 @@ export async function POST(request: Request) {
 
     // If there are tags, create the post-tag relationships
     if (data.tags && data.tags.length > 0) {
-      console.log('Creating post-tag relationships:', data.tags);
+      console.log('Creating post-tag relationships with tags:', data.tags);
+      const postTagRelationships = data.tags.map((tagId: string) => ({
+        post_id: post.id,
+        tag_id: tagId
+      }));
+      console.log('Post-tag relationships to create:', postTagRelationships);
+      
       const { error: tagError } = await supabaseAdmin
         .from('post_tags')
-        .insert(
-          data.tags.map((tagId: string) => ({
-            post_id: post.id,
-            tag_id: tagId
-          }))
-        );
+        .insert(postTagRelationships);
 
       if (tagError) {
         console.error('Error creating post-tag relationships:', tagError);
         // We don't return an error here since the post was created successfully
+      } else {
+        console.log('Successfully created post-tag relationships');
       }
+    } else {
+      console.log('No tags to create relationships for');
     }
 
     return NextResponse.json({ post });

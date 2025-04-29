@@ -7,16 +7,10 @@ import MarkdownEditor from '@/components/blog/MarkdownEditor';
 import ImageUploader from '@/components/blog/ImageUploader';
 import { getAuthorNames } from '@/lib/team';
 
-const TAGS = [
-  'Career Growth',
-  'Mindset',
-  'Professional Development',
-  'Leadership',
-  'Technology',
-  'Personal Growth',
-  'Networking',
-  'Workplace',
-] as const;
+interface Tag {
+  id: string;
+  name: string;
+}
 
 interface BlogPostFormProps {
   mode: 'create' | 'edit';
@@ -27,8 +21,8 @@ interface BlogPostFormProps {
     content: string;
     excerpt: string;
     author_name: string;
-    tags: string[];
-    isPublished: boolean;
+    tags: string[]; // Array of tag IDs
+    is_published: boolean;
     coverImage?: string;
     imageAlt?: string;
   };
@@ -43,7 +37,7 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     excerpt: initialData?.excerpt || '',
     author_name: initialData?.author_name || '',
     tags: initialData?.tags || [],
-    isPublished: initialData?.isPublished || false,
+    is_published: initialData?.is_published || false,
     coverImage: initialData?.coverImage || '',
     imageAlt: initialData?.imageAlt || '',
   });
@@ -56,8 +50,31 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
   const [images, setImages] = useState<{ url: string; name: string }[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [isLoadingTags, setIsLoadingTags] = useState(false);
   const excerptCharCount = formData.excerpt.length;
   const EXCERPT_LIMIT = 150;
+
+  useEffect(() => {
+    const fetchTags = async () => {
+      setIsLoadingTags(true);
+      try {
+        const response = await fetch('/api/tags');
+        if (!response.ok) {
+          throw new Error('Failed to fetch tags');
+        }
+        const data = await response.json();
+        setTags(data);
+      } catch (err) {
+        console.error('Error fetching tags:', err);
+        setError('Failed to load tags');
+      } finally {
+        setIsLoadingTags(false);
+      }
+    };
+
+    fetchTags();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -90,15 +107,15 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
 
   const handleTagChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const options = e.target.options;
-    const selectedTags: string[] = [];
+    const selectedTagIds: string[] = [];
     for (let i = 0; i < options.length; i++) {
       if (options[i].selected) {
-        selectedTags.push(options[i].value);
+        selectedTagIds.push(options[i].value);
       }
     }
     setFormData(prev => ({
       ...prev,
-      tags: selectedTags
+      tags: selectedTagIds
     }));
   };
 
@@ -240,6 +257,9 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
         coverImage: imageUrl,
       };
 
+      console.log('Submitting post data:', postData);
+      console.log('Tags being sent:', postData.tags);
+
       const endpoint = mode === 'create' ? '/api/admin/blog' : `/api/admin/blog/${initialData?.id}`;
       const method = mode === 'create' ? 'POST' : 'PATCH';
 
@@ -368,12 +388,17 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
                 onChange={handleTagChange}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                 size={4}
+                disabled={isLoadingTags}
               >
-                {TAGS.map((tag) => (
-                  <option key={tag} value={tag}>
-                    {tag}
-                  </option>
-                ))}
+                {isLoadingTags ? (
+                  <option value="">Loading tags...</option>
+                ) : (
+                  tags.map((tag) => (
+                    <option key={tag.id} value={tag.id}>
+                      {tag.name}
+                    </option>
+                  ))
+                )}
               </select>
               <p className="mt-1 text-sm text-gray-500">
                 Hold Ctrl (Windows) or Command (Mac) to select multiple tags
@@ -448,12 +473,12 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
                 <button
                   type="button"
                   role="switch"
-                  aria-checked={formData.isPublished ? 'true' : 'false'}
-                  onClick={() => setFormData(prev => ({ ...prev, isPublished: !prev.isPublished }))}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${!formData.isPublished ? 'bg-gray-300' : 'bg-purple-600'}`}
+                  aria-checked={formData.is_published ? 'true' : 'false'}
+                  onClick={() => setFormData(prev => ({ ...prev, is_published: !prev.is_published }))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${!formData.is_published ? 'bg-gray-300' : 'bg-purple-600'}`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${!formData.isPublished ? 'translate-x-6' : 'translate-x-1'}`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${!formData.is_published ? 'translate-x-6' : 'translate-x-1'}`}
                   />
                 </button>
                 <span className="text-sm text-gray-700">Save as draft</span>
