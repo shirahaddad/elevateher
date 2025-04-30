@@ -50,7 +50,7 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     author_name: initialData?.author_name || '',
     tags: initialData?.tags || [],
     is_published: initialData?.is_published || false,
-    coverImage: initialData?.coverImage || '',
+    imageUrl: initialData?.imageUrl || '',
     imageAlt: initialData?.imageAlt || '',
   });
 
@@ -89,7 +89,7 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
   }, []);
 
   /**
-   * @description Handles changes to form input fields
+   * @description Handles changes to standard form input fields
    * @function handleInputChange
    * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>} e - The change event
    */
@@ -158,7 +158,7 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
         throw new Error(`Excerpt must be ${EXCERPT_LIMIT} characters or less`);
       }
 
-      let imageUrl = formData.coverImage;
+      let imageUrl = formData.imageUrl;
 
       // Handle image upload if a new file is selected
       if (imageFile) {
@@ -180,7 +180,7 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
 
       const postData = {
         ...formData,
-        coverImage: imageUrl,
+        imageUrl: imageUrl,
       };
 
       const endpoint = mode === 'create' ? '/api/admin/blog' : `/api/admin/blog/${initialData?.id}`;
@@ -369,7 +369,7 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
                 onImageChange={(file) => {
                   setImageFile(file);
                   if (!file) {
-                    setFormData(prev => ({ ...prev, coverImage: '', imageAlt: '' }));
+                    setFormData(prev => ({ ...prev, imageUrl: '', imageAlt: '' }));
                   }
                 }}
                 onImageAltChange={(alt) => setFormData(prev => ({ ...prev, imageAlt: alt }))}

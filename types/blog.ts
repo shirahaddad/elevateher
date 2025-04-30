@@ -34,7 +34,7 @@ export interface BlogPostData {
   author_name: string;
   tags: string[];
   is_published: boolean;
-  coverImage?: string;
+  imageUrl?: string;
   imageAlt?: string;
 }
 
@@ -79,7 +79,7 @@ export interface CreatePostRequest {
   author_name: string;
   is_published?: boolean;
   tags?: string[]; // Array of tag IDs
-  coverImage?: string;
+  imageUrl?: string;
   seoDescription?: string;
 }
 

@@ -76,7 +76,7 @@ export default function EditBlogPostPage() {
           ...post,
           author_name: post.author_name,
           is_published: post.is_published,
-          coverImage: post.image_url || '',
+          imageUrl: post.image_url || '',
           imageAlt: post.image_alt || '',
           tags: post.tags || [],
         }}
