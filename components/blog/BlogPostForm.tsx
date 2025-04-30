@@ -116,18 +116,6 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
   };
 
   /**
-   * @description Handles changes to the markdown content
-   * @function handleContentChange
-   * @param {string | undefined} newContent - The new content value
-   */
-  const handleContentChange = (newContent: string | undefined) => {
-    setFormData(prev => ({
-      ...prev,
-      content: newContent || ''
-    }));
-  };
-
-  /**
    * @description Handles changes to selected tags
    * @function handleTagChange
    * @param {React.ChangeEvent<HTMLSelectElement>} e - The change event
@@ -366,7 +354,10 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
               </label>
               <MarkdownEditor
                 value={formData.content}
-                onChange={handleContentChange}
+                onChange={(newContent) => setFormData(prev => ({
+                  ...prev,
+                  content: newContent || ''
+                }))}
               />
             </div>
 
