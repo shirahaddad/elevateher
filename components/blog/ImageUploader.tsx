@@ -178,7 +178,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         </div>
       </div>
       {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-      <p className="mt-1 text-xs text-gray-500">Image upload coming soon</p>
     </div>
   );
 };

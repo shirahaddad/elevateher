@@ -57,12 +57,6 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.coverImage || null);
-  const [isImageSelectorOpen, setIsImageSelectorOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [images, setImages] = useState<{ url: string; name: string }[]>([]);
-  const [isLoadingImages, setIsLoadingImages] = useState(false);
-  const [imageError, setImageError] = useState<string | null>(null);
   const [tags, setTags] = useState<Tag[]>([]);
   const [isLoadingTags, setIsLoadingTags] = useState(false);
   const excerptCharCount = formData.excerpt.length;
@@ -151,123 +145,6 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
       tags: selectedTagIds
     }));
   };
-
-  /**
-   * @description Handles image file selection
-   * @function handleImageChange
-   * @param {React.ChangeEvent<HTMLInputElement>} e - The change event
-   */
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-      // Auto-generate alt text from file name
-      const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
-      const formattedAlt = nameWithoutExt
-        .replace(/[-_]+/g, ' ')
-        .replace(/\b\w/g, c => c.toUpperCase());
-      setFormData(prev => ({
-        ...prev,
-        imageAlt: formattedAlt
-      }));
-    } else {
-      setImageFile(null);
-      setPreviewUrl(null);
-      setFormData(prev => ({
-        ...prev,
-        imageAlt: ''
-      }));
-    }
-  };
-
-  /**
-   * @description Handles selection of an existing image
-   * @function handleImageSelect
-   * @param {string} imageUrl - The URL of the selected image
-   */
-  const handleImageSelect = (imageUrl: string) => {
-    setSelectedImage(imageUrl);
-    setPreviewUrl(imageUrl);
-    setFormData(prev => ({
-      ...prev,
-      coverImage: imageUrl,
-      imageAlt: imageUrl.split('/').pop()?.replace(/\.[^/.]+$/, '') || ''
-    }));
-  };
-
-  /**
-   * @description Handles image upload to the server
-   * @function handleImageUpload
-   * @param {React.FormEvent} e - The form event
-   */
-  const handleImageUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!imageFile) return;
-
-    setLoading(true);
-    setImageError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append('file', imageFile);
-      
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload image');
-      }
-
-      const { url } = await response.json();
-      setPreviewUrl(url);
-      setFormData(prev => ({
-        ...prev,
-        coverImage: url,
-        imageAlt: imageFile.name.replace(/\.[^/.]+$/, '')
-      }));
-      setImageFile(null);
-    } catch (err) {
-      console.error('Error uploading image:', err);
-      setImageError(err instanceof Error ? err.message : 'Failed to upload image');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
-   * @description Fetches available images from the server
-   * @async
-   * @function fetchImages
-   */
-  const fetchImages = async () => {
-    setIsLoadingImages(true);
-    try {
-      const response = await fetch('/api/images');
-      if (!response.ok) {
-        throw new Error('Failed to fetch images');
-      }
-      const data = await response.json();
-      setImages(data);
-    } catch (err) {
-      console.error('Error fetching images:', err);
-      setImageError(err instanceof Error ? err.message : 'Failed to fetch images');
-    } finally {
-      setIsLoadingImages(false);
-    }
-  };
-
-  /**
-   * @description Fetches images when the image selector is opened
-   */
-  useEffect(() => {
-    if (isImageSelectorOpen) {
-      fetchImages();
-    }
-  }, [isImageSelectorOpen]);
 
   /**
    * @description Handles form submission
