@@ -158,8 +158,6 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
         throw new Error(`Excerpt must be ${EXCERPT_LIMIT} characters or less`);
       }
 
-      let imageUrl = formData.imageUrl;
-
       // Handle image upload if a new file is selected
       if (imageFile) {
         const formData = new FormData();
@@ -175,12 +173,15 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
         }
 
         const { url } = await uploadResponse.json();
-        imageUrl = url;
+        // Update the formData directly
+        setFormData(prev => ({
+          ...prev,
+          imageUrl: url
+        }));
       }
 
       const postData = {
-        ...formData,
-        imageUrl: imageUrl,
+        ...formData
       };
 
       const endpoint = mode === 'create' ? '/api/admin/blog' : `/api/admin/blog/${initialData?.id}`;
@@ -361,7 +362,7 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
               />
             </div>
 
-            {/* Cover Image */}
+            {/* Main Image */}
             <div>
               <ImageUploader
                 selectedImage={imageFile}
