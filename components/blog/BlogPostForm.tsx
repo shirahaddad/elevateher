@@ -1,3 +1,10 @@
+/**
+ * @file BlogPostForm.tsx
+ * @description A comprehensive form component for creating and editing blog posts.
+ * This component handles all aspects of blog post management including content editing,
+ * image uploads, metadata management, and publishing controls.
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,30 +13,35 @@ import Link from 'next/link';
 import MarkdownEditor from '@/components/blog/MarkdownEditor';
 import ImageUploader from '@/components/blog/ImageUploader';
 import { getAuthorNames } from '@/lib/team';
+import { BlogPostFormProps, Tag } from '@/types/blog';
 
-interface Tag {
-  id: string;
-  name: string;
-}
-
-interface BlogPostFormProps {
-  mode: 'create' | 'edit';
-  initialData?: {
-    id?: string;
-    title: string;
-    slug: string;
-    content: string;
-    excerpt: string;
-    author_name: string;
-    tags: string[]; // Array of tag IDs
-    is_published: boolean;
-    coverImage?: string;
-    imageAlt?: string;
-  };
-}
-
+/**
+ * @component BlogPostForm
+ * @description A form component for creating and editing blog posts
+ * @param {BlogPostFormProps} props - The component props
+ * @returns {JSX.Element} The rendered form component
+ * 
+ * @example
+ * // Creating a new post
+ * <BlogPostForm mode="create" />
+ * 
+ * // Editing an existing post
+ * <BlogPostForm 
+ *   mode="edit" 
+ *   initialData={{
+ *     title: "My Post",
+ *     content: "Post content...",
+ *     // ... other post data
+ *   }} 
+ * />
+ */
 export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
   const router = useRouter();
+  
+  /**
+   * @description Form state containing all post data
+   * @type {Object}
+   */
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     slug: initialData?.slug || '',
@@ -41,6 +53,7 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     coverImage: initialData?.coverImage || '',
     imageAlt: initialData?.imageAlt || '',
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -55,6 +68,11 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
   const excerptCharCount = formData.excerpt.length;
   const EXCERPT_LIMIT = 150;
 
+  /**
+   * @description Fetches available tags from the API
+   * @async
+   * @function fetchTags
+   */
   useEffect(() => {
     const fetchTags = async () => {
       setIsLoadingTags(true);
@@ -76,6 +94,11 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     fetchTags();
   }, []);
 
+  /**
+   * @description Handles changes to form input fields
+   * @function handleInputChange
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>} e - The change event
+   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     
@@ -98,6 +121,11 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     }
   };
 
+  /**
+   * @description Handles changes to the markdown content
+   * @function handleContentChange
+   * @param {string | undefined} newContent - The new content value
+   */
   const handleContentChange = (newContent: string | undefined) => {
     setFormData(prev => ({
       ...prev,
@@ -105,6 +133,11 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     }));
   };
 
+  /**
+   * @description Handles changes to selected tags
+   * @function handleTagChange
+   * @param {React.ChangeEvent<HTMLSelectElement>} e - The change event
+   */
   const handleTagChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const options = e.target.options;
     const selectedTagIds: string[] = [];
@@ -119,6 +152,11 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     }));
   };
 
+  /**
+   * @description Handles image file selection
+   * @function handleImageChange
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The change event
+   */
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -144,6 +182,11 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     }
   };
 
+  /**
+   * @description Handles selection of an existing image
+   * @function handleImageSelect
+   * @param {string} imageUrl - The URL of the selected image
+   */
   const handleImageSelect = (imageUrl: string) => {
     setSelectedImage(imageUrl);
     setPreviewUrl(imageUrl);
@@ -154,6 +197,11 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     }));
   };
 
+  /**
+   * @description Handles image upload to the server
+   * @function handleImageUpload
+   * @param {React.FormEvent} e - The form event
+   */
   const handleImageUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!imageFile) return;
@@ -190,6 +238,11 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     }
   };
 
+  /**
+   * @description Fetches available images from the server
+   * @async
+   * @function fetchImages
+   */
   const fetchImages = async () => {
     setIsLoadingImages(true);
     try {
@@ -207,12 +260,20 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     }
   };
 
+  /**
+   * @description Fetches images when the image selector is opened
+   */
   useEffect(() => {
     if (isImageSelectorOpen) {
       fetchImages();
     }
   }, [isImageSelectorOpen]);
 
+  /**
+   * @description Handles form submission
+   * @function handleSubmit
+   * @param {React.FormEvent} e - The form submission event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -256,9 +317,6 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
         ...formData,
         coverImage: imageUrl,
       };
-
-      console.log('Submitting post data:', postData);
-      console.log('Tags being sent:', postData.tags);
 
       const endpoint = mode === 'create' ? '/api/admin/blog' : `/api/admin/blog/${initialData?.id}`;
       const method = mode === 'create' ? 'POST' : 'PATCH';

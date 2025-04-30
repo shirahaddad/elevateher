@@ -1,3 +1,8 @@
+/**
+ * @file blog.ts
+ * @description Type definitions for blog-related components and data structures
+ */
+
 // Base Types
 
 export interface Author {
@@ -7,13 +12,36 @@ export interface Author {
   avatar?: string;
 }
 
+/**
+ * @interface Tag
+ * @description Represents a blog post tag with its unique identifier and display name
+ */
 export interface Tag {
   id: string;
   name: string;
-  slug: string;
-  description?: string;
 }
 
+/**
+ * @interface BlogPostData
+ * @description Data structure for a blog post
+ */
+export interface BlogPostData {
+  id?: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  author_name: string;
+  tags: string[];
+  is_published: boolean;
+  coverImage?: string;
+  imageAlt?: string;
+}
+
+/**
+ * @interface Post
+ * @description Represents a blog post
+ */
 export interface Post {
   id: string;
   title: string;
@@ -101,4 +129,15 @@ export interface PaginationParams {
   pageSize: number;
   sortBy?: 'publishedAt' | 'updatedAt' | 'title';
   sortOrder?: 'asc' | 'desc';
+}
+
+/**
+ * @interface BlogPostFormProps
+ * @description Props for the BlogPostForm component
+ * @property {('create' | 'edit')} mode - Determines whether the form is for creating or editing a post
+ * @property {BlogPostData} [initialData] - Optional initial data for editing an existing post
+ */
+export interface BlogPostFormProps {
+  mode: 'create' | 'edit';
+  initialData?: BlogPostData;
 } 

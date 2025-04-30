@@ -1,6 +1,33 @@
+/**
+ * ImageUploader Component
+ * 
+ * A React component that handles image uploads with validation, compression, and preview functionality.
+ * It provides a user-friendly interface for selecting images, automatically generates alt text,
+ * and ensures images meet size and format requirements.
+ * 
+ * Features:
+ * - Image preview
+ * - File type validation (JPEG, PNG, GIF)
+ * - Size validation (max 5MB)
+ * - Automatic image compression and resizing
+ * - Alt text generation and editing
+ * - Error handling and user feedback
+ * 
+ * @component
+ */
+
 import React, { useState } from 'react';
 import imageCompression from 'browser-image-compression';
 
+/**
+ * Props for the ImageUploader component
+ * 
+ * @interface ImageUploaderProps
+ * @property {File | null} selectedImage - The currently selected image file
+ * @property {string} imageAlt - The alt text for the image (for accessibility)
+ * @property {(file: File | null) => void} onImageChange - Callback function when the image changes
+ * @property {(alt: string) => void} onImageAltChange - Callback function when the alt text changes
+ */
 interface ImageUploaderProps {
   selectedImage: File | null;
   imageAlt: string;
@@ -8,6 +35,12 @@ interface ImageUploaderProps {
   onImageAltChange: (alt: string) => void;
 }
 
+/**
+ * ImageUploader Component
+ * 
+ * @param {ImageUploaderProps} props - The component props
+ * @returns {JSX.Element} The rendered component
+ */
 const ImageUploader: React.FC<ImageUploaderProps> = ({
   selectedImage,
   imageAlt,
@@ -17,6 +50,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Effect to handle image preview creation and cleanup
+   * Creates a preview URL when an image is selected and cleans it up on unmount
+   */
   React.useEffect(() => {
     if (selectedImage) {
       setImagePreview(URL.createObjectURL(selectedImage));
@@ -30,6 +67,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedImage]);
 
+  /**
+   * Validates the uploaded image file
+   * 
+   * @param {File} file - The file to validate
+   * @returns {boolean} True if the file is valid, false otherwise
+   */
   const validateImage = (file: File): boolean => {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
     const maxSize = 5 * 1024 * 1024; // 5MB
@@ -48,6 +91,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     return true;
   };
 
+  /**
+   * Resizes and compresses the uploaded image
+   * 
+   * @param {File} file - The file to resize
+   * @returns {Promise<File>} The resized and compressed file
+   */
   const resizeImage = async (file: File): Promise<File> => {
     const options = {
       maxSizeMB: 1,
@@ -57,6 +106,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     return await imageCompression(file, options);
   };
 
+  /**
+   * Handles file selection and processing
+   * 
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The change event from the file input
+   */
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
     if (file && validateImage(file)) {
@@ -80,6 +134,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   };
 
+  /**
+   * Handles changes to the alt text input
+   * 
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The change event from the alt text input
+   */
   const handleAltChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onImageAltChange(e.target.value);
   };
