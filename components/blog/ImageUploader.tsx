@@ -172,7 +172,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             placeholder="Image alt text (for accessibility)"
             value={imageAlt}
             onChange={handleAltChange}
-            disabled={!selectedImage}
             className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-sm"
           />
         </div>
