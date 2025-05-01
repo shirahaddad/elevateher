@@ -128,6 +128,18 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
         title: value,
         slug: slug
       }));
+    } else if (name === 'author_name') {
+      const selectElement = e.target as HTMLSelectElement;
+      const selectedAuthors: string[] = [];
+      for (let i = 0; i < selectElement.options.length; i++) {
+        if (selectElement.options[i].selected) {
+          selectedAuthors.push(selectElement.options[i].value);
+        }
+      }
+      setFormData(prev => ({
+        ...prev,
+        author_name: selectedAuthors.join(', ')
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
@@ -413,23 +425,27 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
             {/* Author */}
             <div>
               <label htmlFor="author_name" className="block text-sm font-medium text-gray-700">
-                Author
+                Authors
               </label>
               <select
                 id="author_name"
                 name="author_name"
-                value={formData.author_name}
+                multiple
+                value={formData.author_name.split(', ').filter(Boolean)}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                size={4}
                 required
               >
-                <option value="">Select author</option>
                 {getAuthorNames().map((author) => (
                   <option key={author} value={author}>
                     {author}
                   </option>
                 ))}
               </select>
+              <p className="mt-1 text-sm text-gray-500">
+                Hold Ctrl (Windows) or Command (Mac) to select multiple authors
+              </p>
             </div>
 
             {/* Tags */}
