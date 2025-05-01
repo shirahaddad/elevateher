@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import { uploadToTempS3, getS3Url } from '@/lib/s3Utils';
 
 export async function POST(request: Request) {
+  console.log('Upload route - AWS Environment Variables:', {
+    region: process.env.AWS_REGION,
+    bucket: process.env.AWS_BUCKET_NAME,
+    hasAccessKey: !!process.env.AWS_ACCESS_KEY_ID,
+    hasSecretKey: !!process.env.AWS_SECRET_ACCESS_KEY
+  });
+
   try {
     const formData = await request.formData();
     const file = formData.get('image') as File;

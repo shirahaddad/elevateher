@@ -1,16 +1,27 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { getS3Url } from '@/lib/s3Utils';
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    // First fetch the post
+    // Ensure we have a valid ID
+    const { id: paramId } = params;
+    const id = parseInt(paramId, 10);
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { error: 'Invalid post ID format' },
+        { status: 400 }
+      );
+    }
+
+    // Fetch the post
     const { data: post, error: postError } = await supabaseAdmin
       .from('posts')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (postError) {
@@ -28,11 +39,16 @@ export async function GET(
       );
     }
 
-    // Then fetch the post's tags
-    const { data: tags, error: tagsError } = await supabaseAdmin
+    // Generate signed URL for the image if present
+    if (post.image_url) {
+      post.image_url = await getS3Url(post.image_url);
+    }
+
+    // Fetch post tags
+    const { data: postTags, error: tagsError } = await supabaseAdmin
       .from('post_tags')
       .select('tag_id')
-      .eq('post_id', params.id);
+      .eq('post_id', id);
 
     if (tagsError) {
       console.error('Error fetching post tags:', tagsError);
@@ -42,15 +58,16 @@ export async function GET(
       );
     }
 
-    // Combine the post data with its tag IDs
-    const postWithTags = {
-      ...post,
-      tags: tags?.map(tag => tag.tag_id) || []
-    };
+    // Return post with tags
+    return NextResponse.json({
+      post: {
+        ...post,
+        tags: postTags.map(pt => pt.tag_id)
+      }
+    });
 
-    return NextResponse.json({ post: postWithTags });
   } catch (error) {
-    console.error('Error processing request:', error);
+    console.error('Error in post route:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -63,25 +80,19 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const data = await request.json();
-    console.log('Updating blog post with data:', data);
-    console.log('Tags data:', data.tags);
-
-    // Validate required fields
-    const requiredFields = ['title', 'content', 'author_name', 'slug'];
-    const missingFields = requiredFields.filter(field => !data[field]);
-    
-    if (missingFields.length > 0) {
-      console.log('Missing required fields:', missingFields);
+    const { id: paramId } = params;
+    if (!paramId) {
       return NextResponse.json(
-        { error: `Missing required fields: ${missingFields.join(', ')}` },
+        { error: 'Post ID is required' },
         { status: 400 }
       );
     }
 
+    const data = await request.json();
+    console.log('Updating post with data:', data);
+
     // Update the post
-    console.log('Attempting to update post in database...');
-    const { data: post, error } = await supabaseAdmin
+    const { error: updateError } = await supabaseAdmin
       .from('posts')
       .update({
         title: data.title,
@@ -90,73 +101,127 @@ export async function PATCH(
         author_name: data.author_name,
         slug: data.slug,
         is_published: data.is_published || false,
-        image_url: data.imageUrl ? `/images/blog/${data.imageUrl.split('/').pop()}` : null,
-        image_alt: data.imageAlt || null,
         published_at: data.is_published ? new Date().toISOString() : null,
+        image_url: data.imageUrl || null,
+        image_alt: data.imageAlt || null,
+        updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
-      .select()
-      .single();
+      .eq('id', paramId);
 
-    if (error) {
-      console.error('Supabase error details:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      });
+    if (updateError) {
+      console.error('Error updating post:', updateError);
       return NextResponse.json(
-        { error: `Failed to update post: ${error.message}` },
+        { error: `Failed to update post: ${updateError.message}` },
         { status: 500 }
       );
     }
 
-    console.log('Successfully updated post:', post);
-
-    // Handle tags
-    if (data.tags && data.tags.length > 0) {
-      console.log('Updating post-tag relationships with tags:', data.tags);
-      
-      // First, delete existing relationships
+    // Handle tags if provided
+    if (Array.isArray(data.tags)) {
+      // Delete existing tags
       const { error: deleteError } = await supabaseAdmin
         .from('post_tags')
         .delete()
-        .eq('post_id', params.id);
+        .eq('post_id', paramId);
 
       if (deleteError) {
-        console.error('Error deleting existing post-tag relationships:', deleteError);
+        console.error('Error deleting existing tags:', deleteError);
+        return NextResponse.json(
+          { error: 'Failed to update post tags' },
+          { status: 500 }
+        );
       }
 
-      // Then create new relationships
-      const postTagRelationships = data.tags.map((tagId: string) => ({
-        post_id: params.id,
-        tag_id: tagId
-      }));
-      
-      const { error: tagError } = await supabaseAdmin
-        .from('post_tags')
-        .insert(postTagRelationships);
+      // Insert new tags if any
+      if (data.tags.length > 0) {
+        const tagRelations = data.tags.map((tagId: string) => ({
+          post_id: paramId,
+          tag_id: tagId
+        }));
 
-      if (tagError) {
-        console.error('Error creating post-tag relationships:', tagError);
-      } else {
-        console.log('Successfully updated post-tag relationships');
-      }
-    } else {
-      // If no tags are provided, delete all existing relationships
-      const { error: deleteError } = await supabaseAdmin
-        .from('post_tags')
-        .delete()
-        .eq('post_id', params.id);
+        const { error: insertError } = await supabaseAdmin
+          .from('post_tags')
+          .insert(tagRelations);
 
-      if (deleteError) {
-        console.error('Error deleting post-tag relationships:', deleteError);
+        if (insertError) {
+          console.error('Error inserting new tags:', insertError);
+          return NextResponse.json(
+            { error: 'Failed to update post tags' },
+            { status: 500 }
+          );
+        }
       }
     }
 
-    return NextResponse.json({ post });
+    // Fetch updated post
+    const { data: updatedPost, error: fetchError } = await supabaseAdmin
+      .from('posts')
+      .select('*')
+      .eq('id', paramId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching updated post:', fetchError);
+      return NextResponse.json(
+        { error: 'Failed to fetch updated post' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(updatedPost);
   } catch (error) {
-    console.error('Error processing request:', error);
+    console.error('Error in update route:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const id = params.id;
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Post ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Delete post tags first (foreign key constraint)
+    const { error: tagsError } = await supabaseAdmin
+      .from('post_tags')
+      .delete()
+      .eq('post_id', id);
+
+    if (tagsError) {
+      console.error('Error deleting post tags:', tagsError);
+      return NextResponse.json(
+        { error: 'Failed to delete post tags' },
+        { status: 500 }
+      );
+    }
+
+    // Delete the post
+    const { error: deleteError } = await supabaseAdmin
+      .from('posts')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      console.error('Error deleting post:', deleteError);
+      return NextResponse.json(
+        { error: 'Failed to delete post' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error in delete route:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

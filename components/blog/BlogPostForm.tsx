@@ -14,6 +14,7 @@ import MarkdownEditor from '@/components/blog/MarkdownEditor';
 import ImageUploader from '@/components/blog/ImageUploader';
 import { getAuthorNames } from '@/lib/team';
 import { BlogPostFormProps, Tag } from '@/types/blog';
+import { deleteS3File, getS3Url } from '@/lib/s3Utils';
 
 /**
  * @component BlogPostForm
@@ -52,6 +53,9 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     is_published: initialData?.is_published || false,
     imageUrl: initialData?.imageUrl || '',
     imageAlt: initialData?.imageAlt || '',
+    imageKey: '',
+    originalImageKey: initialData?.imageUrl || '',
+    imageUrlPromise: undefined as Promise<string> | undefined,
   });
 
   const [loading, setLoading] = useState(false);
@@ -87,6 +91,23 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
 
     fetchTags();
   }, []);
+
+  // Effect to handle async image URL generation
+  useEffect(() => {
+    if (formData.imageUrl && !formData.imageUrl.startsWith('http')) {
+      const urlPromise = getS3Url(formData.imageUrl);
+      setFormData(prev => ({
+        ...prev,
+        imageUrlPromise: urlPromise
+      }));
+    } else if (formData.imageUrl) {
+      // If it's already a full URL, create a resolved promise
+      setFormData(prev => ({
+        ...prev,
+        imageUrlPromise: Promise.resolve(formData.imageUrl)
+      }));
+    }
+  }, [formData.imageUrl]);
 
   /**
    * @description Handles changes to standard form input fields
@@ -158,32 +179,7 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
         throw new Error(`Excerpt must be ${EXCERPT_LIMIT} characters or less`);
       }
 
-      // Handle image upload if a new file is selected
-      if (imageFile) {
-        const formData = new FormData();
-        formData.append('file', imageFile);
-        
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload image');
-        }
-
-        const { url } = await uploadResponse.json();
-        // Update the formData directly
-        setFormData(prev => ({
-          ...prev,
-          imageUrl: url
-        }));
-      }
-
-      const postData = {
-        ...formData
-      };
-
+      // Create or update the post
       const endpoint = mode === 'create' ? '/api/admin/blog' : `/api/admin/blog/${initialData?.id}`;
       const method = mode === 'create' ? 'POST' : 'PATCH';
 
@@ -192,12 +188,102 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(postData),
+        body: JSON.stringify({
+          ...formData,
+          imageUrl: formData.imageKey || formData.originalImageKey || null,
+          imageAlt: formData.imageAlt,
+        }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save post');
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to save post');
+      }
+
+      let postData;
+      try {
+        const responseData = await response.json();
+        console.log('Raw response data:', responseData);
+        
+        // Handle both direct post data and wrapped response formats
+        postData = responseData.post || responseData;
+        console.log('Processed post data:', postData);
+        
+        if (!postData || !postData.id) {
+          console.error('Invalid post data structure:', responseData);
+          throw new Error('Invalid post data structure: missing ID');
+        }
+      } catch (e) {
+        console.error('Failed to parse server response:', e);
+        throw new Error('Invalid server response');
+      }
+
+      // Handle image if needed
+      if (formData.imageKey && formData.imageKey.startsWith('blog/temp/')) {
+        try {
+          const postId = String(postData.id);
+          if (!postId || postId === 'undefined' || postId === 'null') {
+            console.error('Invalid post ID format:', postId);
+            throw new Error('Invalid post ID format');
+          }
+
+          const moveData = {
+            tempKey: formData.imageKey,
+            postId: postId
+          };
+          
+          console.log('Moving image with data:', moveData);
+
+          // Move image from temp to final location using the new endpoint
+          const moveResponse = await fetch(`${window.location.origin}/api/admin/blog/move-image`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(moveData),
+          });
+
+          const moveResponseText = await moveResponse.text();
+          console.log('Move response text:', moveResponseText);
+
+          if (!moveResponse.ok) {
+            throw new Error(moveResponseText || 'Failed to move image');
+          }
+
+          let moveResult;
+          try {
+            moveResult = JSON.parse(moveResponseText);
+            console.log('Move result:', moveResult);
+          } catch (e) {
+            console.error('Failed to parse move response:', e);
+            throw new Error('Invalid response from move endpoint');
+          }
+
+          if (!moveResult || !moveResult.imageKey) {
+            throw new Error('Invalid move result: missing imageKey');
+          }
+
+          // Update post with final image path
+          const updateResponse = await fetch(`${window.location.origin}/api/admin/blog/${postId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              imageUrl: moveResult.imageKey,
+              imageAlt: formData.imageAlt,
+            }),
+          });
+
+          if (!updateResponse.ok) {
+            console.error('Failed to update post with final image path');
+            // Don't throw here as the post was already created successfully
+          }
+        } catch (error) {
+          console.error('Error handling image:', error);
+          // Continue with post creation even if image handling fails
+          // The post was already created successfully
+        }
       }
 
       router.push('/admin/blog');
@@ -206,6 +292,53 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageChange = async (file: File | null) => {
+    setImageFile(file);
+    if (!file) {
+      setFormData(prev => ({
+        ...prev,
+        imageUrl: '',
+        imageAlt: '',
+        imageKey: '',
+        imageUrlPromise: undefined,
+      }));
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const data = await response.json();
+      const urlPromise = getS3Url(data.key);
+      
+      setFormData(prev => ({
+        ...prev,
+        imageUrl: data.key,
+        imageKey: data.key,
+        imageUrlPromise: urlPromise,
+      }));
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setError('Failed to upload image');
+      setFormData(prev => ({
+        ...prev,
+        imageUrl: '',
+        imageKey: '',
+        imageUrlPromise: undefined,
+      }));
     }
   };
 
@@ -367,13 +500,9 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
               <ImageUploader
                 selectedImage={imageFile}
                 imageAlt={formData.imageAlt}
-                onImageChange={(file) => {
-                  setImageFile(file);
-                  if (!file) {
-                    setFormData(prev => ({ ...prev, imageUrl: '', imageAlt: '' }));
-                  }
-                }}
+                onImageChange={handleImageChange}
                 onImageAltChange={(alt) => setFormData(prev => ({ ...prev, imageAlt: alt }))}
+                currentImageUrl={formData.imageUrlPromise || ''}
               />
             </div>
 

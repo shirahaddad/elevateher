@@ -26,7 +26,7 @@ export interface Tag {
  * @description Data structure for a blog post
  */
 export interface BlogPostData {
-  id?: string;
+  id?: string | number;
   title: string;
   slug: string;
   content: string;
@@ -140,4 +140,19 @@ export interface PaginationParams {
 export interface BlogPostFormProps {
   mode: 'create' | 'edit';
   initialData?: BlogPostData;
+}
+
+export interface BlogPostFormState {
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  author_name: string;
+  tags: string[];
+  is_published: boolean;
+  imageUrl: string;
+  imageAlt: string;
+  imageKey: string;
+  originalImageKey: string;
+  imageUrlPromise?: Promise<string>;
 } 

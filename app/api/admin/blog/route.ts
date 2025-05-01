@@ -56,7 +56,7 @@ export async function POST(request: Request) {
           author_name: data.author_name,
           slug: data.slug,
           is_published: data.is_published || false,
-          image_url: data.imageUrl ? `/images/blog/${data.imageUrl.split('/').pop()}` : null,
+          image_url: data.imageUrl || null,
           image_alt: data.imageAlt || null,
           published_at: data.is_published ? new Date().toISOString() : null,
         }

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import BlogPostForm from '@/components/blog/BlogPostForm';
 
 interface Post {
-  id: string;
+  id: number;
   title: string;
   slug: string;
   content: string;
@@ -31,6 +31,9 @@ export default function EditBlogPostPage() {
           throw new Error('Failed to fetch post');
         }
         const data = await response.json();
+        if (!data.post) {
+          throw new Error('Post not found');
+        }
         setPost(data.post);
       } catch (err) {
         console.error('Error fetching post:', err);
