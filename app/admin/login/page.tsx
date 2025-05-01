@@ -22,7 +22,7 @@ export default function AdminLogin() {
       });
 
       if (response.ok) {
-        router.push('/admin/dashboard');
+        router.push('/admin');
       } else {
         setError('Invalid password');
       }
