@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, CopyObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, CopyObjectCommand, DeleteObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // Only check environment variables on the server side
@@ -158,20 +158,63 @@ export const moveS3File = async (tempKey: string, postId: string): Promise<strin
 };
 
 /**
- * Deletes a file from S3
- * @param key - The key of the file to delete
+ * Deletes a file or folder from S3
+ * @param key - The key of the file or folder to delete
+ * @param isFolder - Whether the key represents a folder (defaults to false)
  */
-export const deleteS3File = async (key: string): Promise<void> => {
+export const deleteS3File = async (key: string, isFolder: boolean = false): Promise<void> => {
   const client = getS3Client();
   try {
-    const command = new DeleteObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME!,
-      Key: key,
-    });
-    await client.send(command);
+    console.log('Starting S3 deletion:', { key, isFolder });
+
+    if (isFolder) {
+      // For folders, we need to list and delete all objects with the prefix
+      const prefix = key.endsWith('/') ? key : `${key}/`;
+      console.log('Listing objects with prefix:', prefix);
+
+      const listCommand = new ListObjectsV2Command({
+        Bucket: process.env.AWS_BUCKET_NAME!,
+        Prefix: prefix
+      });
+
+      const objects = await client.send(listCommand);
+      console.log('Found objects:', {
+        count: objects.Contents?.length || 0,
+        objects: objects.Contents?.map(obj => obj.Key)
+      });
+
+      if (objects.Contents && objects.Contents.length > 0) {
+        console.log('Deleting objects...');
+        const deleteCommands = objects.Contents.map(obj => {
+          if (!obj.Key) {
+            console.log('Skipping object with no key');
+            return null;
+          }
+          console.log('Queuing deletion for:', obj.Key);
+          return client.send(new DeleteObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME!,
+            Key: obj.Key
+          }));
+        }).filter(Boolean);
+
+        const results = await Promise.all(deleteCommands);
+        console.log('Deletion results:', results.length, 'objects deleted');
+      } else {
+        console.log('No objects found to delete');
+      }
+    } else {
+      // For single files, just delete the object
+      console.log('Deleting single file:', key);
+      const command = new DeleteObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME!,
+        Key: key,
+      });
+      await client.send(command);
+      console.log('File deleted successfully');
+    }
   } catch (error) {
-    console.error('Error deleting S3 file:', error);
-    throw new Error('Failed to delete image from S3');
+    console.error('Error deleting from S3:', error);
+    throw new Error('Failed to delete from S3');
   }
 };
 

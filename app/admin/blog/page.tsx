@@ -71,12 +71,11 @@ export default function BlogManagementPage() {
     }
 
     try {
-      const response = await fetch('/api/admin/blog', {
+      const response = await fetch(`/api/admin/blog/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id }),
+        }
       });
 
       if (!response.ok) {

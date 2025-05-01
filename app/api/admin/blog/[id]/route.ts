@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { getS3Url } from '@/lib/s3Utils';
+import { getS3Url, deleteS3File } from '@/lib/s3Utils';
 
 export async function GET(
   request: Request,
@@ -191,6 +191,21 @@ export async function DELETE(
       );
     }
 
+    // First, get the post to check if it has an image
+    const { data: post, error: fetchError } = await supabaseAdmin
+      .from('posts')
+      .select('image_url')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching post:', fetchError);
+      return NextResponse.json(
+        { error: 'Failed to fetch post' },
+        { status: 500 }
+      );
+    }
+
     // Delete post tags first (foreign key constraint)
     const { error: tagsError } = await supabaseAdmin
       .from('post_tags')
@@ -217,6 +232,31 @@ export async function DELETE(
         { error: 'Failed to delete post' },
         { status: 500 }
       );
+    }
+
+    // If the post had an image, delete it from S3
+    if (post?.image_url) {
+      try {
+        // Delete the entire folder for this post
+        const postFolder = `blog/${id}`;
+        console.log('Attempting to delete S3 folder:', {
+          postId: id,
+          imageUrl: post.image_url,
+          folderPath: postFolder
+        });
+
+        await deleteS3File(postFolder, true);
+        console.log('Successfully initiated S3 folder deletion');
+      } catch (s3Error) {
+        console.error('Error deleting images from S3:', {
+          error: s3Error,
+          postId: id,
+          imageUrl: post.image_url
+        });
+        // Don't return error since post was deleted successfully
+      }
+    } else {
+      console.log('No image to delete for post:', id);
     }
 
     return NextResponse.json({ success: true });
