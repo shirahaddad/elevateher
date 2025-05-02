@@ -17,7 +17,38 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({ posts });
+    // Fetch tags for all posts
+    const postsWithTags = await Promise.all(posts.map(async (post) => {
+      // Fetch post tags
+      const { data: postTags, error: tagsError } = await supabaseAdmin
+        .from('post_tags')
+        .select('tag_id')
+        .eq('post_id', post.id);
+
+      if (tagsError) {
+        console.error('Error fetching post tags:', tagsError);
+        return { ...post, tags: [] };
+      }
+
+      // Fetch tag names
+      const tagIds = postTags.map(pt => pt.tag_id);
+      const { data: tags, error: tagNamesError } = await supabaseAdmin
+        .from('tags')
+        .select('name')
+        .in('id', tagIds);
+
+      if (tagNamesError) {
+        console.error('Error fetching tag names:', tagNamesError);
+        return { ...post, tags: [] };
+      }
+
+      return {
+        ...post,
+        tags: tags.map(t => ({ name: t.name }))
+      };
+    }));
+
+    return NextResponse.json({ posts: postsWithTags });
   } catch (error) {
     console.error('Error processing request:', error);
     return NextResponse.json(

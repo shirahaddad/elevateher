@@ -51,11 +51,26 @@ export async function GET(
       );
     }
 
+    // Fetch tag names
+    const tagIds = postTags.map(pt => pt.tag_id);
+    const { data: tags, error: tagNamesError } = await supabase
+      .from('tags')
+      .select('name')
+      .in('id', tagIds);
+
+    if (tagNamesError) {
+      console.error('Error fetching tag names:', tagNamesError);
+      return NextResponse.json(
+        { error: 'Failed to fetch tag names' },
+        { status: 500 }
+      );
+    }
+
     // Return post with tags
     return NextResponse.json({
       post: {
         ...post,
-        tags: postTags.map(pt => pt.tag_id)
+        tags: tags.map(t => t.name)
       }
     });
 
