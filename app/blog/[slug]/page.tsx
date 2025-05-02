@@ -1,5 +1,8 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import MarkdownPreview from '@/components/blog/MarkdownPreview';
 import type { GetPostResponse } from '@/types/blog';
 
 interface BlogPostPageProps {
@@ -38,45 +41,58 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <main className="min-h-screen bg-white">
-      <article className="max-w-4xl mx-auto px-4 py-8">
-        {post.image_url && (
-          <div className="relative w-full h-96 mb-8">
-            <Image
-              src={post.image_url}
-              alt={post.image_alt || post.title}
-              fill
-              className="object-cover rounded-lg"
-              priority
-            />
-          </div>
-        )}
-        
-        <div className="prose prose-lg max-w-none">
-          <h1 className="text-4xl font-bold text-purple-900 mb-4">{post.title}</h1>
-          
-          <div className="flex items-center text-sm text-gray-500 mb-8">
-            <span>{post.author_name}</span>
-            <span className="mx-2">•</span>
-            <time dateTime={post.published_at}>{formattedDate}</time>
+      <article className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-3 gap-8">
+          {/* Left Column (1/3) */}
+          <div className="space-y-6">
+            {post.image_url && (
+              <div className="relative w-full aspect-[4/3]">
+                <Image
+                  src={post.image_url}
+                  alt={post.image_alt || post.title}
+                  fill
+                  className="object-cover rounded-lg"
+                  priority
+                />
+              </div>
+            )}
+            
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <Link 
+              href="/blog"
+              className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Blog
+            </Link>
           </div>
 
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-8">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded"
-                >
-                  {tag}
-                </span>
-              ))}
+          {/* Right Column (2/3) */}
+          <div className="col-span-2">
+            <div className="prose prose-lg max-w-none">
+              <h1 className="text-4xl font-bold text-purple-900 mb-4">{post.title}</h1>
+              
+              <div className="flex items-center text-sm text-gray-500 mb-8">
+                <span>{post.author_name}</span>
+                <span className="mx-2">•</span>
+                <time dateTime={post.published_at}>{formattedDate}</time>
+              </div>
+
+              <MarkdownPreview content={post.content} />
             </div>
-          )}
-
-          <div 
-            className="text-gray-700"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+          </div>
         </div>
       </article>
     </main>
