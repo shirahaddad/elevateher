@@ -9,8 +9,9 @@ interface BlogPostPageProps {
 }
 
 async function getPost(slug: string) {
-  const baseUrl = process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}`
+  // Use absolute URL in production, relative URL in development
+  const baseUrl = process.env.NODE_ENV === 'production'
+    ? 'https://elevateher.tech'
     : 'http://localhost:3000';
 
   const res = await fetch(`${baseUrl}/api/blog/${slug}`, {
