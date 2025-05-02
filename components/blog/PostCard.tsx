@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Post } from '@/types/blog';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getS3Url } from '@/lib/s3Utils';
 
 interface PostCardProps {
   title: string;
@@ -24,16 +26,32 @@ export default function PostCard({
   excerpt
 }: PostCardProps) {
   const [error, setError] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const formattedDate = new Date(published_at).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
 
+  useEffect(() => {
+    if (image_url) {
+      getS3Url(image_url).then(url => setImageUrl(url));
+    }
+  }, [image_url]);
+
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
       <Link href={`/blog/${slug}`} className="block">
         <div className="relative w-full h-48 bg-gray-100">
+          {imageUrl && (
+            <Image
+              src={imageUrl}
+              alt={title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          )}
         </div>
         <div className="p-6">
           <h2 className="text-xl font-bold text-purple-900 mb-2 line-clamp-2">
