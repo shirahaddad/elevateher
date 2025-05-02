@@ -6,6 +6,7 @@ export async function GET() {
     const { data: posts, error } = await supabaseAdmin
       .from('posts')
       .select('*')
+      .eq('is_published', true)
       .order('created_at', { ascending: false });
 
     if (error) {
