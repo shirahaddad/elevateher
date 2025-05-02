@@ -53,6 +53,7 @@ export interface Post {
   updatedAt: string;
   is_published: boolean;
   image_url?: string;
+  image_alt?: string;
   seoDescription?: string;
 }
 
@@ -67,7 +68,7 @@ export interface PostWithTags extends Post {
 }
 
 export interface FullPost extends PostWithAuthor {
-  tags: Tag[];
+  tags: string[];
 }
 
 // API Request Types
