@@ -1,5 +1,4 @@
-import { S3Client, PutObjectCommand, CopyObjectCommand, DeleteObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { S3Client, PutObjectCommand, CopyObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 
 // Only check environment variables on the server side
 const isServer = typeof window === 'undefined';
@@ -233,26 +232,8 @@ export const getS3Url = async (key: string): Promise<string> => {
     return key;
   }
 
-  // If we're on the client side, construct the URL directly
-  if (!isServer) {
-    const bucketName = process.env.NEXT_PUBLIC_AWS_BUCKET_NAME || process.env.AWS_BUCKET_NAME || 'elevateher-blog-images';
-    const region = process.env.NEXT_PUBLIC_AWS_REGION || process.env.AWS_REGION || 'us-east-1';
-    return `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
-  }
-
-  // On the server side, generate a pre-signed URL
-  try {
-    const client = getS3Client();
-    const command = new GetObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME!,
-      Key: key,
-    });
-    
-    // Generate a pre-signed URL that expires in 1 hour
-    const signedUrl = await getSignedUrl(client, command, { expiresIn: 3600 });
-    return signedUrl;
-  } catch (error) {
-    console.error('Error generating signed URL:', error);
-    return '';
-  }
+  // Always construct the URL directly using the bucket name and region
+  const bucketName = process.env.NEXT_PUBLIC_AWS_BUCKET_NAME || process.env.AWS_BUCKET_NAME || 'elevateher-blog-images';
+  const region = process.env.NEXT_PUBLIC_AWS_REGION || process.env.AWS_REGION || 'us-east-1';
+  return `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
 }; 
