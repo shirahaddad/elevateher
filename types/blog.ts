@@ -52,7 +52,7 @@ export interface Post {
   publishedAt: string;
   updatedAt: string;
   is_published: boolean;
-  coverImage?: string;
+  image_url?: string;
   seoDescription?: string;
 }
 

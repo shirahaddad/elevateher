@@ -50,6 +50,7 @@ export const uploadToS3 = async (file: File, postId: string): Promise<string> =>
       Key: key,
       ContentType: file.type,
       Body: new Uint8Array(await file.arrayBuffer()),
+      ACL: "public-read",
     });
 
     // Upload the file
@@ -130,6 +131,7 @@ export const moveS3File = async (tempKey: string, postId: string): Promise<strin
       Bucket: process.env.AWS_BUCKET_NAME!,
       CopySource: `${process.env.AWS_BUCKET_NAME}/${tempKey}`,
       Key: newKey,
+      ACL: "public-read",
     });
 
     console.log('Moving S3 file:', {

@@ -1,13 +1,43 @@
 import Link from 'next/link';
 import PostCard from '@/components/blog/PostCard';
-import type { ListPostsResponse } from '@/types/blog';
+import type { PostWithTags } from '@/types/blog';
 
-export default function BlogPage() {
+async function getPosts() {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/admin/blog`, {
+      next: { revalidate: 60 } // Revalidate every minute
+    });
+    
+    if (!res.ok) {
+      throw new Error('Failed to fetch posts');
+    }
+    
+    const data = await res.json();
+    console.log('API Response:', data); // Debug log
+    
+    if (!data.posts) {
+      throw new Error('Invalid response format');
+    }
+    
+    const posts = data.posts.filter((post: PostWithTags) => post.is_published);
+    console.log('Filtered Posts:', posts); // Debug log
+    
+    return posts;
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return [];
+  }
+}
+
+export default async function BlogPage() {
+  const posts = await getPosts();
+
   return (
     <main className="min-h-screen bg-white">
       {/* Blog Header Section */}
       <section className="py-8">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <h1 className="text-4xl font-bold mb-4 text-purple-900 tracking-tight">
             Blog
           </h1>
@@ -19,10 +49,30 @@ export default function BlogPage() {
 
       {/* Blog Posts Section */}
       <section className="pt-2 pb-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center text-gray-500">
-            <p>Blog posts coming soon...</p>
-          </div>
+        <div className="max-w-7xl mx-auto px-4">
+          {posts.length === 0 ? (
+            <div className="text-center text-gray-500">
+              <p>No blog posts available yet.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {posts.map((post: PostWithTags) => {
+                console.log('Post Data:', post); // Debug log for each post
+                return (
+                  <PostCard
+                    key={post.id}
+                    title={post.title}
+                    slug={post.slug}
+                    author={post.author_name}
+                    publishedAt={post.publishedAt}
+                    image_url={post.image_url}
+                    tags={post.tags?.map(tag => tag.name) || []}
+                    excerpt={post.excerpt}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
     </main>
