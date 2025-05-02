@@ -64,7 +64,7 @@ export default async function BlogPage() {
                     title={post.title}
                     slug={post.slug}
                     author={post.author_name}
-                    publishedAt={post.publishedAt}
+                    published_at={post.published_at}
                     image_url={post.image_url}
                     tags={post.tags?.map(tag => tag.name) || []}
                     excerpt={post.excerpt}

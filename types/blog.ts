@@ -49,7 +49,7 @@ export interface Post {
   content: string;
   excerpt: string;
   author_name: string;
-  publishedAt: string;
+  published_at: string;
   updatedAt: string;
   is_published: boolean;
   image_url?: string;
@@ -127,7 +127,7 @@ export interface PostFilters {
 export interface PaginationParams {
   page: number;
   pageSize: number;
-  sortBy?: 'publishedAt' | 'updatedAt' | 'title';
+  sortBy?: 'published_at' | 'updatedAt' | 'title';
   sortOrder?: 'asc' | 'desc';
 }
 

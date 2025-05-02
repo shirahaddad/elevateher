@@ -8,7 +8,7 @@ interface PostCardProps {
   title: string;
   slug: string;
   author: string;
-  publishedAt: string;
+  published_at: string;
   image_url?: string;
   tags?: string[];
   excerpt?: string;
@@ -18,13 +18,13 @@ export default function PostCard({
   title,
   slug,
   author,
-  publishedAt,
+  published_at,
   image_url,
   tags = [],
   excerpt
 }: PostCardProps) {
   const [error, setError] = useState<string | null>(null);
-  const formattedDate = new Date(publishedAt).toLocaleDateString('en-US', {
+  const formattedDate = new Date(published_at).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -59,7 +59,7 @@ export default function PostCard({
           <div className="flex items-center text-sm text-gray-500">
             <span>{author}</span>
             <span className="mx-2">•</span>
-            <time dateTime={publishedAt}>
+            <time dateTime={published_at}>
               {formattedDate}
             </time>
           </div>
