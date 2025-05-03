@@ -2,9 +2,14 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import MarkdownPreview from '@/components/blog/MarkdownPreview';
+import dynamic from 'next/dynamic';
 import type { GetPostResponse } from '@/types/blog';
 import TagList from '@/components/blog/TagList';
+
+// Lazy load the MarkdownPreview component
+const MarkdownPreview = dynamic(() => import('@/components/blog/MarkdownPreview'), {
+  loading: () => <div className="animate-pulse">Loading content...</div>
+});
 
 interface BlogPostPageProps {
   params: {

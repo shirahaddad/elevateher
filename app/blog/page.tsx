@@ -1,15 +1,27 @@
+'use client';
+
+import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
-import PostCard from '@/components/blog/PostCard';
+import dynamic from 'next/dynamic';
 import type { PostWithTags } from '@/types/blog';
 import { X } from 'lucide-react';
 
-async function getPosts(tag?: string) {
+// Lazy load the PostCard component
+const PostCard = dynamic(() => import('@/components/blog/PostCard'), {
+  loading: () => (
+    <div className="animate-pulse bg-gray-100 rounded-lg h-[400px] w-full" />
+  )
+});
+
+async function getPosts(tag?: string, page: number = 1, limit: number = 6) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const url = new URL(`${baseUrl}/api/admin/blog`);
     if (tag) {
       url.searchParams.append('tag', tag);
     }
+    url.searchParams.append('page', page.toString());
+    url.searchParams.append('limit', limit.toString());
     
     const res = await fetch(url.toString(), {
       next: { revalidate: 60 } // Revalidate every minute
@@ -20,29 +32,66 @@ async function getPosts(tag?: string) {
     }
     
     const data = await res.json();
-    console.log('API Response:', data); // Debug log
-    
-    if (!data.posts) {
-      throw new Error('Invalid response format');
-    }
-    
-    const posts = data.posts.filter((post: PostWithTags) => post.is_published);
-    console.log('Filtered Posts:', posts); // Debug log
-    
-    return posts;
+    return {
+      posts: data.posts.filter((post: PostWithTags) => post.is_published),
+      hasMore: data.hasMore
+    };
   } catch (error) {
     console.error('Error fetching posts:', error);
-    return [];
+    return { posts: [], hasMore: false };
   }
 }
 
-export default async function BlogPage({
+export default function BlogPage({
   searchParams,
 }: {
-  searchParams: { tag?: string };
+  searchParams: Promise<{ tag?: string }>;
 }) {
-  const posts = await getPosts(searchParams.tag);
-  const selectedTag = searchParams.tag;
+  const [posts, setPosts] = useState<PostWithTags[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const { tag: selectedTag } = use(searchParams);
+
+  useEffect(() => {
+    const loadInitialPosts = async () => {
+      setIsLoading(true);
+      const { posts: initialPosts, hasMore: initialHasMore } = await getPosts(selectedTag, 1);
+      setPosts(initialPosts);
+      setHasMore(initialHasMore);
+      setIsLoading(false);
+    };
+
+    loadInitialPosts();
+  }, [selectedTag]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading) {
+          setIsLoading(true);
+          const nextPage = page + 1;
+          const { posts: newPosts, hasMore: newHasMore } = await getPosts(selectedTag, nextPage);
+          setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+          setPage(nextPage);
+          setHasMore(newHasMore);
+          setIsLoading(false);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    const sentinel = document.getElementById('sentinel');
+    if (sentinel) {
+      observer.observe(sentinel);
+    }
+
+    return () => {
+      if (sentinel) {
+        observer.unobserve(sentinel);
+      }
+    };
+  }, [page, hasMore, isLoading, selectedTag]);
 
   return (
     <main className="min-h-screen bg-white">
@@ -75,15 +124,14 @@ export default async function BlogPage({
       {/* Blog Posts Section */}
       <section className="pt-2 pb-8">
         <div className="max-w-7xl mx-auto px-4">
-          {posts.length === 0 ? (
+          {posts.length === 0 && !isLoading ? (
             <div className="text-center text-gray-500">
               <p>No blog posts available{selectedTag ? ` tagged with "${selectedTag}"` : ''}.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {posts.map((post: PostWithTags) => {
-                console.log('Post Data:', post); // Debug log for each post
-                return (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {posts.map((post) => (
                   <PostCard
                     key={post.id}
                     title={post.title}
@@ -94,9 +142,17 @@ export default async function BlogPage({
                     tags={post.tags?.map(tag => tag.name) || []}
                     excerpt={post.excerpt}
                   />
-                );
-              })}
-            </div>
+                ))}
+              </div>
+              
+              {/* Loading indicator and sentinel */}
+              <div id="sentinel" className="h-10" />
+              {isLoading && (
+                <div className="flex justify-center mt-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600" />
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
