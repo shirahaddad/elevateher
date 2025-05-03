@@ -43,7 +43,7 @@ export default function Footer() {
           </div>
           <div className="text-center md:text-left">
             <h3 className="text-lg font-bold mb-2">Contact</h3>
-            <ul className="space-y-1">
+            <ul className="space-y-1 flex flex-col items-center md:items-start">
               <li className="text-sm text-purple-100">
                 <a href="mailto:info@elevateher.tech" className="hover:text-white flex items-center gap-2">
                   <svg
