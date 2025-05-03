@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import MarkdownPreview from '@/components/blog/MarkdownPreview';
 import type { GetPostResponse } from '@/types/blog';
+import TagList from '@/components/blog/TagList';
 
 interface BlogPostPageProps {
   params: {
@@ -58,16 +59,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             )}
             
             {post.tags && post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              <TagList tags={post.tags} />
             )}
 
             <Link 

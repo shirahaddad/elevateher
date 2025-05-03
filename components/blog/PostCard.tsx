@@ -5,6 +5,7 @@ import Image from 'next/image';
 import type { Post } from '@/types/blog';
 import { useState, useEffect } from 'react';
 import { getS3Url } from '@/lib/s3Utils';
+import TagList from './TagList';
 
 interface PostCardProps {
   title: string;
@@ -58,15 +59,8 @@ export default function PostCard({
             {title}
           </h2>
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded"
-                >
-                  {tag}
-                </span>
-              ))}
+            <div className="mb-3" onClick={(e) => e.stopPropagation()}>
+              <TagList tags={tags} />
             </div>
           )}
           {excerpt && (

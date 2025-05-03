@@ -1,8 +1,56 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
-export async function GET() {
+interface Post {
+  id: string;
+  post_tags: Array<{
+    tag_id: string;
+    tags: {
+      name: string;
+    };
+  }>;
+}
+
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const tag = searchParams.get('tag');
+
+    // If a tag is specified, filter posts by that tag
+    if (tag) {
+      const { data: posts, error } = await supabaseAdmin
+        .from('posts')
+        .select(`
+          *,
+          post_tags!inner (
+            tag_id,
+            tags!inner (
+              name
+            )
+          )
+        `)
+        .eq('is_published', true)
+        .eq('post_tags.tags.name', tag)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching posts:', error);
+        return NextResponse.json(
+          { error: 'Failed to fetch posts' },
+          { status: 500 }
+        );
+      }
+
+      // If tag filter is applied, posts already include tag information
+      const postsWithTags = (posts as Post[]).map(post => ({
+        ...post,
+        tags: post.post_tags.map(pt => ({ name: pt.tags.name }))
+      }));
+
+      return NextResponse.json({ posts: postsWithTags });
+    }
+
+    // If no tag filter, fetch all posts
     const { data: posts, error } = await supabaseAdmin
       .from('posts')
       .select('*')

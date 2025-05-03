@@ -1,11 +1,17 @@
 import Link from 'next/link';
 import PostCard from '@/components/blog/PostCard';
 import type { PostWithTags } from '@/types/blog';
+import { X } from 'lucide-react';
 
-async function getPosts() {
+async function getPosts(tag?: string) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/admin/blog`, {
+    const url = new URL(`${baseUrl}/api/admin/blog`);
+    if (tag) {
+      url.searchParams.append('tag', tag);
+    }
+    
+    const res = await fetch(url.toString(), {
       next: { revalidate: 60 } // Revalidate every minute
     });
     
@@ -30,8 +36,13 @@ async function getPosts() {
   }
 }
 
-export default async function BlogPage() {
-  const posts = await getPosts();
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: { tag?: string };
+}) {
+  const posts = await getPosts(searchParams.tag);
+  const selectedTag = searchParams.tag;
 
   return (
     <main className="min-h-screen bg-white">
@@ -44,6 +55,20 @@ export default async function BlogPage() {
           <p className="text-xl text-gray-600">
             Insights, tips and stories about leadership, technology, and personal growth.
           </p>
+          {selectedTag && (
+            <div className="mt-4 flex items-center gap-2">
+              <span className="text-gray-600">Showing posts tagged with:</span>
+              <span className="inline-flex items-center gap-2 bg-purple-100 text-purple-800 text-sm px-3 py-1 rounded-full">
+                {selectedTag}
+                <Link
+                  href="/blog"
+                  className="hover:text-purple-900 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </Link>
+              </span>
+            </div>
+          )}
         </div>
       </section>
 
@@ -52,7 +77,7 @@ export default async function BlogPage() {
         <div className="max-w-7xl mx-auto px-4">
           {posts.length === 0 ? (
             <div className="text-center text-gray-500">
-              <p>No blog posts available yet.</p>
+              <p>No blog posts available{selectedTag ? ` tagged with "${selectedTag}"` : ''}.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
