@@ -56,8 +56,36 @@ async function getTags() {
 }
 
 export const metadata: Metadata = {
-  title: 'Blog | ElevateHer',
+  title: 'Blog | Elevate(Her)',
   description: 'Insights, tips and stories about leadership, technology, and personal growth.',
+  openGraph: {
+    title: 'Blog | Elevate(Her)',
+    description: 'Insights, tips and stories about leadership, technology, and personal growth.',
+    url: process.env.NEXT_PUBLIC_BASE_URL ? `${process.env.NEXT_PUBLIC_BASE_URL}/blog` : 'http://localhost:3000/blog',
+    siteName: 'Elevate(Her)',
+    images: [
+      {
+        url: process.env.NEXT_PUBLIC_BASE_URL 
+          ? `${process.env.NEXT_PUBLIC_BASE_URL}/og-blog.png`
+          : 'http://localhost:3000/og-blog.png',
+        width: 1200,
+        height: 630,
+        alt: 'Elevate(Her) Blog',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blog | Elevate(Her)',
+    description: 'Insights, tips and stories about leadership, technology, and personal growth.',
+    images: [
+      process.env.NEXT_PUBLIC_BASE_URL 
+        ? `${process.env.NEXT_PUBLIC_BASE_URL}/og-blog.png`
+        : 'http://localhost:3000/og-blog.png',
+    ],
+  },
 };
 
 interface PageProps {
