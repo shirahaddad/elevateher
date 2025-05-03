@@ -15,6 +15,7 @@ import ImageUploader from '@/components/blog/ImageUploader';
 import { getAuthorNames } from '@/lib/team';
 import { BlogPostFormProps, Tag } from '@/types/blog';
 import { deleteS3File, getS3Url } from '@/lib/s3Utils';
+import { generateExcerpt } from '@/lib/utils/excerpt';
 
 /**
  * @component BlogPostForm
@@ -164,6 +165,18 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
     setFormData(prev => ({
       ...prev,
       tags: selectedTagIds
+    }));
+  };
+
+  const handleContentChange = (value?: string) => {
+    const content = value || '';
+    setFormData(prev => ({
+      ...prev,
+      content,
+      // Always regenerate excerpt if it's empty or exceeds the limit
+      excerpt: !prev.excerpt || prev.excerpt.length > EXCERPT_LIMIT 
+        ? generateExcerpt(content, EXCERPT_LIMIT)
+        : prev.excerpt
     }));
   };
 
@@ -478,6 +491,17 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
               </p>
             </div>
 
+            {/* Content */}
+            <div>
+              <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+                Content
+              </label>
+              <MarkdownEditor
+                value={formData.content}
+                onChange={handleContentChange}
+              />
+            </div>
+
             {/* Excerpt */}
             <div>
               <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700">
@@ -495,20 +519,9 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
               <p className={`mt-1 text-sm ${excerptCharCount > EXCERPT_LIMIT ? 'text-red-500' : 'text-gray-500'}`}>
                 {excerptCharCount}/{EXCERPT_LIMIT} characters
               </p>
-            </div>
-
-            {/* Content */}
-            <div>
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-                Content
-              </label>
-              <MarkdownEditor
-                value={formData.content}
-                onChange={(newContent) => setFormData(prev => ({
-                  ...prev,
-                  content: newContent || ''
-                }))}
-              />
+              <p className="mt-1 text-sm text-gray-500">
+                This will be used as the meta description for SEO. If left empty, it will be automatically generated from the content.
+              </p>
             </div>
 
             {/* Main Image */}
