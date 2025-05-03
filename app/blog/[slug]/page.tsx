@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import type { GetPostResponse } from '@/types/blog';
 import TagList from '@/components/blog/TagList';
+import { Metadata } from 'next';
 
 // Lazy load the MarkdownPreview component
 const MarkdownPreview = dynamic(() => import('@/components/blog/MarkdownPreview'), {
@@ -35,6 +36,39 @@ async function getPost(slug: string) {
   }
 
   return res.json() as Promise<GetPostResponse>;
+}
+
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+  const { post } = await getPost(params.slug);
+  
+  return {
+    title: post.title,
+    description: post.excerpt || post.content.slice(0, 160),
+    keywords: post.tags || [],
+    authors: [{ name: post.author_name }],
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || post.content.slice(0, 160),
+      type: 'article',
+      publishedTime: post.published_at,
+      authors: [post.author_name],
+      images: post.image_url ? [
+        {
+          url: post.image_url,
+          alt: post.image_alt || post.title,
+        }
+      ] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt || post.content.slice(0, 160),
+      images: post.image_url ? [post.image_url] : undefined,
+    },
+    alternates: {
+      canonical: `/blog/${params.slug}`,
+    },
+  };
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {

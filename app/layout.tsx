@@ -8,10 +8,57 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "Elevate(Her)",
-    template: "Elevate(Her)"
+    default: "Elevate(Her) - Empowering Women in Tech",
+    template: "%s | Elevate(Her)"
   },
-  description: "Empowering women in tech through coaching and mentorship",
+  description: "Empowering women in tech through coaching, mentorship, and leadership development. Join our community of women leaders in technology.",
+  keywords: ["women in tech", "tech leadership", "career coaching", "mentorship", "women empowerment", "tech career", "leadership development"],
+  authors: [{ name: "Shira Haddad" }],
+  creator: "Elevate(Her)",
+  publisher: "Elevate(Her)",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://elevateher.tech'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: "Elevate(Her) - Empowering Women in Tech",
+    description: "Empowering women in tech through coaching, mentorship, and leadership development. Join our community of women leaders in technology.",
+    url: 'https://elevateher.tech',
+    siteName: 'Elevate(Her)',
+    images: [
+      {
+        url: '/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Elevate(Her) - Empowering Women in Tech',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Elevate(Her) - Empowering Women in Tech",
+    description: "Empowering women in tech through coaching, mentorship, and leadership development.",
+    images: ['/images/twitter-image.jpg'],
+    creator: '@elevatehertech',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       { url: '/favicon_2.ico' },
