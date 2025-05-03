@@ -15,6 +15,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const tag = searchParams.get('tag');
+    const isAdmin = request.headers.get('referer')?.includes('/admin');
 
     // If a tag is specified, filter posts by that tag
     if (tag) {
@@ -29,7 +30,6 @@ export async function GET(request: Request) {
             )
           )
         `)
-        .eq('is_published', true)
         .eq('post_tags.tags.name', tag)
         .order('created_at', { ascending: false });
 
@@ -54,7 +54,6 @@ export async function GET(request: Request) {
     const { data: posts, error } = await supabaseAdmin
       .from('posts')
       .select('*')
-      .eq('is_published', true)
       .order('created_at', { ascending: false });
 
     if (error) {
