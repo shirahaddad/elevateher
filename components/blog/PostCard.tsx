@@ -2,10 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import type { Post } from '@/types/blog';
 import { useState, useEffect } from 'react';
 import { getS3Url } from '@/lib/s3Utils';
-import TagList from './TagList';
 
 interface PostCardProps {
   title: string;
@@ -13,9 +11,18 @@ interface PostCardProps {
   author: string;
   published_at: string;
   image_url?: string;
-  tags?: string[];
+  tags?: (string | null | undefined)[];
   excerpt?: string;
 }
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  return `${month} ${day}, ${year}`;
+};
 
 export default function PostCard({
   title,
@@ -26,19 +33,16 @@ export default function PostCard({
   tags = [],
   excerpt
 }: PostCardProps) {
-  const [error, setError] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const formattedDate = new Date(published_at).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const formattedDate = formatDate(published_at);
 
   useEffect(() => {
     if (image_url) {
       getS3Url(image_url).then(url => setImageUrl(url));
     }
   }, [image_url]);
+
+  const validTags = tags.filter((tag): tag is string => typeof tag === 'string');
 
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
@@ -58,9 +62,16 @@ export default function PostCard({
           <h2 className="text-xl font-bold text-purple-900 mb-2 line-clamp-2">
             {title}
           </h2>
-          {tags.length > 0 && (
-            <div className="mb-3" onClick={(e) => e.stopPropagation()}>
-              <TagList tags={tags} />
+          {validTags.length > 0 && (
+            <div className="mb-3 flex flex-wrap gap-2">
+              {validTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded"
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
           )}
           {excerpt && (

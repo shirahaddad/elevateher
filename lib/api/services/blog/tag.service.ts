@@ -18,7 +18,16 @@ export class TagService {
     try {
       const { data, error } = await supabaseAdmin
         .from('tags')
-        .select('*')
+        .select(`
+          *,
+          post_tags!inner (
+            post_id,
+            posts!inner (
+              is_published
+            )
+          )
+        `)
+        .eq('post_tags.posts.is_published', true)
         .order('name', { ascending: true });
 
       if (error) {
@@ -30,7 +39,12 @@ export class TagService {
         );
       }
 
-      return data as Tag[];
+      // Remove duplicates and return unique tags
+      const uniqueTags = Array.from(new Set(data.map(tag => tag.name)))
+        .map(name => data.find(tag => tag.name === name))
+        .filter((tag): tag is Tag => tag !== undefined);
+
+      return uniqueTags;
     } catch (error) {
       if (error instanceof ApiException) throw error;
       throw new ApiException(

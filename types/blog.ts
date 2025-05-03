@@ -57,6 +57,16 @@ export interface Post {
   seoDescription?: string;
 }
 
+export interface ApiPost extends Post {
+  content: string;
+  updatedAt: string;
+  is_published: boolean;
+  author: Author;
+  post_tags: {
+    tag: Tag;
+  }[];
+}
+
 // Combined Types
 
 export interface PostWithAuthor extends Post {

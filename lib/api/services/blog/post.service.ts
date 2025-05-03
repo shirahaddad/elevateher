@@ -35,9 +35,9 @@ export class BlogPostService {
         .from('posts')
         .select(`
           *,
-          post_tags (
+          post_tags!inner (
             tag_id,
-            tags (
+            tags!inner (
               name
             )
           )
