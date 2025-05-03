@@ -14,8 +14,6 @@ interface ApiPost {
   updatedAt: string;
   is_published: boolean;
   image_url?: string;
-  image_alt?: string;
-  seoDescription?: string;
   post_tags: {
     tag_id: string;
     tags: {

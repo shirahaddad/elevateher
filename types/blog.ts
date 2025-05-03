@@ -53,8 +53,6 @@ export interface Post {
   updatedAt: string;
   is_published: boolean;
   image_url?: string;
-  image_alt?: string;
-  seoDescription?: string;
 }
 
 export interface ApiPost extends Post {
@@ -91,7 +89,6 @@ export interface CreatePostRequest {
   is_published?: boolean;
   tags?: string[]; // Array of tag IDs
   imageUrl?: string;
-  seoDescription?: string;
 }
 
 export interface UpdatePostRequest extends Partial<CreatePostRequest> {
@@ -101,22 +98,22 @@ export interface UpdatePostRequest extends Partial<CreatePostRequest> {
 // API Response Types
 
 export interface ListPostsResponse {
-  posts: FullPost[];
+  posts: PostWithAuthor[];
   totalCount: number;
   page: number;
   pageSize: number;
 }
 
 export interface GetPostResponse {
-  post: FullPost;
+  post: PostWithAuthor;
 }
 
 export interface CreatePostResponse {
-  post: FullPost;
+  post: PostWithAuthor;
 }
 
 export interface UpdatePostResponse {
-  post: FullPost;
+  post: PostWithAuthor;
 }
 
 export interface DeletePostResponse {
