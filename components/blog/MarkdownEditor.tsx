@@ -17,6 +17,25 @@ interface MarkdownEditorProps {
 export default function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   return (
     <div className="markdown-editor" data-color-mode="light">
+      <style jsx global>{`
+        .markdown-editor .w-md-editor-preview ul {
+          list-style-type: disc;
+          padding-left: 2em;
+        }
+        .markdown-editor .w-md-editor-preview ul li {
+          display: list-item;
+        }
+        .markdown-editor .w-md-editor-preview ol {
+          list-style-type: decimal;
+          padding-left: 2em;
+        }
+        .markdown-editor .w-md-editor-preview ol li {
+          display: list-item;
+        }
+        .markdown-editor .w-md-editor-preview p {
+          white-space: pre-wrap;
+        }
+      `}</style>
       <MDEditor
         value={value}
         onChange={onChange}
