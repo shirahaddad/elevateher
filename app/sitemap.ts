@@ -18,11 +18,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Fetch blog posts
-  const blogPostsResponse = await fetch(`${baseUrl}/api/blog`);
+  const blogPostsResponse = await fetch(`${baseUrl}/api/v1/blog`);
   const blogPosts = await blogPostsResponse.json();
 
   // Blog post routes
-  const blogPostRoutes = blogPosts.posts.map((post: any) => ({
+  const blogPostRoutes = blogPosts.data.data.map((post: any) => ({
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: new Date(post.updated_at || post.published_at),
     changeFrequency: 'monthly' as const,
