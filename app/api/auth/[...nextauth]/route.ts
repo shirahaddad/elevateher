@@ -11,7 +11,7 @@ const handler = NextAuth({
   callbacks: {
     async signIn({ user }) {
       // Only allow specific email addresses (admin allowlist)
-      const allowedEmails = ['shira.haddad@gmail.com']; // <-- Replace with your admin email(s)
+      const allowedEmails = ['shira.haddad@gmail.com', 'michiko3.CM@gmail.com', ]; 
       return allowedEmails.includes(user.email!);
     },
   },
