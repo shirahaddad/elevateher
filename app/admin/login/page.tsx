@@ -2,11 +2,21 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from "next-auth/react";
+import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { data: session, status } = useSession();
   const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/admin');
+    }
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +79,15 @@ export default function AdminLogin() {
             Login
           </button>
         </form>
+        <div className="mt-8 flex flex-col items-center">
+          <span className="text-gray-500 mb-2">or</span>
+          <button
+            onClick={() => signIn('google')}
+            className="w-full bg-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mt-2"
+          >
+            Sign in with Google
+          </button>
+        </div>
       </div>
     </div>
   );
