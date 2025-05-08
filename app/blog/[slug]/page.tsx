@@ -82,9 +82,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   return (
     <main className="min-h-screen bg-white">
       <article className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Left Column (1/3) */}
-          <div className="space-y-6">
+          <div className="space-y-6 order-2 md:order-1">
             {post.image_url && (
               <div className="relative w-full aspect-[4/3]">
                 <Image
@@ -111,7 +111,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
 
           {/* Right Column (2/3) */}
-          <div className="col-span-2">
+          <div className="col-span-1 md:col-span-2 order-1 md:order-2">
             <div className="prose prose-lg max-w-none">
               <h1 className="text-4xl font-bold text-purple-900 mb-4">{post.title}</h1>
               
