@@ -1,8 +1,23 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
+import { createValidationMiddleware } from '@/lib/validation/middleware';
+import { z } from 'zod';
 
-export async function POST(request: Request) {
-  const { password } = await request.json();
+// Define the schema for admin login
+const adminLoginSchema = z.object({
+  password: z.string().min(1, 'Password is required'),
+});
+
+// Create the validation middleware
+const validateAdminLogin = createValidationMiddleware({ schema: adminLoginSchema });
+
+export async function POST(req: NextRequest) {
+  // Run validation middleware
+  const validationResponse = await validateAdminLogin(req);
+  if (validationResponse) return validationResponse;
+
+  // Access validated data
+  const { password } = (req as any).validatedData;
   const adminPassword = process.env.ADMIN_PASSWORD;
 
   if (!adminPassword) {

@@ -1,5 +1,16 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { z } from "zod";
+import { emailSchema } from "@/lib/validation/base";
+
+// Define the schema for allowed emails
+const allowedEmailsSchema = z.array(emailSchema);
+
+// List of allowed admin emails
+const allowedEmails = ['shira.haddad@gmail.com', 'michiko3.CM@gmail.com'];
+
+// Validate the allowed emails list
+const validatedEmails = allowedEmailsSchema.parse(allowedEmails);
 
 const handler = NextAuth({
   providers: [
@@ -10,9 +21,18 @@ const handler = NextAuth({
   ],
   callbacks: {
     async signIn({ user }) {
-      // Only allow specific email addresses (admin allowlist)
-      const allowedEmails = ['shira.haddad@gmail.com', 'michiko3.CM@gmail.com', ]; 
-      return allowedEmails.includes(user.email!);
+      // Validate the user's email against the allowed list
+      if (!user.email) return false;
+      
+      try {
+        // Validate email format
+        emailSchema.parse(user.email);
+        // Check if email is in allowed list
+        return validatedEmails.includes(user.email);
+      } catch (error) {
+        console.error('Email validation error:', error);
+        return false;
+      }
     },
   },
   pages: {
