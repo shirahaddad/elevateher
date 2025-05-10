@@ -1,6 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getS3Url, deleteS3File } from '@/lib/s3Utils';
+import { createValidationMiddleware } from '@/lib/validation/middleware';
+import { updateBlogPostSchema } from '@/lib/validation/base';
+
+const validateUpdateBlogPost = createValidationMiddleware({ schema: updateBlogPostSchema });
 
 export async function GET(
   request: Request,
@@ -76,35 +80,37 @@ export async function GET(
 }
 
 export async function PATCH(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // Run validation middleware
+  const validationResponse = await validateUpdateBlogPost(request);
+  if (validationResponse) return validationResponse;
+
+  const data = (request as any).validatedData;
+  const { id: paramId } = params;
+  if (!paramId) {
+    return NextResponse.json(
+      { error: 'Post ID is required' },
+      { status: 400 }
+    );
+  }
+
   try {
-    const { id: paramId } = params;
-    if (!paramId) {
-      return NextResponse.json(
-        { error: 'Post ID is required' },
-        { status: 400 }
-      );
-    }
-
-    const data = await request.json();
-    console.log('Updating post with data:', data);
-
     // Update the post
     const { error: updateError } = await supabaseAdmin
       .from('posts')
       .update({
-        title: data.title,
-        content: data.content,
-        excerpt: data.excerpt || null,
-        author_name: data.author_name,
-        slug: data.slug,
-        is_published: data.is_published || false,
-        published_at: data.is_published ? new Date().toISOString() : null,
-        image_url: data.imageUrl || null,
-        image_alt: data.imageAlt || null,
-        updated_at: new Date().toISOString()
+        ...(data.title && { title: data.title }),
+        ...(data.content && { content: data.content }),
+        ...(data.excerpt && { excerpt: data.excerpt }),
+        ...(data.author_name && { author_name: data.author_name }),
+        ...(data.slug && { slug: data.slug }),
+        ...(data.is_published !== undefined && { is_published: data.is_published }),
+        ...(data.image_url && { image_url: data.image_url }),
+        ...(data.image_alt && { image_alt: data.image_alt }),
+        published_at: data.is_published ? new Date().toISOString() : undefined,
+        updated_at: new Date().toISOString(),
       })
       .eq('id', paramId);
 

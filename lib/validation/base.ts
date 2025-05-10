@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TEAM } from '../team';
 
 // Common validation patterns
 export const emailSchema = z.string().email('Invalid email address');
@@ -61,4 +62,45 @@ export const validate = <T>(schema: z.ZodSchema<T>, data: unknown): ValidationRe
     }
     throw error;
   }
-}; 
+};
+
+export const authorNameSchema = z.string().min(1, 'Author name is required');
+
+// Blog post creation schema
+export const createBlogPostSchema = z.object({
+  title: z.string().min(3, 'Title is required and must be at least 3 characters'),
+  content: z.string().min(10, 'Content is required and must be at least 10 characters'),
+  excerpt: z.string().optional(),
+  author_name: authorNameSchema,
+  slug: z.string().min(3, 'Slug is required and must be at least 3 characters'),
+  is_published: z.boolean().optional(),
+  tags: z.array(z.string().min(1, 'Tag ID cannot be empty')).optional(),
+  image_url: urlSchema.optional(),
+  image_alt: z.string().max(100, 'Image alt text must be at most 100 characters').optional(),
+});
+
+// Blog post update schema
+export const updateBlogPostSchema = z.object({
+  title: z.string().min(3).optional(),
+  content: z.string().min(10).optional(),
+  excerpt: z.string().optional(),
+  author_name: authorNameSchema.optional(),
+  slug: z.string().min(3).optional(),
+  is_published: z.boolean().optional(),
+  tags: z.array(z.string().min(1, 'Tag ID cannot be empty')).optional(),
+  image_url: urlSchema.optional(),
+  image_alt: z.string().max(100, 'Image alt text must be at most 100 characters').optional(),
+}).refine(
+  (data) => Object.keys(data).length > 0,
+  {
+    message: 'At least one field to update must be provided',
+    path: [],
+  }
+);
+
+// Blog search/filter query schema (no 'search' field)
+export const blogSearchQuerySchema = z.object({
+  tag: z.string().optional(),
+  is_published: z.union([z.boolean(), z.enum(['true', 'false'])]).optional(),
+  author: z.string().optional(),
+}); 

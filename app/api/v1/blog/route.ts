@@ -2,17 +2,25 @@ import { NextResponse } from 'next/server';
 import { BlogPostService } from '@/lib/api/services/blog/post.service';
 import { handleApiError } from '@/lib/api/utils/error-handler';
 import { BlogPostsResponse, BlogPostResponse, CreateBlogPostInput, UpdateBlogPostInput } from '@/lib/api/types/blog';
+import { blogSearchQuerySchema } from '@/lib/validation/base';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const tag = searchParams.get('tag');
-    const isPublished = searchParams.get('is_published');
+    const query = Object.fromEntries(searchParams.entries());
+    const validation = blogSearchQuerySchema.safeParse(query);
+    if (!validation.success) {
+      return NextResponse.json({
+        success: false,
+        errors: validation.error.errors.map(e => ({ field: e.path.join('.'), message: e.message })),
+      }, { status: 400 });
+    }
+    const { tag, is_published } = validation.data;
 
     const blogService = BlogPostService.getInstance();
     const posts = await blogService.getPosts({
       tag: tag || undefined,
-      is_published: isPublished ? isPublished === 'true' : undefined,
+      is_published: is_published !== undefined ? (is_published === true || is_published === 'true') : undefined,
     });
 
     const response: BlogPostsResponse = {

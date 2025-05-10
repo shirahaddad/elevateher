@@ -1,5 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { createValidationMiddleware } from '@/lib/validation/middleware';
+import { createBlogPostSchema, updateBlogPostSchema } from '@/lib/validation/base';
+import { blogSearchQuerySchema } from '@/lib/validation/base';
+
+const validateCreateBlogPost = createValidationMiddleware({ schema: createBlogPostSchema });
+const validateUpdateBlogPost = createValidationMiddleware({ schema: updateBlogPostSchema });
 
 interface Post {
   id: string;
@@ -14,7 +20,15 @@ interface Post {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const tag = searchParams.get('tag');
+    const query = Object.fromEntries(searchParams.entries());
+    const validation = blogSearchQuerySchema.safeParse(query);
+    if (!validation.success) {
+      return NextResponse.json({
+        success: false,
+        errors: validation.error.errors.map(e => ({ field: e.path.join('.'), message: e.message })),
+      }, { status: 400 });
+    }
+    const { tag, is_published, author } = validation.data;
     const isAdmin = request.headers.get('referer')?.includes('/admin');
 
     // If a tag is specified, filter posts by that tag
@@ -105,90 +119,86 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
-  try {
-    const data = await request.json();
-    console.log('Creating new blog post with data:', data);
-    console.log('Tags data:', data.tags);
+export async function POST(request: NextRequest) {
+  // Run validation middleware
+  const validationResponse = await validateCreateBlogPost(request);
+  if (validationResponse) return validationResponse;
 
-    // Validate required fields
-    const requiredFields = ['title', 'content', 'author_name', 'slug'];
-    const missingFields = requiredFields.filter(field => !data[field]);
-    
-    if (missingFields.length > 0) {
-      console.log('Missing required fields:', missingFields);
-      return NextResponse.json(
-        { error: `Missing required fields: ${missingFields.join(', ')}` },
-        { status: 400 }
-      );
-    }
+  const data = (request as any).validatedData;
+  console.log('Creating new blog post with data:', data);
+  console.log('Tags data:', data.tags);
 
-    // Insert the new post
-    console.log('Attempting to insert post into database...');
-    const { data: post, error } = await supabaseAdmin
-      .from('posts')
-      .insert([
-        {
-          title: data.title,
-          content: data.content,
-          excerpt: data.excerpt || null,
-          author_name: data.author_name,
-          slug: data.slug,
-          is_published: data.is_published || false,
-          image_url: data.imageUrl || null,
-          image_alt: data.imageAlt || null,
-          published_at: data.is_published ? new Date().toISOString() : null,
-        }
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase error details:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      });
-      return NextResponse.json(
-        { error: `Failed to create post: ${error.message}` },
-        { status: 500 }
-      );
-    }
-
-    console.log('Successfully created post:', post);
-
-    // If there are tags, create the post-tag relationships
-    if (data.tags && data.tags.length > 0) {
-      console.log('Creating post-tag relationships with tags:', data.tags);
-      const postTagRelationships = data.tags.map((tagId: string) => ({
-        post_id: post.id,
-        tag_id: tagId
-      }));
-      console.log('Post-tag relationships to create:', postTagRelationships);
-      
-      const { error: tagError } = await supabaseAdmin
-        .from('post_tags')
-        .insert(postTagRelationships);
-
-      if (tagError) {
-        console.error('Error creating post-tag relationships:', tagError);
-        // We don't return an error here since the post was created successfully
-      } else {
-        console.log('Successfully created post-tag relationships');
-      }
-    } else {
-      console.log('No tags to create relationships for');
-    }
-
-    return NextResponse.json({ post });
-  } catch (error) {
-    console.error('Error processing request:', error);
+  // Validate required fields
+  const requiredFields = ['title', 'content', 'author_name', 'slug'];
+  const missingFields = requiredFields.filter(field => !data[field]);
+  
+  if (missingFields.length > 0) {
+    console.log('Missing required fields:', missingFields);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: `Missing required fields: ${missingFields.join(', ')}` },
+      { status: 400 }
+    );
+  }
+
+  // Insert the new post
+  console.log('Attempting to insert post into database...');
+  const { data: post, error } = await supabaseAdmin
+    .from('posts')
+    .insert([
+      {
+        title: data.title,
+        content: data.content,
+        excerpt: data.excerpt || null,
+        author_name: data.author_name,
+        slug: data.slug,
+        is_published: data.is_published || false,
+        image_url: data.imageUrl || null,
+        image_alt: data.imageAlt || null,
+        published_at: data.is_published ? new Date().toISOString() : null,
+      }
+    ])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Supabase error details:', {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code
+    });
+    return NextResponse.json(
+      { error: `Failed to create post: ${error.message}` },
       { status: 500 }
     );
   }
+
+  console.log('Successfully created post:', post);
+
+  // If there are tags, create the post-tag relationships
+  if (data.tags && data.tags.length > 0) {
+    console.log('Creating post-tag relationships with tags:', data.tags);
+    const postTagRelationships = data.tags.map((tagId: string) => ({
+      post_id: post.id,
+      tag_id: tagId
+    }));
+    console.log('Post-tag relationships to create:', postTagRelationships);
+    
+    const { error: tagError } = await supabaseAdmin
+      .from('post_tags')
+      .insert(postTagRelationships);
+
+    if (tagError) {
+      console.error('Error creating post-tag relationships:', tagError);
+      // We don't return an error here since the post was created successfully
+    } else {
+      console.log('Successfully created post-tag relationships');
+    }
+  } else {
+    console.log('No tags to create relationships for');
+  }
+
+  return NextResponse.json({ post });
 }
 
 export async function DELETE(request: Request) {
