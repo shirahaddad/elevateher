@@ -4,12 +4,41 @@ import { createValidationMiddleware } from '../middleware';
 
 // Mock NextRequest and NextResponse
 jest.mock('next/server', () => ({
-  NextRequest: jest.fn().mockImplementation((url, init) => ({
-    url,
-    method: init?.method || 'GET',
-    headers: new Headers(init?.headers),
-    body: init?.body,
-  })),
+  NextRequest: jest.fn().mockImplementation((url, init) => {
+    const headers = new Headers(init?.headers);
+    let body = init?.body;
+    let jsonData: any;
+    let formData: FormData | undefined;
+
+    // If body is a string, try to parse it as JSON
+    if (typeof body === 'string') {
+      try {
+        jsonData = JSON.parse(body);
+      } catch {
+        jsonData = undefined;
+      }
+    } else if (body instanceof FormData) {
+      formData = body;
+    }
+
+    return {
+      url,
+      method: init?.method || 'GET',
+      headers,
+      json: async () => {
+        if (typeof body === 'string') {
+          try {
+            return JSON.parse(body);
+          } catch (e) {
+            throw new Error('Invalid JSON');
+          }
+        }
+        return jsonData;
+      },
+      formData: async () => formData || new FormData(),
+      text: async () => typeof body === 'string' ? body : '',
+    };
+  }),
   NextResponse: {
     json: jest.fn().mockImplementation((data, init) => ({
       status: init?.status || 200,

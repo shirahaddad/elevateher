@@ -14,13 +14,25 @@ export const createValidationMiddleware = <T>(config: ValidationMiddlewareConfig
       
       // Handle different content types
       const contentType = req.headers.get('content-type');
-      if (contentType?.includes('application/json')) {
-        data = await req.json();
-      } else if (contentType?.includes('multipart/form-data')) {
-        const formData = await req.formData();
-        data = Object.fromEntries(formData.entries());
-      } else {
-        data = Object.fromEntries(new URL(req.url).searchParams.entries());
+      try {
+        if (contentType?.includes('application/json')) {
+          data = await req.json();
+        } else if (contentType?.includes('multipart/form-data')) {
+          const formData = await req.formData();
+          data = Object.fromEntries(formData.entries());
+        } else {
+          data = Object.fromEntries(new URL(req.url).searchParams.entries());
+        }
+      } catch (error) {
+        // If we can't parse the request body, it's an internal error
+        console.error('Error parsing request body:', error);
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'Internal server error during validation',
+          },
+          { status: 500 }
+        );
       }
 
       const result = validate(config.schema, data);
