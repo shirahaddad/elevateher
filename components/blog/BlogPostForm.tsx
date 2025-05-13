@@ -215,8 +215,10 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
         },
         body: JSON.stringify({
           ...formData,
-          imageUrl: formData.imageKey || formData.originalImageKey || null,
-          imageAlt: formData.imageAlt,
+          image_url: formData.imageKey || formData.originalImageKey || null,
+          image_alt: formData.imageAlt,
+          imageUrl: undefined,
+          imageAlt: undefined,
         }),
       });
 
