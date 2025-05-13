@@ -42,7 +42,7 @@ export class BlogPostService {
             )
           )
         `)
-        .order('created_at', { ascending: false });
+        .order('published_at', { ascending: false });
 
       if (filters?.tag) {
         query = query.eq('post_tags.tags.name', filters.tag);
