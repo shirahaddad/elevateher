@@ -42,13 +42,12 @@ export default function BlogManagementPage() {
 
   const handlePublishToggle = async (id: string, isPublished: boolean) => {
     try {
-      const response = await fetch('/api/admin/blog', {
+      const response = await fetch(`/api/admin/blog/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id,
           is_published: !isPublished,
         }),
       });
