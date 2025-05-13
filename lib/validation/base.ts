@@ -74,8 +74,8 @@ export const createBlogPostSchema = z.object({
   author_name: authorNameSchema,
   slug: z.string().min(3, 'Slug is required and must be at least 3 characters'),
   is_published: z.boolean().optional(),
-  tags: z.array(z.string().min(1, 'Tag ID cannot be empty')).optional(),
-  image_url: urlSchema.optional(),
+  tags: z.array(z.coerce.string().min(1, 'Tag ID cannot be empty')).optional(),
+  image_url: z.string().min(1, 'Image URL is required').optional(),
   image_alt: z.string().max(100, 'Image alt text must be at most 100 characters').optional(),
 });
 
@@ -87,8 +87,8 @@ export const updateBlogPostSchema = z.object({
   author_name: authorNameSchema.optional(),
   slug: z.string().min(3).optional(),
   is_published: z.boolean().optional(),
-  tags: z.array(z.string().min(1, 'Tag ID cannot be empty')).optional(),
-  image_url: urlSchema.optional(),
+  tags: z.array(z.coerce.string().min(1, 'Tag ID cannot be empty')).optional(),
+  image_url: z.string().min(1, 'Image URL is required').optional(),
   image_alt: z.string().max(100, 'Image alt text must be at most 100 characters').optional(),
 }).refine(
   (data) => Object.keys(data).length > 0,

@@ -295,8 +295,8 @@ export default function BlogPostForm({ mode, initialData }: BlogPostFormProps) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              imageUrl: moveResult.imageKey,
-              imageAlt: formData.imageAlt,
+              image_url: moveResult.imageKey,
+              image_alt: formData.imageAlt,
             }),
           });
 
