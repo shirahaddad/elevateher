@@ -16,6 +16,7 @@ const resend = new Resend(RESEND_API_KEY);
 const fromEmail: string = 'Elevate(Her) <no-reply@elevateher.tech>';
 const adminEmail: string = ADMIN_EMAIL;
 
+// Send a questionnaire submission email to the admin
 export async function sendQuestionnaireEmail(data: {
   client_name: string;
   email: string;
@@ -85,6 +86,7 @@ export async function sendQuestionnaireEmail(data: {
   }
 } 
 
+// Send a "Learn More" email to the admin
 export async function sendLearnMoreEmail(data: {
   name: string;
   email: string;
@@ -139,6 +141,7 @@ export async function sendLearnMoreEmail(data: {
   }
 } 
 
+// Send a "Learn More" email to the prospect
 export async function sendLearnMoreEmailProspect(data: { email: string; name: string }) {
   const { email, name } = data;
   const firstName = name.split(' ')[0]; // Get first word of the name
