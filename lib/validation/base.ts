@@ -173,3 +173,18 @@ export const blogSearchQuerySchema = z.object({
   is_published: z.union([z.boolean(), z.enum(['true', 'false'])]).optional(),
   author: z.string().optional(),
 }); 
+
+/**
+ * File upload validation schema
+ * Validates file uploads for:
+ * - Required image file
+ * - File type (images only)
+ * - File size (max 5MB)
+ */
+export const fileUploadSchema = z.object({
+  filename: z.string().min(1),
+  mimetype: z.string().refine((val) => ['image/jpeg', 'image/png', 'image/webp'].includes(val), {
+    message: 'Unsupported file type',
+  }),
+  size: z.number().max(5 * 1024 * 1024, { message: 'File size must be less than 5MB' }), // Max 5MB
+});

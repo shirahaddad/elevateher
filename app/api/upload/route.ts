@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { uploadToTempS3, getS3Url } from '@/lib/s3Utils';
+import { z } from 'zod';
+import { fileUploadSchema } from '@/lib/validation/base';
 
 export async function POST(request: Request) {
   console.log('Upload route - AWS Environment Variables:', {
@@ -16,6 +18,24 @@ export async function POST(request: Request) {
     if (!file) {
       return NextResponse.json(
         { error: 'No file uploaded' },
+        { status: 400 }
+      );
+    }
+
+    // Create a plain object with file properties for validation
+    // This is necessary because the File object from the client
+    // doesn't maintain its instance properties on the server side
+    const fileData = {
+      filename: file.name,
+      mimetype: file.type,
+      size: file.size
+    };
+
+    // Validate with Zod
+    const validation = fileUploadSchema.safeParse(fileData);
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: validation.error.errors.map(e => e.message).join(', ') },
         { status: 400 }
       );
     }
