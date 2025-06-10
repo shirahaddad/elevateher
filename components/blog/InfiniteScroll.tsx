@@ -66,7 +66,13 @@ export default function InfiniteScroll({ initialPosts, initialHasMore, selectedT
         const data = await res.json();
         const newPosts = data.data.data;
         
-        setPosts(prevPosts => [...prevPosts, ...newPosts]);
+        // Deduplicate posts by slug before adding new ones
+        setPosts(prevPosts => {
+          const existingSlugs = new Set(prevPosts.map(post => post.slug));
+          const uniqueNewPosts = newPosts.filter((post: ApiPost) => !existingSlugs.has(post.slug));
+          return [...prevPosts, ...uniqueNewPosts];
+        });
+        
         setHasMore(data.data.total > page * 6);
       } catch (error) {
         console.error('Error fetching more posts:', error);
@@ -77,6 +83,13 @@ export default function InfiniteScroll({ initialPosts, initialHasMore, selectedT
 
     fetchMorePosts();
   }, [page, selectedTag]);
+
+  // Reset posts when tag changes
+  useEffect(() => {
+    setPosts(initialPosts);
+    setPage(1);
+    setHasMore(initialHasMore);
+  }, [selectedTag, initialPosts, initialHasMore]);
 
   const getPostTags = (post: ApiPost): string[] => {
     if (!post.post_tags) return [];
