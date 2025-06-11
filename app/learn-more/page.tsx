@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { learnMoreFormSchema } from '@/lib/validation/base';
 
 function LearnMoreForm() {
   const router = useRouter();
@@ -12,6 +13,7 @@ function LearnMoreForm() {
     name: '',
     email: '',
     mailingList: false,
+    website: '', // Honeypot field disguised as a website field
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,6 +22,14 @@ function LearnMoreForm() {
     setError(null);
 
     try {
+      // Client-side validation
+      const validationResult = learnMoreFormSchema.safeParse(formData);
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors.map(err => err.message);
+        setError(errors.join(', '));
+        return;
+      }
+
       const response = await fetch('/api/submit-learn-more', {
         method: 'POST',
         headers: {
@@ -28,13 +38,15 @@ function LearnMoreForm() {
         body: JSON.stringify(formData),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to submit form');
+        throw new Error(data.message || 'Failed to submit form');
       }
 
       router.push('/thank-you');
     } catch (err) {
-      setError('There was an error submitting your form. Please try again.');
+      setError(err instanceof Error ? err.message : 'There was an error submitting your form. Please try again.');
       console.error('Form submission error:', err);
     } finally {
       setIsSubmitting(false);
@@ -70,6 +82,17 @@ function LearnMoreForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8 bg-white rounded-2xl shadow-xl p-8">
+          {/* Honeypot field - hidden from users */}
+          <div style={{ display: 'none' }}>
+            <input
+              type="text"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
           
           <div>
             <label 

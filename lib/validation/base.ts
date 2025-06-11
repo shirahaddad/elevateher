@@ -188,3 +188,15 @@ export const fileUploadSchema = z.object({
   }),
   size: z.number().max(5 * 1024 * 1024, { message: 'File size must be less than 5MB' }), // Max 5MB
 });
+
+/**
+ * Learn More form validation schema
+ * Validates the learn more form submission data
+ */
+export const learnMoreFormSchema = z.object({
+  name: nameSchema,
+  email: emailSchema,
+  mailingList: z.boolean().default(false),
+  // Honeypot field for spam prevention - must be empty
+  website: z.string().max(0).optional(),
+});

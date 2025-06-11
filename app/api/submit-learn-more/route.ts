@@ -1,31 +1,34 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { sendLearnMoreEmail } from '@/lib/email';
 import { sendLearnMoreEmailProspect } from '@/lib/email';
 import { supabaseAdmin } from '@/lib/supabase';
+import { createValidationMiddleware } from '@/lib/validation/middleware';
+import { learnMoreFormSchema } from '@/lib/validation/base';
 
-interface LearnMoreData {
-  name: string;
-  email: string;
-  mailingList: boolean;
-}
+// Create validation middleware
+const validateLearnMore = createValidationMiddleware({
+  schema: learnMoreFormSchema,
+  onError: (result) => {
+    return NextResponse.json(
+      { 
+        success: false,
+        errors: result.errors,
+        message: 'Validation failed'
+      },
+      { status: 400 }
+    );
+  },
+});
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const data = await request.json() as LearnMoreData;
+    // Validate request data
+    const validationResponse = await validateLearnMore(request);
+    if (validationResponse) return validationResponse;
+
+    // Get validated data from request
+    const data = (request as any).validatedData;
     console.log('Received learn-more data:', JSON.stringify(data, null, 2));
-
-    // Validate required fields
-    const missingFields = [];
-    if (!data.name) missingFields.push('name');
-    if (!data.email) missingFields.push('email');
-
-    if (missingFields.length > 0) {
-      console.error('Missing required fields:', missingFields);
-      return NextResponse.json(
-        { error: `Missing required fields: ${missingFields.join(', ')}` },
-        { status: 400 }
-      );
-    }
 
     // Save to database
     const { data: dbData, error: dbError } = await supabaseAdmin
