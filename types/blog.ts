@@ -53,6 +53,7 @@ export interface Post {
   updatedAt: string;
   is_published: boolean;
   image_url?: string;
+  imageAlt?: string;
 }
 
 export interface ApiPost extends Post {

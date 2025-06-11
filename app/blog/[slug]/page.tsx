@@ -1,9 +1,18 @@
+/**
+ * Blog Post Page Component
+ * 
+ * This page component renders individual blog posts using dynamic routing based on the post slug.
+ * It includes metadata generation for SEO, lazy-loaded markdown content rendering, and responsive layout.
+ * 
+ * @module BlogPostPage
+ */
+
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import type { GetPostResponse } from '@/types/blog';
+import type { FullPost } from '@/types/blog';
 import TagList from '@/components/blog/TagList';
 import { Metadata } from 'next';
 
@@ -12,12 +21,27 @@ const MarkdownPreview = dynamic(() => import('@/components/blog/MarkdownPreview'
   loading: () => <div className="animate-pulse">Loading content...</div>
 });
 
+/**
+ * Props interface for the BlogPostPage component
+ * @interface BlogPostPageProps
+ */
 interface BlogPostPageProps {
   params: {
-    slug: string;
+    slug: string; // The URL slug of the blog post
   };
 }
 
+interface GetPostResponse {
+  post: FullPost;
+}
+
+/**
+ * Fetches a blog post by its slug
+ * 
+ * @param {string} slug - The URL slug of the blog post to fetch
+ * @returns {Promise<GetPostResponse>} The blog post data
+ * @throws {Error} If the post fetch fails
+ */
 async function getPost(slug: string) {
   // Use absolute URL in production, relative URL in development
   const baseUrl = process.env.NODE_ENV === 'production'
@@ -38,6 +62,12 @@ async function getPost(slug: string) {
   return res.json() as Promise<GetPostResponse>;
 }
 
+/**
+ * Generates metadata for the blog post page
+ * 
+ * @param {BlogPostPageProps} props - The component props
+ * @returns {Promise<Metadata>} The generated metadata object
+ */
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { post } = await getPost(params.slug);
   
@@ -55,7 +85,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       images: post.image_url ? [
         {
           url: post.image_url,
-          alt: post.image_alt || post.title,
+          alt: post.imageAlt || post.title,
         }
       ] : undefined,
     },
@@ -71,6 +101,15 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   };
 }
 
+/**
+ * Blog Post Page Component
+ * 
+ * Renders a full blog post with title, author, date, content, and associated metadata.
+ * The layout is responsive with a 1/3 - 2/3 grid on desktop and stacked on mobile.
+ * 
+ * @param {BlogPostPageProps} props - The component props
+ * @returns {Promise<JSX.Element>} The rendered blog post page
+ */
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { post } = await getPost(params.slug);
   const formattedDate = new Date(post.published_at).toLocaleDateString('en-US', {
@@ -89,7 +128,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <div className="relative w-full aspect-[4/3]">
                 <Image
                   src={post.image_url}
-                  alt={post.image_alt || post.title}
+                  alt={post.imageAlt || post.title}
                   fill
                   className="object-cover rounded-lg"
                   priority
