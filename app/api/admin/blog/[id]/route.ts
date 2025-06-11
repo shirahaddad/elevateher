@@ -114,7 +114,7 @@ export async function PATCH(
     }
 
     // Update the post
-    const { error: updateError } = await supabaseAdmin
+    const { data: updatedPost, error: updateError } = await supabaseAdmin
       .from('posts')
       .update({
         ...(data.title && { title: data.title }),
@@ -128,7 +128,9 @@ export async function PATCH(
         published_at: data.is_published ? new Date().toISOString() : undefined,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', paramId);
+      .eq('id', paramId)
+      .select()
+      .single();
 
     if (updateError) {
       console.error('Error updating post:', updateError);
@@ -149,7 +151,7 @@ export async function PATCH(
       }
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ post: updatedPost });
   } catch (error) {
     console.error('Error in update route:', error);
     return NextResponse.json(
