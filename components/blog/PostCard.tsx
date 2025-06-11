@@ -15,14 +15,13 @@ interface PostCardProps {
   excerpt?: string;
 }
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  return `${month} ${day}, ${year}`;
-};
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
 
 export default function PostCard({
   title,
@@ -37,9 +36,26 @@ export default function PostCard({
   const formattedDate = formatDate(published_at);
 
   useEffect(() => {
-    if (image_url) {
-      getS3Url(image_url).then(url => setImageUrl(url));
-    }
+    let isMounted = true;
+
+    const loadImage = async () => {
+      if (!image_url) return;
+      
+      try {
+        const url = await getS3Url(image_url);
+        if (isMounted) {
+          setImageUrl(url);
+        }
+      } catch (error) {
+        console.error('Error loading image:', error);
+      }
+    };
+
+    loadImage();
+
+    return () => {
+      isMounted = false;
+    };
   }, [image_url]);
 
   const validTags = tags.filter((tag): tag is string => typeof tag === 'string');
@@ -48,7 +64,7 @@ export default function PostCard({
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
       <Link href={`/blog/${slug}`} prefetch className="block">
         <div className="relative w-full h-48 bg-gray-100">
-          {imageUrl && (
+          {imageUrl ? (
             <Image
               src={imageUrl}
               alt={title}
@@ -57,7 +73,9 @@ export default function PostCard({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               priority={false}
             />
-          )}
+          ) : image_url ? (
+            <div className="w-full h-full bg-gray-200 animate-pulse" />
+          ) : null}
         </div>
         <div className="p-6">
           <h2 className="text-xl font-bold text-purple-900 mb-2 line-clamp-2">

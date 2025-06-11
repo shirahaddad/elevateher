@@ -4,6 +4,25 @@ import { X } from 'lucide-react';
 import type { PostWithTags } from '@/types/blog';
 import InfiniteScroll from '@/components/blog/InfiniteScroll';
 import TagFilter from '@/components/blog/TagFilter';
+import { Suspense } from 'react';
+
+// Loading component for the blog posts section
+function BlogPostsLoading() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-white rounded-lg shadow-sm overflow-hidden animate-pulse">
+          <div className="w-full h-48 bg-gray-200" />
+          <div className="p-6">
+            <div className="h-6 bg-gray-200 rounded w-3/4 mb-4" />
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-4" />
+            <div className="h-4 bg-gray-200 rounded w-2/3" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 async function getPosts(tag?: string, page: number = 1, limit: number = 6) {
   try {
@@ -94,6 +113,8 @@ interface PageProps {
 
 export default async function BlogPage({ searchParams }: PageProps) {
   const tag = typeof searchParams.tag === 'string' ? searchParams.tag : undefined;
+  
+  // Load data in parallel
   const [tags, { posts: initialPosts, hasMore: initialHasMore }] = await Promise.all([
     getTags(),
     getPosts(tag, 1)
@@ -122,11 +143,13 @@ export default async function BlogPage({ searchParams }: PageProps) {
               <p>No blog posts available{tag ? ` tagged with "${tag}"` : ''}.</p>
             </div>
           ) : (
-            <InfiniteScroll
-              initialPosts={initialPosts}
-              initialHasMore={initialHasMore}
-              selectedTag={tag}
-            />
+            <Suspense fallback={<BlogPostsLoading />}>
+              <InfiniteScroll
+                initialPosts={initialPosts}
+                initialHasMore={initialHasMore}
+                selectedTag={tag}
+              />
+            </Suspense>
           )}
         </div>
       </section>
