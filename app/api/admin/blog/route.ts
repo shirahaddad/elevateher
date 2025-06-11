@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { createValidationMiddleware } from '@/lib/validation/middleware';
 import { createBlogPostSchema, updateBlogPostSchema } from '@/lib/validation/base';
 import { blogSearchQuerySchema } from '@/lib/validation/base';
+import { invalidateAllBlogCache } from '@/lib/api/utils/cache';
 
 const validateCreateBlogPost = createValidationMiddleware({ schema: createBlogPostSchema });
 const validateUpdateBlogPost = createValidationMiddleware({ schema: updateBlogPostSchema });
@@ -174,6 +175,9 @@ export async function POST(request: NextRequest) {
   }
 
   console.log('Successfully created post:', post);
+
+  // Invalidate cache for all blog-related content
+  await invalidateAllBlogCache();
 
   // If there are tags, create the post-tag relationships
   if (data.tags && data.tags.length > 0) {

@@ -4,6 +4,9 @@ import { handleApiError } from '@/lib/api/utils/error-handler';
 import { BlogPostsResponse, BlogPostResponse, CreateBlogPostInput, UpdateBlogPostInput } from '@/lib/api/types/blog';
 import { blogSearchQuerySchema } from '@/lib/validation/base';
 
+// Cache duration in seconds (5 minutes)
+const CACHE_DURATION = 300;
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -33,7 +36,13 @@ export async function GET(request: Request) {
       },
     };
 
-    return NextResponse.json(response);
+    // Create response with cache headers
+    return new NextResponse(JSON.stringify(response), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=${CACHE_DURATION * 2}`,
+      },
+    });
   } catch (error) {
     return handleApiError(error);
   }

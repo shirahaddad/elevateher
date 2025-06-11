@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { getS3Url } from '@/lib/s3Utils';
 
+// Cache duration in seconds (1 hour)
+const CACHE_DURATION = 3600;
+
 export async function GET(
   request: Request,
   { params }: { params: { slug: string } }
@@ -66,12 +69,17 @@ export async function GET(
       );
     }
 
-    // Return post with tags
-    return NextResponse.json({
+    // Create response with cache headers
+    return new NextResponse(JSON.stringify({
       post: {
         ...post,
         tags: tags.map(t => t.name)
       }
+    }), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=${CACHE_DURATION * 2}`,
+      },
     });
 
   } catch (error) {
