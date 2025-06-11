@@ -1,27 +1,32 @@
-import { NextResponse } from 'next/server';
-import { sendQuestionnaireEmail } from '@/lib/email';
+import { NextResponse, NextRequest } from 'next/server';
+import { createValidationMiddleware } from '@/lib/validation/middleware';
+import { questionnaireFormSchema } from '@/lib/validation/base';
 import { supabaseAdmin } from '@/lib/supabase';
 
-export async function POST(request: Request) {
+// Create validation middleware
+const validateQuestionnaire = createValidationMiddleware({
+  schema: questionnaireFormSchema,
+  onError: (result) => {
+    return NextResponse.json(
+      { 
+        success: false,
+        errors: result.errors,
+        message: 'Validation failed'
+      },
+      { status: 400 }
+    );
+  },
+});
+
+export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
+    // Validate request data
+    const validationResponse = await validateQuestionnaire(request);
+    if (validationResponse) return validationResponse;
+
+    // Get validated data from request
+    const data = (request as any).validatedData;
     console.log('Received questionnaire data:', JSON.stringify(data, null, 2));
-
-    // Validate required fields
-    const missingFields = [];
-    if (!data.client_name) missingFields.push('client_name');
-    if (!data.email) missingFields.push('email');
-    if (!data.goals) missingFields.push('goals');
-    if (!data.skills) missingFields.push('skills');
-    if (!data.timeCommitment) missingFields.push('timeCommitment');
-
-    if (missingFields.length > 0) {
-      console.error('Missing required fields:', missingFields);
-      return NextResponse.json(
-        { error: `Missing required fields: ${missingFields.join(', ')}` },
-        { status: 400 }
-      );
-    }
 
     // Save to database
     const { data: dbData, error: dbError } = await supabaseAdmin
@@ -49,25 +54,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Send email
-    console.log('Attempting to send email...');
-    const result = await sendQuestionnaireEmail(data);
+    // TODO: Send email notifications
+    // We can implement this later if needed
 
-    if (!result.success) {
-      console.error('Email sending failed:', result.error);
-      return NextResponse.json(
-        { 
-          error: 'Failed to send email',
-          details: result.error
-        },
-        { status: 500 }
-      );
-    }
-
-    console.log('Questionnaire processed successfully');
+    console.log('Form processed successfully');
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error processing questionnaire:', error);
+    console.error('Error processing questionnaire data:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Full error details:', error);
     

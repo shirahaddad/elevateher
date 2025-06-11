@@ -200,3 +200,35 @@ export const learnMoreFormSchema = z.object({
   // Honeypot field for spam prevention - must be empty
   website: z.string().max(0).optional(),
 });
+
+/**
+ * Questionnaire form validation schema
+ * Validates the questionnaire form submission data
+ */
+export const questionnaireFormSchema = z.object({
+  client_name: nameSchema,
+  email: emailSchema,
+  goals: z.string().min(1, 'Please tell us about your goals'),
+  skills: z.array(z.string()),
+  otherSkill: z.string().optional(),
+  timeCommitment: z.enum(['yes', 'no', 'maybe'], {
+    errorMap: () => ({ message: 'Please select a valid time commitment option' })
+  }),
+  linkedin: z.string().url('Please enter a valid LinkedIn URL').optional().or(z.literal('')),
+  additionalInfo: z.string().optional(),
+  mailingList: z.boolean().default(false),
+  source: z.string().optional(),
+  website: z.string().max(0).optional(), // Honeypot field for spam prevention
+}).refine(
+  (data) => {
+    // If "Other" is selected, otherSkill must be filled
+    if (data.skills.includes('Other')) {
+      return data.otherSkill && data.otherSkill.length > 0;
+    }
+    return true;
+  },
+  {
+    message: 'Please specify your other skill',
+    path: ['otherSkill']
+  }
+);

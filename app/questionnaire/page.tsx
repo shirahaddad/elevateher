@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { questionnaireFormSchema } from '@/lib/validation/base';
 
 function QuestionnaireForm() {
   const router = useRouter();
@@ -19,6 +20,7 @@ function QuestionnaireForm() {
     additionalInfo: '',
     mailingList: false,
     source: searchParams.get('source') || '',
+    website: '', // Honeypot field for spam prevention
   });
 
   const skillsOptions = [
@@ -44,6 +46,14 @@ function QuestionnaireForm() {
     setError(null);
 
     try {
+      // Client-side validation
+      const validationResult = questionnaireFormSchema.safeParse(formData);
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors.map(err => err.message);
+        setError(errors.join(', '));
+        return;
+      }
+
       const response = await fetch('/api/submit-questionnaire', {
         method: 'POST',
         headers: {
@@ -52,13 +62,15 @@ function QuestionnaireForm() {
         body: JSON.stringify(formData),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to submit form');
+        throw new Error(data.message || 'Failed to submit form');
       }
 
       router.push('/thank-you');
     } catch (err) {
-      setError('There was an error submitting your form. Please try again.');
+      setError(err instanceof Error ? err.message : 'There was an error submitting your form. Please try again.');
       console.error('Form submission error:', err);
     } finally {
       setIsSubmitting(false);
@@ -108,7 +120,19 @@ function QuestionnaireForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8 bg-white rounded-2xl shadow-xl p-8">
-        <div>
+          {/* Honeypot field - hidden from users */}
+          <div style={{ display: 'none' }}>
+            <input
+              type="text"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
+
+          <div>
             <label
               htmlFor="client_name"
               className="block text-sm font-medium text-gray-700 mb-1"
