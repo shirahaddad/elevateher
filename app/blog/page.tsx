@@ -17,7 +17,7 @@ async function getPosts(tag?: string, page: number = 1, limit: number = 6) {
     url.searchParams.append('limit', limit.toString());
     
     const res = await fetch(url.toString(), {
-      cache: 'no-store' // Ensure fresh data on each request
+      next: { revalidate: 300 } // Cache for 5 minutes
     });
     
     if (!res.ok) {
@@ -39,7 +39,7 @@ async function getTags() {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const res = await fetch(`${baseUrl}/api/v1/blog/tags`, {
-      cache: 'no-store'
+      next: { revalidate: 3600 } // Cache for 1 hour
     });
     
     if (!res.ok) {

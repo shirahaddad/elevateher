@@ -46,7 +46,7 @@ export default function PostCard({
 
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
-      <Link href={`/blog/${slug}`} className="block">
+      <Link href={`/blog/${slug}`} prefetch className="block">
         <div className="relative w-full h-48 bg-gray-100">
           {imageUrl && (
             <Image
@@ -55,6 +55,7 @@ export default function PostCard({
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority={false}
             />
           )}
         </div>

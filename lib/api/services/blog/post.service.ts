@@ -7,6 +7,7 @@ import {
   UpdateBlogPostInput,
   Tag,
 } from '../../types/blog';
+import { getS3Url } from '@/lib/s3Utils';
 
 interface PostTag {
   tag_id: string;
@@ -84,9 +85,8 @@ export class BlogPostService {
         .from('posts')
         .select(`
           *,
-          post_tags (
-            tag_id,
-            tags (
+          post_tags!inner (
+            tags!inner (
               name
             )
           )
@@ -106,9 +106,14 @@ export class BlogPostService {
         );
       }
 
+      // Generate S3 URL if needed
+      if (data.image_url && !data.image_url.startsWith('http')) {
+        data.image_url = await getS3Url(data.image_url);
+      }
+
       return {
         ...data,
-        tags: (data as PostWithTags).post_tags?.map((pt: PostTag) => pt.tags) || []
+        tags: data.post_tags?.map((pt: PostTag) => pt.tags?.name).filter(Boolean) || []
       } as BlogPost;
     } catch (error) {
       if (error instanceof ApiException) throw error;
