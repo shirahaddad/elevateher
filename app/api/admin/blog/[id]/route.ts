@@ -101,7 +101,7 @@ export async function PATCH(
     // Get the current post to check if it's published
     const { data: currentPost, error: fetchError } = await supabaseAdmin
       .from('posts')
-      .select('slug, is_published')
+      .select('slug, is_published, published_at')
       .eq('id', paramId)
       .single();
 
@@ -125,7 +125,7 @@ export async function PATCH(
         ...(data.is_published !== undefined && { is_published: data.is_published }),
         ...(data.image_url && { image_url: data.image_url }),
         ...(data.image_alt && { image_alt: data.image_alt }),
-        published_at: data.is_published ? new Date().toISOString() : undefined,
+        ...(data.is_published && !currentPost.is_published && { published_at: new Date().toISOString() }),
         updated_at: new Date().toISOString(),
       })
       .eq('id', paramId)
