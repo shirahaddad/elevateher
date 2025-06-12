@@ -1,27 +1,50 @@
+/**
+ * Blog Management Page Component
+ * 
+ * This component provides an administrative interface for managing blog posts.
+ * It allows administrators to:
+ * - View all blog posts in a table format
+ * - Toggle post publication status
+ * - Delete posts
+ * - Navigate to create new posts or edit existing ones
+ * 
+ * The component fetches posts on mount and provides real-time updates when
+ * post status changes or posts are deleted.
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+/**
+ * Interface defining the structure of a blog post
+ */
 interface Post {
-  id: string;
-  title: string;
-  slug: string;
-  author_name: string;
-  is_published: boolean;
-  created_at: string;
-  image_url: string | null;
+  id: string;          // Unique identifier for the post
+  title: string;       // Post title
+  slug: string;        // URL-friendly version of the title
+  author_name: string; // Name of the post author
+  is_published: boolean; // Publication status
+  created_at: string;  // Creation timestamp
+  image_url: string | null; // Optional featured image URL
 }
 
 export default function BlogManagementPage() {
+  // State management for posts, loading state, and error handling
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch posts when component mounts
   useEffect(() => {
     fetchPosts();
   }, []);
 
+  /**
+   * Fetches all blog posts from the API
+   * Updates the posts state and handles any errors that occur
+   */
   const fetchPosts = async () => {
     try {
       setLoading(true);
@@ -40,6 +63,11 @@ export default function BlogManagementPage() {
     }
   };
 
+  /**
+   * Toggles the publication status of a blog post
+   * @param id - The ID of the post to update
+   * @param isPublished - Current publication status
+   */
   const handlePublishToggle = async (id: string, isPublished: boolean) => {
     try {
       const response = await fetch(`/api/admin/blog/${id}`, {
@@ -56,7 +84,7 @@ export default function BlogManagementPage() {
         throw new Error('Failed to update post status');
       }
 
-      // Refresh the posts list
+      // Refresh the posts list to show updated status
       fetchPosts();
     } catch (err) {
       console.error('Error updating post status:', err);
@@ -64,6 +92,10 @@ export default function BlogManagementPage() {
     }
   };
 
+  /**
+   * Deletes a blog post after user confirmation
+   * @param id - The ID of the post to delete
+   */
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this post?')) {
       return;
@@ -81,7 +113,7 @@ export default function BlogManagementPage() {
         throw new Error('Failed to delete post');
       }
 
-      // Refresh the posts list
+      // Refresh the posts list to remove deleted post
       fetchPosts();
     } catch (err) {
       console.error('Error deleting post:', err);
@@ -89,6 +121,7 @@ export default function BlogManagementPage() {
     }
   };
 
+  // Loading state UI
   if (loading) {
     return (
       <div className="min-h-screen py-16 bg-white">
@@ -99,6 +132,7 @@ export default function BlogManagementPage() {
     );
   }
 
+  // Error state UI
   if (error) {
     return (
       <div className="min-h-screen py-16 bg-white">
@@ -109,9 +143,11 @@ export default function BlogManagementPage() {
     );
   }
 
+  // Main component render
   return (
     <div className="min-h-screen py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4">
+        {/* Header section with title and new post button */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-purple-900">Blog Posts</h1>
           <Link
@@ -122,6 +158,7 @@ export default function BlogManagementPage() {
           </Link>
         </div>
 
+        {/* Posts table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
