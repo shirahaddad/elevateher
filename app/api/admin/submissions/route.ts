@@ -55,7 +55,7 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('questionnaire_submissions')
       .delete()
       .eq('id', id);
