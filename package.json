@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "db:indexes": "node scripts/apply-database-indexes.js",
+    "db:indexes:rollback": "node scripts/rollback-database-indexes.js"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
