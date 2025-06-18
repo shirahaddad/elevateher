@@ -8,20 +8,26 @@ export default function AdminDashboard() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [limit] = useState(20);
 
   useEffect(() => {
     fetchSubmissions();
-  }, []);
+  }, [currentPage]);
 
   const fetchSubmissions = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/submissions');
+      const response = await fetch(`/api/admin/submissions?page=${currentPage}&limit=${limit}`);
       if (!response.ok) {
         throw new Error('Failed to fetch submissions');
       }
       const data = await response.json();
-      setSubmissions(data);
+      setSubmissions(data.data);
+      setTotal(data.total);
+      setTotalPages(data.totalPages);
       setError(null);
     } catch (err) {
       console.error('Error fetching submissions:', err);
@@ -174,6 +180,32 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+      
+      {/* Pagination Controls */}
+      <div className="mt-6 flex items-center justify-between">
+        <div className="text-sm text-gray-700">
+          Showing {((currentPage - 1) * limit) + 1} to {Math.min(currentPage * limit, total)} of {total} submissions
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>

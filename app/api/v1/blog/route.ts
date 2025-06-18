@@ -18,22 +18,19 @@ export async function GET(request: Request) {
         errors: validation.error.errors.map(e => ({ field: e.path.join('.'), message: e.message })),
       }, { status: 400 });
     }
-    const { tag, is_published } = validation.data;
+    const { tag, is_published, author, page, limit } = validation.data;
 
     const blogService = BlogPostService.getInstance();
-    const posts = await blogService.getPosts({
+    const result = await blogService.getPosts({
       tag: tag || undefined,
       is_published: is_published !== undefined ? (is_published === true || is_published === 'true') : undefined,
+      author: author || undefined,
+      page,
+      limit,
     });
 
     const response: BlogPostsResponse = {
-      data: {
-        data: posts,
-        total: posts.length,
-        page: 1,
-        limit: posts.length,
-        totalPages: 1,
-      },
+      data: result,
     };
 
     // Create response with cache headers

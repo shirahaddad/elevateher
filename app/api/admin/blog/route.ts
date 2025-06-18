@@ -29,12 +29,15 @@ export async function GET(request: Request) {
         errors: validation.error.errors.map(e => ({ field: e.path.join('.'), message: e.message })),
       }, { status: 400 });
     }
-    const { tag, is_published, author } = validation.data;
+    const { tag, is_published, author, page, limit } = validation.data;
     const isAdmin = request.headers.get('referer')?.includes('/admin');
+    const currentPage = page || 1;
+    const currentLimit = limit || 20;
+    const offset = (currentPage - 1) * currentLimit;
 
     // If a tag is specified, filter posts by that tag
     if (tag) {
-      const { data: posts, error } = await supabaseAdmin
+      const { data: posts, error, count } = await supabaseAdmin
         .from('posts')
         .select(`
           *,
@@ -44,9 +47,10 @@ export async function GET(request: Request) {
               name
             )
           )
-        `)
+        `, { count: 'exact' })
         .eq('post_tags.tags.name', tag)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(offset, offset + currentLimit - 1);
 
       if (error) {
         console.error('Error fetching posts:', error);
@@ -62,14 +66,21 @@ export async function GET(request: Request) {
         tags: post.post_tags.map(pt => ({ name: pt.tags.name }))
       }));
 
-      return NextResponse.json({ posts: postsWithTags });
+      return NextResponse.json({ 
+        posts: postsWithTags,
+        total: count || 0,
+        page: currentPage,
+        limit: currentLimit,
+        totalPages: Math.ceil((count || 0) / currentLimit)
+      });
     }
 
-    // If no tag filter, fetch all posts
-    const { data: posts, error } = await supabaseAdmin
+    // If no tag filter, fetch all posts with pagination
+    const { data: posts, error, count } = await supabaseAdmin
       .from('posts')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + currentLimit - 1);
 
     if (error) {
       console.error('Error fetching posts:', error);
@@ -110,7 +121,13 @@ export async function GET(request: Request) {
       };
     }));
 
-    return NextResponse.json({ posts: postsWithTags });
+    return NextResponse.json({ 
+      posts: postsWithTags,
+      total: count || 0,
+      page: currentPage,
+      limit: currentLimit,
+      totalPages: Math.ceil((count || 0) / currentLimit)
+    });
   } catch (error) {
     console.error('Error processing request:', error);
     return NextResponse.json(

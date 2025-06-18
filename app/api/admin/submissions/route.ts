@@ -78,16 +78,28 @@ export async function DELETE(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const { data, error } = await supabaseAdmin
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const offset = (page - 1) * limit;
+
+    const { data, error, count } = await supabaseAdmin
       .from('questionnaire_submissions')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) throw error;
 
-    return NextResponse.json(data);
+    return NextResponse.json({
+      data,
+      total: count || 0,
+      page,
+      limit,
+      totalPages: Math.ceil((count || 0) / limit)
+    });
   } catch (error) {
     console.error('Error fetching submissions:', error);
     return NextResponse.json(

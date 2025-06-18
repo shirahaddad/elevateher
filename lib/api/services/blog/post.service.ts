@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase';
-import { ApiException } from '../../utils/error-handler';
+import { ApiException } from '@/lib/api/utils/error-handler';
 import {
   BlogPost,
   BlogPostFilters,
@@ -7,6 +7,7 @@ import {
   UpdateBlogPostInput,
   Tag,
 } from '../../types/blog';
+import { PaginationParams } from '../../types/common';
 import { getS3Url } from '@/lib/s3Utils';
 
 interface PostTag {
@@ -30,8 +31,13 @@ export class BlogPostService {
     return BlogPostService.instance;
   }
 
-  async getPosts(filters?: BlogPostFilters) {
+  async getPosts(filters?: BlogPostFilters & PaginationParams) {
     try {
+      const page = filters?.page || 1;
+      const limit = filters?.limit || 10;
+      const offset = (page - 1) * limit;
+
+      // Build the main query
       let query = supabaseAdmin
         .from('posts')
         .select(`
@@ -42,8 +48,9 @@ export class BlogPostService {
               name
             )
           )
-        `)
-        .order('published_at', { ascending: false });
+        `, { count: 'exact' })
+        .order('published_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
       if (filters?.tag) {
         query = query.eq('post_tags.tags.name', filters.tag);
@@ -53,7 +60,11 @@ export class BlogPostService {
         query = query.eq('is_published', filters.is_published);
       }
 
-      const { data, error } = await query;
+      if (filters?.author) {
+        query = query.eq('author_name', filters.author);
+      }
+
+      const { data, error, count } = await query;
 
       if (error) {
         throw new ApiException(
@@ -64,10 +75,18 @@ export class BlogPostService {
         );
       }
 
-      return data.map((post: PostWithTags) => ({
+      const posts = data.map((post: PostWithTags) => ({
         ...post,
         tags: post.post_tags?.map((pt: PostTag) => pt.tags) || []
       })) as BlogPost[];
+
+      return {
+        data: posts,
+        total: count || 0,
+        page,
+        limit,
+        totalPages: Math.ceil((count || 0) / limit)
+      };
     } catch (error) {
       if (error instanceof ApiException) throw error;
       throw new ApiException(
