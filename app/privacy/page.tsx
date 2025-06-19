@@ -70,7 +70,7 @@ export default function Privacy() {
               <li>✔ Portability – Receive a copy of your data in a standard format.</li>
               <li>✔ Object – Withdraw consent for marketing communications.</li>
             </ul>
-            <p className="mt-4">📩 To exercise these rights, contact us at <a href="mailto:elevateher.tech@gmail.com" className="text-purple-600 hover:text-purple-700">elevateher.tech@gmail.com</a>.</p>
+            <p className="mt-4">📩 To exercise these rights, contact us at <a href="mailto:info@elevateher.tech" className="text-purple-600 hover:text-purple-700">info@elevateher.tech</a>.</p>
 
             <h3 className="text-xl font-semibold text-purple-900 mt-6 mb-3">For California Users (CCPA Rights)</h3>
             <p>📌 You have the right to:</p>
@@ -80,7 +80,7 @@ export default function Privacy() {
               <li>✔ Opt out of data "sale" (though we do not sell data).</li>
               <li>✔ Non-discrimination for exercising these rights.</li>
             </ul>
-            <p className="mt-4">📩 To exercise these rights, contact us at <a href="mailto:elevateher.tech@gmail.com" className="text-purple-600 hover:text-purple-700">elevateher.tech@gmail.com</a>.</p>
+            <p className="mt-4">📩 To exercise these rights, contact us at <a href="mailto:info@elevateher.tech" className="text-purple-600 hover:text-purple-700">info@elevateher.tech</a>.</p>
           </div>
 
           <div>
@@ -103,7 +103,7 @@ export default function Privacy() {
             <h2 className="text-2xl font-bold text-purple-900 mb-4">9. Contact Us</h2>
             <p>If you have any questions about this policy, you can contact us at:</p>
             <ul className="list-none space-y-2">
-              <li>📧 Email: <a href="mailto:elevateher.tech@gmail.com" className="text-purple-600 hover:text-purple-700">elevateher.tech@gmail.com</a></li>
+              <li>📧 Email: <a href="mailto:info@elevateher.tech" className="text-purple-600 hover:text-purple-700">info@elevateher.tech</a></li>
               <li>🌍 Website: <a href="https://elevateher.tech" className="text-purple-600 hover:text-purple-700">elevateher.tech</a></li>
             </ul>
           </div>

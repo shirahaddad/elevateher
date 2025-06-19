@@ -108,11 +108,12 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function BlogPage({ searchParams }: PageProps) {
-  const tag = typeof searchParams.tag === 'string' ? searchParams.tag : undefined;
+  const params = await searchParams;
+  const tag = typeof params.tag === 'string' ? params.tag : undefined;
   
   // Load data in parallel
   const [tags, { posts: initialPosts, hasMore: initialHasMore }] = await Promise.all([

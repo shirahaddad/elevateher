@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase';
+import { supabaseAdmin, withConnectionTracking } from '@/lib/supabase';
 import { ApiException } from '@/lib/api/utils/error-handler';
 import {
   BlogPost,
@@ -32,269 +32,281 @@ export class BlogPostService {
   }
 
   async getPosts(filters?: BlogPostFilters & PaginationParams) {
-    try {
-      const page = filters?.page || 1;
-      const limit = filters?.limit || 10;
-      const offset = (page - 1) * limit;
+    return withConnectionTracking(async () => {
+      try {
+        const page = filters?.page || 1;
+        const limit = filters?.limit || 10;
+        const offset = (page - 1) * limit;
 
-      // Build the main query
-      let query = supabaseAdmin
-        .from('posts')
-        .select(`
-          *,
-          post_tags!inner (
-            tag_id,
-            tags!inner (
-              name
+        // Build the main query
+        let query = supabaseAdmin
+          .from('posts')
+          .select(`
+            *,
+            post_tags!inner (
+              tag_id,
+              tags!inner (
+                name
+              )
             )
-          )
-        `, { count: 'exact' })
-        .order('published_at', { ascending: false })
-        .range(offset, offset + limit - 1);
+          `, { count: 'exact' })
+          .order('published_at', { ascending: false })
+          .range(offset, offset + limit - 1);
 
-      if (filters?.tag) {
-        query = query.eq('post_tags.tags.name', filters.tag);
-      }
+        if (filters?.tag) {
+          query = query.eq('post_tags.tags.name', filters.tag);
+        }
 
-      if (filters?.is_published !== undefined) {
-        query = query.eq('is_published', filters.is_published);
-      }
+        if (filters?.is_published !== undefined) {
+          query = query.eq('is_published', filters.is_published);
+        }
 
-      if (filters?.author) {
-        query = query.eq('author_name', filters.author);
-      }
+        if (filters?.author) {
+          query = query.eq('author_name', filters.author);
+        }
 
-      const { data, error, count } = await query;
+        const { data, error, count } = await query;
 
-      if (error) {
+        if (error) {
+          throw new ApiException(
+            'DATABASE_ERROR',
+            'Failed to fetch blog posts',
+            500,
+            error
+          );
+        }
+
+        const posts = data.map((post: PostWithTags) => ({
+          ...post,
+          tags: post.post_tags?.map((pt: PostTag) => pt.tags) || []
+        })) as BlogPost[];
+
+        return {
+          data: posts,
+          total: count || 0,
+          page,
+          limit,
+          totalPages: Math.ceil((count || 0) / limit)
+        };
+      } catch (error) {
+        if (error instanceof ApiException) throw error;
         throw new ApiException(
-          'DATABASE_ERROR',
+          'INTERNAL_ERROR',
           'Failed to fetch blog posts',
           500,
           error
         );
       }
-
-      const posts = data.map((post: PostWithTags) => ({
-        ...post,
-        tags: post.post_tags?.map((pt: PostTag) => pt.tags) || []
-      })) as BlogPost[];
-
-      return {
-        data: posts,
-        total: count || 0,
-        page,
-        limit,
-        totalPages: Math.ceil((count || 0) / limit)
-      };
-    } catch (error) {
-      if (error instanceof ApiException) throw error;
-      throw new ApiException(
-        'INTERNAL_ERROR',
-        'Failed to fetch blog posts',
-        500,
-        error
-      );
-    }
+    });
   }
 
   async getPostBySlug(slug: string) {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from('posts')
-        .select(`
-          *,
-          post_tags!inner (
-            tags!inner (
-              name
+    return withConnectionTracking(async () => {
+      try {
+        const { data, error } = await supabaseAdmin
+          .from('posts')
+          .select(`
+            *,
+            post_tags!inner (
+              tags!inner (
+                name
+              )
             )
-          )
-        `)
-        .eq('slug', slug)
-        .single();
+          `)
+          .eq('slug', slug)
+          .single();
 
-      if (error) {
-        if (error.code === 'PGRST116') {
-          throw new ApiException('NOT_FOUND', 'Post not found', 404);
+        if (error) {
+          if (error.code === 'PGRST116') {
+            throw new ApiException('NOT_FOUND', 'Post not found', 404);
+          }
+          throw new ApiException(
+            'DATABASE_ERROR',
+            'Failed to fetch blog post',
+            500,
+            error
+          );
         }
+
+        // Generate S3 URL if needed
+        if (data.image_url && !data.image_url.startsWith('http')) {
+          data.image_url = await getS3Url(data.image_url);
+        }
+
+        return {
+          ...data,
+          tags: data.post_tags?.map((pt: PostTag) => pt.tags?.name).filter(Boolean) || []
+        } as BlogPost;
+      } catch (error) {
+        if (error instanceof ApiException) throw error;
         throw new ApiException(
-          'DATABASE_ERROR',
+          'INTERNAL_ERROR',
           'Failed to fetch blog post',
           500,
           error
         );
       }
-
-      // Generate S3 URL if needed
-      if (data.image_url && !data.image_url.startsWith('http')) {
-        data.image_url = await getS3Url(data.image_url);
-      }
-
-      return {
-        ...data,
-        tags: data.post_tags?.map((pt: PostTag) => pt.tags?.name).filter(Boolean) || []
-      } as BlogPost;
-    } catch (error) {
-      if (error instanceof ApiException) throw error;
-      throw new ApiException(
-        'INTERNAL_ERROR',
-        'Failed to fetch blog post',
-        500,
-        error
-      );
-    }
+    });
   }
 
   async createPost(input: CreateBlogPostInput) {
-    try {
-      const { data: post, error } = await supabaseAdmin
-        .from('posts')
-        .insert([
-          {
-            title: input.title,
-            content: input.content,
-            excerpt: input.excerpt,
-            author_name: input.author_name,
-            slug: this.generateSlug(input.title),
-            is_published: input.is_published || false,
-            image_url: input.image_url,
-            image_alt: input.image_alt,
-            published_at: input.is_published ? new Date().toISOString() : null,
-          }
-        ])
-        .select()
-        .single();
+    return withConnectionTracking(async () => {
+      try {
+        const { data: post, error } = await supabaseAdmin
+          .from('posts')
+          .insert([
+            {
+              title: input.title,
+              content: input.content,
+              excerpt: input.excerpt,
+              author_name: input.author_name,
+              slug: this.generateSlug(input.title),
+              is_published: input.is_published || false,
+              image_url: input.image_url,
+              image_alt: input.image_alt,
+              published_at: input.is_published ? new Date().toISOString() : null,
+            }
+          ])
+          .select()
+          .single();
 
-      if (error) {
+        if (error) {
+          throw new ApiException(
+            'DATABASE_ERROR',
+            'Failed to create blog post',
+            500,
+            error
+          );
+        }
+
+        if (input.tags?.length) {
+          await this.updatePostTags(post.id, input.tags);
+        }
+
+        return post as BlogPost;
+      } catch (error) {
+        if (error instanceof ApiException) throw error;
         throw new ApiException(
-          'DATABASE_ERROR',
+          'INTERNAL_ERROR',
           'Failed to create blog post',
           500,
           error
         );
       }
-
-      if (input.tags?.length) {
-        await this.updatePostTags(post.id, input.tags);
-      }
-
-      return post as BlogPost;
-    } catch (error) {
-      if (error instanceof ApiException) throw error;
-      throw new ApiException(
-        'INTERNAL_ERROR',
-        'Failed to create blog post',
-        500,
-        error
-      );
-    }
+    });
   }
 
   async updatePost(input: UpdateBlogPostInput) {
-    try {
-      const { data: post, error } = await supabaseAdmin
-        .from('posts')
-        .update({
-          title: input.title,
-          content: input.content,
-          excerpt: input.excerpt,
-          author_name: input.author_name,
-          slug: input.title ? this.generateSlug(input.title) : undefined,
-          is_published: input.is_published,
-          image_url: input.image_url,
-          image_alt: input.image_alt,
-          published_at: input.is_published ? new Date().toISOString() : null,
-        })
-        .eq('id', input.id)
-        .select()
-        .single();
+    return withConnectionTracking(async () => {
+      try {
+        const { data: post, error } = await supabaseAdmin
+          .from('posts')
+          .update({
+            title: input.title,
+            content: input.content,
+            excerpt: input.excerpt,
+            author_name: input.author_name,
+            slug: input.title ? this.generateSlug(input.title) : undefined,
+            is_published: input.is_published,
+            image_url: input.image_url,
+            image_alt: input.image_alt,
+            published_at: input.is_published ? new Date().toISOString() : null,
+          })
+          .eq('id', input.id)
+          .select()
+          .single();
 
-      if (error) {
+        if (error) {
+          throw new ApiException(
+            'DATABASE_ERROR',
+            'Failed to update blog post',
+            500,
+            error
+          );
+        }
+
+        if (input.tags) {
+          await this.updatePostTags(input.id, input.tags);
+        }
+
+        return post as BlogPost;
+      } catch (error) {
+        if (error instanceof ApiException) throw error;
         throw new ApiException(
-          'DATABASE_ERROR',
+          'INTERNAL_ERROR',
           'Failed to update blog post',
           500,
           error
         );
       }
-
-      if (input.tags) {
-        await this.updatePostTags(input.id, input.tags);
-      }
-
-      return post as BlogPost;
-    } catch (error) {
-      if (error instanceof ApiException) throw error;
-      throw new ApiException(
-        'INTERNAL_ERROR',
-        'Failed to update blog post',
-        500,
-        error
-      );
-    }
+    });
   }
 
   async deletePost(id: string) {
-    try {
-      const { error } = await supabaseAdmin
-        .from('posts')
-        .delete()
-        .eq('id', id);
+    return withConnectionTracking(async () => {
+      try {
+        const { error } = await supabaseAdmin
+          .from('posts')
+          .delete()
+          .eq('id', id);
 
-      if (error) {
+        if (error) {
+          throw new ApiException(
+            'DATABASE_ERROR',
+            'Failed to delete blog post',
+            500,
+            error
+          );
+        }
+      } catch (error) {
+        if (error instanceof ApiException) throw error;
         throw new ApiException(
-          'DATABASE_ERROR',
+          'INTERNAL_ERROR',
           'Failed to delete blog post',
           500,
           error
         );
       }
-    } catch (error) {
-      if (error instanceof ApiException) throw error;
-      throw new ApiException(
-        'INTERNAL_ERROR',
-        'Failed to delete blog post',
-        500,
-        error
-      );
-    }
+    });
   }
 
   private async updatePostTags(postId: string, tagIds: string[]) {
-    try {
-      // Delete existing tags
-      await supabaseAdmin
-        .from('post_tags')
-        .delete()
-        .eq('post_id', postId);
-
-      // Insert new tags
-      if (tagIds.length > 0) {
-        const { error } = await supabaseAdmin
+    return withConnectionTracking(async () => {
+      try {
+        // Delete existing tags
+        await supabaseAdmin
           .from('post_tags')
-          .insert(tagIds.map(tagId => ({
-            post_id: postId,
-            tag_id: tagId
-          })));
+          .delete()
+          .eq('post_id', postId);
 
-        if (error) {
-          throw new ApiException(
-            'DATABASE_ERROR',
-            'Failed to update post tags',
-            500,
-            error
-          );
+        // Insert new tags
+        if (tagIds.length > 0) {
+          const { error } = await supabaseAdmin
+            .from('post_tags')
+            .insert(tagIds.map(tagId => ({
+              post_id: postId,
+              tag_id: tagId
+            })));
+
+          if (error) {
+            throw new ApiException(
+              'DATABASE_ERROR',
+              'Failed to update post tags',
+              500,
+              error
+            );
+          }
         }
+      } catch (error) {
+        if (error instanceof ApiException) throw error;
+        throw new ApiException(
+          'INTERNAL_ERROR',
+          'Failed to update post tags',
+          500,
+          error
+        );
       }
-    } catch (error) {
-      if (error instanceof ApiException) throw error;
-      throw new ApiException(
-        'INTERNAL_ERROR',
-        'Failed to update post tags',
-        500,
-        error
-      );
-    }
+    });
   }
 
   private generateSlug(title: string): string {

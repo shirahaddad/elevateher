@@ -9,6 +9,7 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:connection-pool": "node scripts/test-connection-pool.js",
     "db:indexes": "node scripts/apply-database-indexes.js",
     "db:indexes:rollback": "node scripts/rollback-database-indexes.js"
   },
