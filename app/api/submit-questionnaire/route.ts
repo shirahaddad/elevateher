@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { createValidationMiddleware } from '@/lib/validation/middleware';
 import { questionnaireFormSchema } from '@/lib/validation/base';
 import { supabaseAdmin } from '@/lib/supabase';
-import { sendQuestionnaireEmail } from '@/lib/email';
+import { sendQuestionnaireEmail, sendQuestionnaireEmailProspect } from '@/lib/email';
 
 // Create validation middleware
 const validateQuestionnaire = createValidationMiddleware({
@@ -65,6 +65,17 @@ export async function POST(request: NextRequest) {
       // The email failure shouldn't prevent the user from getting a success response
     } else {
       console.log('Email notification sent successfully');
+    }
+
+    // Send confirmation email to user
+    const prospectResult = await sendQuestionnaireEmailProspect({
+      email: data.email,
+      name: data.client_name,
+    });
+    if (!prospectResult.success) {
+      console.error('Prospect email sending failed:', prospectResult.error);
+    } else {
+      console.log('Prospect confirmation email sent successfully');
     }
 
     console.log('Form processed successfully');

@@ -311,3 +311,90 @@ export async function sendLearnMoreEmailProspect(data: ProspectEmailData) {
     };
   }
 } 
+
+/**
+ * Sends a confirmation email to users who submit the questionnaire.
+ * 
+ * This function sends a personalized thank you email to questionnaire
+ * respondents with next steps and resources.
+ * 
+ * @param data - The user's contact information from questionnaire
+ * @returns Promise<{success: boolean, error?: any}> - Result of the email operation
+ * 
+ * @example
+ * ```typescript
+ * const result = await sendQuestionnaireEmailProspect({
+ *   email: "jane@example.com",
+ *   name: "Jane Doe"
+ * });
+ * ```
+ */
+export async function sendQuestionnaireEmailProspect(data: { email: string; name: string }) {
+  const { email, name } = data;
+  // Extract first name for personalization
+  const firstName = name.split(' ')[0];
+
+  // Use the new sender address for this email
+  const fromQuestionnaire = 'Elevate(Her) <info@elevateher.tech>';
+
+  const html = `
+    <p>Hi ${firstName},</p>
+    <p>Thank you so much for filling out the questionnaire with us — we're thrilled to meet you!</p>
+    <p>
+      Please use this <a href="https://calendly.com/shira-haddad/elevate-her-joint-intake">link</a> to book your first free session - we'll use the information provided in the questionnaire to tailor the conversation to your needs.
+    </p>
+    <p>
+      During our 60-minutes we'll discuss your top goals and priorities, and explore how we can best support you on your career journey in tech. Whether you're stepping into leadership, considering a career pivot, or looking to build confidence in a male-dominated space — this is your time to be heard and celebrated.
+    </p>
+    <p><strong>Here's what to expect:</strong></p>
+    <ul style="list-style:none; padding-left:0;">
+      <li>✅ A warm introduction to your coaches</li>
+      <li>✅ A conversation centered around <em>your</em> goals</li>
+      <li>✅ Space to discuss where you feel stuck — and where you're ready to grow</li>
+      <li>✅ An outline of what coaching could look like with Elevate(Her)</li>
+    </ul>
+    <p>No additional prep is needed — just bring your whole, authentic self.</p>
+    <p>We're so glad you're here. Let's make this the beginning of something powerful.</p>
+    <p>With purpose and possibility,</p>
+    <p>Shira and Cassie</p>
+  `;
+
+  try {
+    console.log('Email configuration:', {
+      from: fromQuestionnaire,
+      to: email,
+      subject: "🎉 Welcome to Elevate(Her)! Let's get started",
+      hasHtml: !!html
+    });
+
+    const { data: resendData, error } = await resend.emails.send({
+      from: fromQuestionnaire,
+      to: email,
+      subject: "🎉 Welcome to Elevate(Her)! Let's get started",
+      html,
+    });
+
+    if (error) {
+      console.error('Resend API error details:', {
+        message: error.message,
+        name: error.name
+      });
+      throw error;
+    }
+
+    console.log('Email sent successfully. Response:', resendData);
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending email. Full error:', error);
+    const errorDetails = error instanceof Error ? {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    } : 'Unknown error occurred';
+    
+    return { 
+      success: false, 
+      error: errorDetails
+    };
+  }
+} 
