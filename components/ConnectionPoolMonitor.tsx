@@ -66,7 +66,7 @@ export default function ConnectionPoolMonitor() {
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Connection Pool Monitor</h2>
+        <h2 className="text-xl font-semibold mb-4 text-gray-900">Connection Pool Monitor</h2>
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded mb-2"></div>
           <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -79,7 +79,7 @@ export default function ConnectionPoolMonitor() {
   if (error) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Connection Pool Monitor</h2>
+        <h2 className="text-xl font-semibold mb-4 text-gray-900">Connection Pool Monitor</h2>
         <div className="text-red-600">Error: {error}</div>
       </div>
     );
@@ -88,7 +88,7 @@ export default function ConnectionPoolMonitor() {
   if (!data) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Connection Pool Monitor</h2>
+        <h2 className="text-xl font-semibold mb-4 text-gray-900">Connection Pool Monitor</h2>
         <div className="text-gray-500">No data available</div>
       </div>
     );
@@ -98,12 +98,12 @@ export default function ConnectionPoolMonitor() {
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-4">Connection Pool Monitor</h2>
+      <h2 className="text-xl font-semibold mb-4 text-gray-900">Connection Pool Monitor</h2>
       
       {/* Health Status */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-sm font-medium">Health Status:</span>
+          <span className="text-sm font-medium text-gray-700">Health Status:</span>
           <span className={`px-2 py-1 rounded text-xs font-medium ${
             poolStatus.health.isHealthy 
               ? 'bg-green-100 text-green-800' 
@@ -144,38 +144,38 @@ export default function ConnectionPoolMonitor() {
 
       {/* Pool Configuration */}
       <div className="mb-6">
-        <h3 className="text-lg font-medium mb-3">Pool Configuration</h3>
+        <h3 className="text-lg font-medium mb-3 text-gray-900">Pool Configuration</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <span className="font-medium">Max Connections:</span>
-            <span className="ml-2">{poolStatus.config.maxConnections}</span>
+            <span className="font-medium text-gray-700">Max Connections:</span>
+            <span className="ml-2 text-gray-700">{poolStatus.config.maxConnections}</span>
           </div>
           <div>
-            <span className="font-medium">Min Connections:</span>
-            <span className="ml-2">{poolStatus.config.minConnections}</span>
+            <span className="font-medium text-gray-700">Min Connections:</span>
+            <span className="ml-2 text-gray-700">{poolStatus.config.minConnections}</span>
           </div>
           <div>
-            <span className="font-medium">Connection Timeout:</span>
-            <span className="ml-2">{poolStatus.config.connectionTimeout}ms</span>
+            <span className="font-medium text-gray-700">Connection Timeout:</span>
+            <span className="ml-2 text-gray-700">{poolStatus.config.connectionTimeout}ms</span>
           </div>
           <div>
-            <span className="font-medium">Idle Timeout:</span>
-            <span className="ml-2">{poolStatus.config.idleTimeout}ms</span>
+            <span className="font-medium text-gray-700">Idle Timeout:</span>
+            <span className="ml-2 text-gray-700">{poolStatus.config.idleTimeout}ms</span>
           </div>
           <div>
-            <span className="font-medium">Retry Attempts:</span>
-            <span className="ml-2">{poolStatus.config.retryAttempts}</span>
+            <span className="font-medium text-gray-700">Retry Attempts:</span>
+            <span className="ml-2 text-gray-700">{poolStatus.config.retryAttempts}</span>
           </div>
           <div>
-            <span className="font-medium">Retry Delay:</span>
-            <span className="ml-2">{poolStatus.config.retryDelay}ms</span>
+            <span className="font-medium text-gray-700">Retry Delay:</span>
+            <span className="ml-2 text-gray-700">{poolStatus.config.retryDelay}ms</span>
           </div>
         </div>
       </div>
 
       {/* Connection Usage */}
       <div>
-        <h3 className="text-lg font-medium mb-3">Connection Usage</h3>
+        <h3 className="text-lg font-medium mb-3 text-gray-900">Connection Usage</h3>
         <div className="w-full bg-gray-200 rounded-full h-2.5">
           <div 
             className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
@@ -184,14 +184,14 @@ export default function ConnectionPoolMonitor() {
             }}
           ></div>
         </div>
-        <div className="flex justify-between text-sm text-gray-600 mt-1">
+        <div className="flex justify-between text-sm text-gray-700 mt-1">
           <span>{metrics.activeConnections} active</span>
           <span>{poolStatus.config.maxConnections} max</span>
         </div>
       </div>
 
       {/* Last Updated */}
-      <div className="mt-4 text-xs text-gray-500 text-center">
+      <div className="mt-4 text-xs text-gray-700 text-center">
         Last updated: {new Date(data.timestamp).toLocaleString()}
       </div>
     </div>
