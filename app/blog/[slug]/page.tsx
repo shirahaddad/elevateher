@@ -69,7 +69,8 @@ async function getPost(slug: string) {
  * @returns {Promise<Metadata>} The generated metadata object
  */
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  const { post } = await getPost(params.slug);
+  const resolvedParams = await params;
+  const { post } = await getPost(resolvedParams.slug);
   
   return {
     title: post.title,
@@ -96,7 +97,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       images: post.image_url ? [post.image_url] : undefined,
     },
     alternates: {
-      canonical: `/blog/${params.slug}`,
+      canonical: `/blog/${resolvedParams.slug}`,
     },
   };
 }
@@ -111,7 +112,8 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
  * @returns {Promise<JSX.Element>} The rendered blog post page
  */
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const { post } = await getPost(params.slug);
+  const resolvedParams = await params;
+  const { post } = await getPost(resolvedParams.slug);
   const formattedDate = new Date(post.published_at).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',

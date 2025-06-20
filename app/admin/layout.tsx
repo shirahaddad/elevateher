@@ -39,6 +39,16 @@ export default function AdminLayout({
                   Connection Pool
                 </Link>
                 <Link
+                  href="/admin/cache"
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    pathname === '/admin/cache'
+                      ? 'bg-purple-100 text-purple-900'
+                      : 'text-gray-600 hover:text-purple-900 hover:bg-purple-50'
+                  }`}
+                >
+                  Cache
+                </Link>
+                <Link
                   href="/admin/blog"
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     pathname === '/admin/blog'

@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { ApiException } from '../../utils/error-handler';
+import appCache, { ApplicationCache } from '@/lib/cache';
 import { Tag } from '../../types/blog';
 
 export class TagService {
@@ -16,6 +17,15 @@ export class TagService {
 
   async getTags() {
     try {
+      // Generate cache key
+      const cacheKey = ApplicationCache.generateKey('tags');
+
+      // Try to get from cache first
+      const cached = appCache.get<Tag[]>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
       const { data, error } = await supabaseAdmin
         .from('tags')
         .select(`
@@ -43,6 +53,9 @@ export class TagService {
       const uniqueTags = Array.from(new Set(data.map(tag => tag.name)))
         .map(name => data.find(tag => tag.name === name))
         .filter((tag): tag is Tag => tag !== undefined);
+
+      // Cache the result for 24 hours (86,400,000 ms)
+      appCache.set(cacheKey, uniqueTags, 24 * 60 * 60 * 1000);
 
       return uniqueTags;
     } catch (error) {
@@ -72,6 +85,9 @@ export class TagService {
           error
         );
       }
+
+      // Invalidate tags cache
+      appCache.delete(ApplicationCache.generateKey('tags'));
 
       return data as Tag;
     } catch (error) {
@@ -103,6 +119,9 @@ export class TagService {
         );
       }
 
+      // Invalidate tags cache
+      appCache.delete(ApplicationCache.generateKey('tags'));
+
       return data as Tag;
     } catch (error) {
       if (error instanceof ApiException) throw error;
@@ -130,6 +149,9 @@ export class TagService {
           error
         );
       }
+
+      // Invalidate tags cache
+      appCache.delete(ApplicationCache.generateKey('tags'));
     } catch (error) {
       if (error instanceof ApiException) throw error;
       throw new ApiException(

@@ -1,5 +1,6 @@
 import { supabaseAdmin, withConnectionTracking } from '@/lib/supabase';
 import { ApiException } from '@/lib/api/utils/error-handler';
+import appCache from '@/lib/cache';
 import {
   BlogPost,
   BlogPostFilters,
@@ -9,6 +10,7 @@ import {
 } from '../../types/blog';
 import { PaginationParams } from '../../types/common';
 import { getS3Url } from '@/lib/s3Utils';
+import { ApplicationCache } from '@/lib/cache';
 
 interface PostTag {
   tag_id: string;
@@ -37,6 +39,21 @@ export class BlogPostService {
         const page = filters?.page || 1;
         const limit = filters?.limit || 10;
         const offset = (page - 1) * limit;
+
+        // Generate cache key
+        const cacheKey = ApplicationCache.generateKey('blog_posts', {
+          tag: filters?.tag,
+          is_published: filters?.is_published,
+          author: filters?.author,
+          page,
+          limit
+        });
+
+        // Try to get from cache first
+        const cached = appCache.get(cacheKey);
+        if (cached) {
+          return cached;
+        }
 
         // Build the main query
         let query = supabaseAdmin
@@ -81,13 +98,18 @@ export class BlogPostService {
           tags: post.post_tags?.map((pt: PostTag) => pt.tags) || []
         })) as BlogPost[];
 
-        return {
+        const result = {
           data: posts,
           total: count || 0,
           page,
           limit,
           totalPages: Math.ceil((count || 0) / limit)
         };
+
+        // Cache the result for 5 minutes (300,000 ms)
+        appCache.set(cacheKey, result, 5 * 60 * 1000);
+
+        return result;
       } catch (error) {
         if (error instanceof ApiException) throw error;
         throw new ApiException(
@@ -103,6 +125,15 @@ export class BlogPostService {
   async getPostBySlug(slug: string) {
     return withConnectionTracking(async () => {
       try {
+        // Generate cache key
+        const cacheKey = ApplicationCache.generateKey('blog_post', { slug });
+
+        // Try to get from cache first
+        const cached = appCache.get(cacheKey);
+        if (cached) {
+          return cached;
+        }
+
         const { data, error } = await supabaseAdmin
           .from('posts')
           .select(`
@@ -133,10 +164,15 @@ export class BlogPostService {
           data.image_url = await getS3Url(data.image_url);
         }
 
-        return {
+        const result = {
           ...data,
           tags: data.post_tags?.map((pt: PostTag) => pt.tags?.name).filter(Boolean) || []
         } as BlogPost;
+
+        // Cache the result for 1 hour (3,600,000 ms)
+        appCache.set(cacheKey, result, 60 * 60 * 1000);
+
+        return result;
       } catch (error) {
         if (error instanceof ApiException) throw error;
         throw new ApiException(
@@ -182,6 +218,9 @@ export class BlogPostService {
         if (input.tags?.length) {
           await this.updatePostTags(post.id, input.tags);
         }
+
+        // Invalidate cache for blog posts lists
+        this.invalidateBlogCache();
 
         return post as BlogPost;
       } catch (error) {
@@ -229,6 +268,10 @@ export class BlogPostService {
           await this.updatePostTags(input.id, input.tags);
         }
 
+        // Invalidate cache for blog posts lists and this specific post
+        this.invalidateBlogCache();
+        appCache.delete(ApplicationCache.generateKey('blog_post', { slug: post.slug }));
+
         return post as BlogPost;
       } catch (error) {
         if (error instanceof ApiException) throw error;
@@ -245,6 +288,13 @@ export class BlogPostService {
   async deletePost(id: string) {
     return withConnectionTracking(async () => {
       try {
+        // Get the post slug before deleting for cache invalidation
+        const { data: post } = await supabaseAdmin
+          .from('posts')
+          .select('slug')
+          .eq('id', id)
+          .single();
+
         const { error } = await supabaseAdmin
           .from('posts')
           .delete()
@@ -257,6 +307,12 @@ export class BlogPostService {
             500,
             error
           );
+        }
+
+        // Invalidate cache for blog posts lists and this specific post
+        this.invalidateBlogCache();
+        if (post?.slug) {
+          appCache.delete(ApplicationCache.generateKey('blog_post', { slug: post.slug }));
         }
       } catch (error) {
         if (error instanceof ApiException) throw error;
@@ -314,5 +370,17 @@ export class BlogPostService {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
+  }
+
+  /**
+   * Invalidate all blog-related cache entries
+   */
+  private invalidateBlogCache() {
+    const stats = appCache.getStats();
+    stats.keys.forEach(key => {
+      if (key.startsWith('blog_posts:') || key.startsWith('blog_post:')) {
+        appCache.delete(key);
+      }
+    });
   }
 } 
