@@ -17,7 +17,6 @@
  */
 
 import React, { useState } from 'react';
-import imageCompression from 'browser-image-compression';
 
 /**
  * Props for the ImageUploader component
@@ -139,6 +138,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
    * @returns {Promise<File>} The resized and compressed file
    */
   const resizeImage = async (file: File): Promise<File> => {
+    const imageCompression = (await import('browser-image-compression')).default;
     const options = {
       maxSizeMB: 1,
       maxWidthOrHeight: 800,

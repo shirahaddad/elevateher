@@ -26,14 +26,15 @@ jest.mock('next/server', () => ({
       method: init?.method || 'GET',
       headers,
       json: async () => {
-        if (typeof body === 'string') {
-          try {
-            return JSON.parse(body);
-          } catch (e) {
-            throw new Error('Invalid JSON');
-          }
+        if (typeof body !== 'string' || body.trim() === '') {
+          // Simulate Next.js behavior for empty body: throws an error
+          throw new Error('Unexpected end of JSON input');
         }
-        return jsonData;
+        try {
+          return JSON.parse(body);
+        } catch (e) {
+          throw new Error('Invalid JSON');
+        }
       },
       formData: async () => formData || new FormData(),
       text: async () => typeof body === 'string' ? body : '',
@@ -169,6 +170,9 @@ describe('Validation Middleware', () => {
   });
 
   it('should handle internal errors gracefully', async () => {
+    // Suppress console.error for this specific test, as we expect it to be called
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
     const req = new NextRequest('http://localhost:3000/api/test', {
       method: 'POST',
       headers: {
@@ -184,5 +188,8 @@ describe('Validation Middleware', () => {
     const responseData = await response?.json();
     expect(responseData.success).toBe(false);
     expect(responseData.message).toBe('Internal server error during validation');
+
+    // Restore the original console.error function
+    consoleErrorSpy.mockRestore();
   });
 }); 
