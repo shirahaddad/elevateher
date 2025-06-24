@@ -36,7 +36,7 @@ function QuestionnaireForm() {
     'Emotional Intelligence',
     'Communication',
     'Managing Up/Sideways',
-    'Providing/recieving feedback',
+    'Providing/receiving feedback',
     'Other'
   ];
 
