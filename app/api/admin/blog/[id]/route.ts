@@ -140,6 +140,45 @@ export async function PATCH(
       );
     }
 
+    // Handle tags if provided
+    if (data.tags !== undefined) {
+      console.log('Updating tags for post:', paramId, 'with tags:', data.tags);
+      
+      // First, delete all existing post-tag relationships for this post
+      const { error: deleteTagsError } = await supabaseAdmin
+        .from('post_tags')
+        .delete()
+        .eq('post_id', paramId);
+
+      if (deleteTagsError) {
+        console.error('Error deleting existing post tags:', deleteTagsError);
+        return NextResponse.json(
+          { error: `Failed to update tags: ${deleteTagsError.message}` },
+          { status: 500 }
+        );
+      }
+
+      // Then, create new post-tag relationships if tags are provided
+      if (data.tags && data.tags.length > 0) {
+        const postTagRelationships = data.tags.map((tagId: string) => ({
+          post_id: paramId,
+          tag_id: tagId
+        }));
+
+        const { error: createTagsError } = await supabaseAdmin
+          .from('post_tags')
+          .insert(postTagRelationships);
+
+        if (createTagsError) {
+          console.error('Error creating new post tags:', createTagsError);
+          return NextResponse.json(
+            { error: `Failed to create tag relationships: ${createTagsError.message}` },
+            { status: 500 }
+          );
+        }
+      }
+    }
+
     // Invalidate cache based on the update
     if (currentPost) {
       // If the post was published or unpublished, invalidate all blog caches
