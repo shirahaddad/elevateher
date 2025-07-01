@@ -106,8 +106,8 @@ export class BlogPostService {
           totalPages: Math.ceil((count || 0) / limit)
         };
 
-        // Cache the result for 5 minutes (300,000 ms)
-        appCache.set(cacheKey, result, 5 * 60 * 1000);
+        // Cache the result for 1 minute (60,000 ms)
+        appCache.set(cacheKey, result, 60 * 1000);
 
         return result;
       } catch (error) {

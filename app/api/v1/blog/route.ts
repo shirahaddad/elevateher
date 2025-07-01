@@ -4,8 +4,8 @@ import { handleApiError } from '@/lib/api/utils/error-handler';
 import { BlogPostsResponse, BlogPostResponse, CreateBlogPostInput, UpdateBlogPostInput } from '@/lib/api/types/blog';
 import { blogSearchQuerySchema } from '@/lib/validation/base';
 
-// Cache duration in seconds (5 minutes)
-const CACHE_DURATION = 300;
+// Cache duration in seconds (1 minute)
+const CACHE_DURATION = 60;
 
 export async function GET(request: Request) {
   try {

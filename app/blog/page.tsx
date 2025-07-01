@@ -36,7 +36,7 @@ async function getPosts(tag?: string, page: number = 1, limit: number = 6) {
     url.searchParams.append('limit', limit.toString());
     
     const res = await fetch(url.toString(), {
-      next: { revalidate: 300 } // Cache for 5 minutes
+      next: { revalidate: 60 } // Cache for 1 minute
     });
     
     if (!res.ok) {
