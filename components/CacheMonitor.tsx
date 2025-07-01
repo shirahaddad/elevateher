@@ -8,7 +8,6 @@ interface CacheStats {
   size: number;
   keys: string[];
   hitRate: number;
-  hitRatePercentage: string;
 }
 
 export default function CacheMonitor() {
@@ -24,7 +23,7 @@ export default function CacheMonitor() {
       const result = await response.json();
       
       if (result.success) {
-        setStats(result.data);
+        setStats(result.stats);
         setError(null);
       } else {
         setError(result.error || 'Failed to fetch cache statistics');
@@ -56,6 +55,35 @@ export default function CacheMonitor() {
     } catch (err) {
       setError('Failed to clear cache');
       console.error('Cache clear error:', err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const invalidateCache = async (type: string) => {
+    if (!confirm(`Are you sure you want to invalidate ${type} cache?`)) {
+      return;
+    }
+
+    try {
+      setRefreshing(true);
+      const response = await fetch('/api/admin/cache', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ type }),
+      });
+      const result = await response.json();
+      
+      if (result.success) {
+        await fetchStats();
+      } else {
+        setError(result.error || `Failed to invalidate ${type} cache`);
+      }
+    } catch (err) {
+      setError(`Failed to invalidate ${type} cache`);
+      console.error('Cache invalidation error:', err);
     } finally {
       setRefreshing(false);
     }
@@ -131,11 +159,25 @@ export default function CacheMonitor() {
             {refreshing ? 'Refreshing...' : 'Refresh'}
           </button>
           <button
+            onClick={() => invalidateCache('blog_posts')}
+            disabled={refreshing}
+            className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600 disabled:opacity-50"
+          >
+            Invalidate Posts
+          </button>
+          <button
+            onClick={() => invalidateCache('blog_tags')}
+            disabled={refreshing}
+            className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600 disabled:opacity-50"
+          >
+            Invalidate Tags
+          </button>
+          <button
             onClick={clearCache}
             disabled={refreshing}
             className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 disabled:opacity-50"
           >
-            Clear Cache
+            Clear All
           </button>
         </div>
       </div>
@@ -159,7 +201,7 @@ export default function CacheMonitor() {
         <div className={`p-4 rounded-lg ${getHitRateBgColor(stats.hitRate)}`}>
           <div className="text-sm text-gray-600">Hit Rate</div>
           <div className={`text-2xl font-bold ${getHitRateColor(stats.hitRate)}`}>
-            {stats.hitRatePercentage}
+            {stats.hitRate.toFixed(2)}%
           </div>
         </div>
       </div>

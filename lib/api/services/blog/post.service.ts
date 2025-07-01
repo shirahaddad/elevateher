@@ -220,7 +220,7 @@ export class BlogPostService {
         }
 
         // Invalidate cache for blog posts lists
-        this.invalidateBlogCache();
+        await this.invalidateBlogCache();
 
         return post as BlogPost;
       } catch (error) {
@@ -269,7 +269,7 @@ export class BlogPostService {
         }
 
         // Invalidate cache for blog posts lists and this specific post
-        this.invalidateBlogCache();
+        await this.invalidateBlogCache();
         appCache.delete(ApplicationCache.generateKey('blog_post', { slug: post.slug }));
 
         return post as BlogPost;
@@ -310,7 +310,7 @@ export class BlogPostService {
         }
 
         // Invalidate cache for blog posts lists and this specific post
-        this.invalidateBlogCache();
+        await this.invalidateBlogCache();
         if (post?.slug) {
           appCache.delete(ApplicationCache.generateKey('blog_post', { slug: post.slug }));
         }
@@ -375,12 +375,26 @@ export class BlogPostService {
   /**
    * Invalidate all blog-related cache entries
    */
-  private invalidateBlogCache() {
-    const stats = appCache.getStats();
-    stats.keys.forEach(key => {
-      if (key.startsWith('blog_posts:') || key.startsWith('blog_post:')) {
-        appCache.delete(key);
-      }
-    });
+  private async invalidateBlogCache() {
+    try {
+      // Call the cache invalidation endpoint
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+      await fetch(`${baseUrl}/api/admin/cache`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ type: 'all' }),
+      });
+    } catch (error) {
+      console.error('Failed to invalidate cache via endpoint:', error);
+      // Fallback to direct cache invalidation
+      const stats = appCache.getStats();
+      stats.keys.forEach(key => {
+        if (key.startsWith('blog_posts:') || key.startsWith('blog_post:')) {
+          appCache.delete(key);
+        }
+      });
+    }
   }
 } 

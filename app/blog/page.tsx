@@ -35,13 +35,8 @@ async function getPosts(tag?: string, page: number = 1, limit: number = 6) {
     url.searchParams.append('page', page.toString());
     url.searchParams.append('limit', limit.toString());
     
-    // Add cache-busting in development
-    if (process.env.NODE_ENV === 'development') {
-      url.searchParams.append('_t', Date.now().toString());
-    }
-    
     const res = await fetch(url.toString(), {
-      next: { revalidate: 60 } // Cache for 1 minute (for testing)
+      next: { revalidate: 300 } // Cache for 5 minutes
     });
     
     if (!res.ok) {
@@ -62,14 +57,7 @@ async function getPosts(tag?: string, page: number = 1, limit: number = 6) {
 async function getTags() {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const url = new URL(`${baseUrl}/api/v1/blog/tags`);
-    
-    // Add cache-busting in development
-    if (process.env.NODE_ENV === 'development') {
-      url.searchParams.append('_t', Date.now().toString());
-    }
-    
-    const res = await fetch(url.toString(), {
+    const res = await fetch(`${baseUrl}/api/v1/blog/tags`, {
       next: { revalidate: 3600 } // Cache for 1 hour
     });
     
