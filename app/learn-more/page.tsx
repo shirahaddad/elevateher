@@ -73,6 +73,14 @@ function LearnMoreForm() {
 
   return (
     <div className="min-h-screen py-16 bg-white">
+      {/* Skip link for keyboard users */}
+      <a 
+        href="#learn-more-form" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-purple-600 text-white px-4 py-2 rounded-md z-50"
+      >
+        Skip to form
+      </a>
+      
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Learn More</h1>
@@ -81,7 +89,7 @@ function LearnMoreForm() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white rounded-2xl shadow-xl p-8">
+        <form id="learn-more-form" onSubmit={handleSubmit} className="space-y-8 bg-white rounded-2xl shadow-xl p-8">
           {/* Honeypot field - hidden from users */}
           <div style={{ display: 'none' }}>
             <input
@@ -108,8 +116,13 @@ function LearnMoreForm() {
                 value={formData.name}
                 onChange={handleChange}
                 required
+                autoFocus
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-700"        
+                aria-describedby="name-help"
             />
+            <p id="name-help" className="text-sm text-gray-500 mt-1">
+              Enter your full name
+            </p>
           </div>
           <div>
             <label
@@ -126,7 +139,11 @@ function LearnMoreForm() {
               onChange={handleChange}
               required
               className="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              aria-describedby="email-help"
             />
+            <p id="email-help" className="text-sm text-gray-500 mt-1">
+              We'll use this to contact you
+            </p>
           </div>
 
           <div className="flex items-center">
@@ -138,13 +155,13 @@ function LearnMoreForm() {
               onChange={handleChange}
               className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
             />
-            <label htmlFor="mailingList" className="ml-2 text-sm text-gray-700">
+            <label htmlFor="mailingList" className="ml-2 text-sm text-gray-700 cursor-pointer">
               Sure, add me to your mailing list.
             </label>
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm mt-2">
+            <div className="text-red-600 text-sm mt-2" role="alert" aria-live="polite">
               {error}
             </div>
           )}

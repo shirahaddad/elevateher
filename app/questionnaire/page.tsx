@@ -111,6 +111,14 @@ function QuestionnaireForm() {
 
   return (
     <div className="min-h-screen py-16 bg-white">
+      {/* Skip link for keyboard users */}
+      <a 
+        href="#questionnaire-form" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-purple-600 text-white px-4 py-2 rounded-md z-50"
+      >
+        Skip to form
+      </a>
+      
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Start Your Journey</h1>
@@ -119,7 +127,7 @@ function QuestionnaireForm() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white rounded-2xl shadow-xl p-8">
+        <form id="questionnaire-form" onSubmit={handleSubmit} className="space-y-8 bg-white rounded-2xl shadow-xl p-8">
           {/* Honeypot field - hidden from users */}
           <div style={{ display: 'none' }}>
             <input
@@ -145,8 +153,13 @@ function QuestionnaireForm() {
               value={formData.client_name}
               onChange={handleChange}
               required
+              autoFocus
               className="w-[300px] h-[40px] text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              aria-describedby="client_name-help"
             />
+            <p id="client_name-help" className="text-sm text-gray-500 mt-1">
+              Enter your full name
+            </p>
           </div>
 
           <div>
@@ -164,7 +177,11 @@ function QuestionnaireForm() {
               onChange={handleChange}
               required
               className="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              aria-describedby="email-help"
             />
+            <p id="email-help" className="text-sm text-gray-500 mt-1">
+              We'll use this to contact you
+            </p>
           </div>
 
           <div>
@@ -182,14 +199,18 @@ function QuestionnaireForm() {
               required
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-700"
+              aria-describedby="goals-help"
             />
+            <p id="goals-help" className="text-sm text-gray-500 mt-1">
+              Tell us about your goals and what you hope to achieve
+            </p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <fieldset>
+            <legend className="block text-sm font-medium text-gray-700 mb-1">
               What skills are you most interested in developing? Please try to choose at least 3, no more than 7.
-            </label>
-            <div className="space-y-2">
+            </legend>
+            <div className="space-y-2" role="group" aria-describedby="skills-help">
               {skillsOptions.map((skill) => (
                 <div key={skill} className="flex items-center">
                   <input
@@ -201,7 +222,7 @@ function QuestionnaireForm() {
                     onChange={handleSkillsChange}
                     className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                   />
-                  <label htmlFor={skill} className="ml-2 text-sm text-gray-700">
+                  <label htmlFor={skill} className="ml-2 text-sm text-gray-700 cursor-pointer">
                     {skill}
                   </label>
                 </div>
@@ -214,11 +235,15 @@ function QuestionnaireForm() {
                     onChange={(e) => setFormData(prev => ({ ...prev, otherSkill: e.target.value }))}
                     placeholder="Please specify"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-700"
+                    aria-label="Specify other skill"
                   />
                 </div>
               )}
             </div>
-          </div>
+            <p id="skills-help" className="text-sm text-gray-500 mt-1">
+              Select 3-7 skills that are most relevant to your goals
+            </p>
+          </fieldset>
 
           <div>
             <label
@@ -256,7 +281,12 @@ function QuestionnaireForm() {
               value={formData.linkedin}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-700"
+              placeholder="https://linkedin.com/in/yourprofile"
+              aria-describedby="linkedin-help"
             />
+            <p id="linkedin-help" className="text-sm text-gray-500 mt-1">
+              Optional: Share your LinkedIn profile for additional context
+            </p>
           </div>
 
           <div>
@@ -273,7 +303,12 @@ function QuestionnaireForm() {
               onChange={handleChange}
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-700"
+              placeholder="Optional additional information..."
+              aria-describedby="additionalInfo-help"
             />
+            <p id="additionalInfo-help" className="text-sm text-gray-500 mt-1">
+              Optional: Any additional information you'd like to share
+            </p>
           </div>
 
           <div className="flex items-center">
@@ -285,13 +320,13 @@ function QuestionnaireForm() {
               onChange={handleChange}
               className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
             />
-            <label htmlFor="mailingList" className="ml-2 text-sm text-gray-700">
+            <label htmlFor="mailingList" className="ml-2 text-sm text-gray-700 cursor-pointer">
               Sure, add me to your mailing list.
             </label>
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm mt-2">
+            <div className="text-red-600 text-sm mt-2" role="alert" aria-live="polite">
               {error}
             </div>
           )}
