@@ -23,10 +23,10 @@ export default function ShiraBio() {
           {/* Bio Section */}
           <div className="w-full md:w-2/3">
             <h1 className="text-4xl font-bold mb-2 text-purple-900 tracking-tight">Shira Haddad (she/her)</h1>
-            <p className="text-xl text-purple-600 mb-6">Engineering Leader & Career Coach</p>
+            <p className="text-xl text-purple-600 mb-6">Engineering Leader, Mentor, Coach</p>
             <div className="prose prose-lg max-w-none">
               <p className="text-gray-600 mb-6">
-                Engineering leader and career coach. With over 15 years of experience in systems design, architecture and product management, Shira helps tech professionals grow in their careers, develop leadership skills, and navigate organizational changes.
+                With over 15 years of experience in systems design, architecture and product management, Shira helps tech professionals grow in their careers, develop leadership skills, and navigate organizational changes.
               </p>
               <p className="text-gray-600 mb-6">
                 Shira creates high performing teams, implements hiring best practices, and fosters inclusive culture. Her passion is supporting women in technology and developing the next generation of engineering leaders.
