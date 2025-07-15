@@ -18,7 +18,7 @@ export default function About() {
             We blend real-world tech leadership experience with proven coaching methods to help you grow with clarity, confidence, and impact. 
           </p>
           <p>
-            This isn't just career coaching—it's career elevation.
+            This isn't just career coaching - it's career elevation.
           </p>
         </div>
 
