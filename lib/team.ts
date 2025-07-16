@@ -23,7 +23,7 @@ export const TEAM: TeamMember[] = [
     slug: 'cassandra',
     name: 'Cassandra Dinh-Moore (she/her)',
     title: 'Career Coach & Developer of Talent',
-    image: '/images/cassie.jpg',
+    image: '/images/cassie-1.jpg',
     linkedin: 'https://www.linkedin.com/in/cassiedinh-moore/',
     bio: [
       'Cassandra Dinh-Moore brings a unique perspective to leadership development, combining her experience in tech with a deep understanding of organizational psychology. She has helped numerous women break through glass ceilings and establish themselves as influential leaders in their organizations.',
