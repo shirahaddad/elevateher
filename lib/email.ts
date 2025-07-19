@@ -151,6 +151,20 @@ interface LearnMoreData {
 }
 
 /**
+ * Data structure for workshop waitlist submissions
+ */
+interface WorkshopWaitlistData {
+  /** Prospect's full name */
+  name: string;
+  /** Prospect's email address */
+  email: string;
+  /** Whether prospect wants to join mailing list */
+  mailingList: boolean;
+  /** Category for the waitlist (e.g., 'workshops') */
+  category: string;
+}
+
+/**
  * Sends a notification email to the admin when someone submits the "Learn More" form.
  * 
  * This function sends a simple notification email to the admin with the prospect's
@@ -397,4 +411,78 @@ export async function sendQuestionnaireEmailProspect(data: { email: string; name
       error: errorDetails
     };
   }
-} 
+}
+
+/**
+ * Sends a notification email to the admin when someone submits the waitlist form.
+ * 
+ * This function sends an email to the admin with the prospect's information for 
+ * waitlist management purposes, clearly indicating the category.
+ * 
+ * @param data - The waitlist form data
+ * @returns Promise<{success: boolean, error?: any}> - Result of the email operation
+ * 
+ * @example
+ * ```typescript
+ * const result = await sendWorkshopWaitlistEmail({
+ *   name: "Jane Smith",
+ *   email: "jane@example.com",
+ *   mailingList: true,
+ *   category: "workshops"
+ * });
+ * ```
+ */
+export async function sendWorkshopWaitlistEmail(data: WorkshopWaitlistData) {
+  const { name, email, mailingList, category } = data;
+
+  // Capitalize category for display
+  const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
+  
+  const html = `
+    <h1>New ${categoryDisplay} Waitlist Signup</h1>
+    <p><strong>Category:</strong> <span style="background-color: #f3e8ff; padding: 2px 6px; border-radius: 4px; color: #7c3aed; font-weight: bold;">${categoryDisplay}</span></p>
+    <p><strong>Name:</strong> ${name}</p>
+    <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Mailing List:</strong> ${mailingList ? 'Yes' : 'No'}</p>
+    <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+  `;
+
+  try {
+    console.log('Email configuration:', {
+      from: fromEmail,
+      to: adminEmail,
+      subject: `New ${categoryDisplay} Waitlist Signup`,
+      hasHtml: !!html
+    });
+
+    const { data: resendData, error } = await resend.emails.send({
+      from: fromEmail,
+      to: adminEmail,
+      subject: `New ${categoryDisplay} Waitlist Signup`,
+      html,
+    });
+
+    if (error) {
+      console.error('Resend API error details:', {
+        message: error.message,
+        name: error.name
+      });
+      throw error;
+    }
+
+    console.log('Email sent successfully. Response:', resendData);
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending email. Full error:', error);
+    const errorDetails = error instanceof Error ? {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    } : 'Unknown error occurred';
+    
+    return { 
+      success: false, 
+      error: errorDetails
+    };
+  }
+}

@@ -37,6 +37,7 @@ export default function About() {
                                 src={coach.image}
                                 alt={coach.name}
                                 fill
+                                sizes="(max-width: 640px) 320px, 384px"
                                 className="object-cover object-top transition-all duration-300 group-hover:brightness-110 group-hover:contrast-105"
                                 priority
                             />

@@ -234,3 +234,16 @@ export const questionnaireFormSchema = z.object({
     path: ['otherSkill']
   }
 );
+
+/**
+ * Workshop Waitlist form validation schema
+ * Validates the workshop waitlist signup form submission data
+ */
+export const workshopWaitlistSchema = z.object({
+  name: nameSchema,
+  email: emailSchema,
+  mailingList: z.boolean().default(false),
+  category: z.string().min(1, 'Category is required'),
+  // Honeypot field for spam prevention - must be empty
+  website: z.string().max(0).optional(),
+});

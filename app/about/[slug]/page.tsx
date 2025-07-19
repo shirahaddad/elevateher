@@ -7,9 +7,10 @@ import { TEAM } from '@/lib/team';
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const member = TEAM.find(m => m.slug === params.slug);
+  const resolvedParams = await params;
+  const member = TEAM.find(m => m.slug === resolvedParams.slug);
   
   return {
     title: member ? `${member.name} - Elevate(Her)` : 'Elevate(Her)',
@@ -19,9 +20,10 @@ export async function generateMetadata({
 export default async function Page({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const member = TEAM.find(m => m.slug === params.slug);
+  const resolvedParams = await params;
+  const member = TEAM.find(m => m.slug === resolvedParams.slug);
 
   if (!member) {
     notFound();

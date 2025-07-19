@@ -52,7 +52,7 @@ export default function Home() {
                 and achieve your goals.
               </p>
               <Link
-                href="/services/coaching"
+                href="/services?filter=individual"
                 className="text-purple-600 font-semibold hover:text-purple-700 text-sm sm:text-base"
               >
                 Learn More →

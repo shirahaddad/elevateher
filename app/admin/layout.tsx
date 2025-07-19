@@ -68,6 +68,16 @@ export default function AdminLayout({
                 >
                   Submissions
                 </Link>
+                <Link
+                  href="/admin/waitlist"
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    pathname === '/admin/waitlist'
+                      ? 'bg-purple-100 text-purple-900'
+                      : 'text-gray-600 hover:text-purple-900 hover:bg-purple-50'
+                  }`}
+                >
+                  Waitlist
+                </Link>
               </div>
             </div>
           </div>

@@ -62,14 +62,29 @@ const series = [
   }
 ];
 
-export default function Coaching() {
+export default function CareerAdvising() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-8 py-16">
+        <Link 
+          href="/services" 
+          className="inline-flex items-center gap-1 text-purple-600 hover:text-purple-800 transition-colors mb-8 text-sm font-medium"
+        >
+          <svg 
+            className="w-4 h-4" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Services
+        </Link>
+        
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Individual Coaching</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Personalized guidance for your career growth and leadership journey
+          <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Career Advising</h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Personalized coaching that blends reflection, strategic guidance, and accountability to support your career growth and leadership journey.
           </p>
         </div>
 
@@ -83,8 +98,7 @@ export default function Coaching() {
                     src={item.image}
                     alt={item.name}
                     fill
-
-                    className="opacity-80"
+                    className="opacity-80 object-cover object-center"
                   />
                 </div>
               </div>

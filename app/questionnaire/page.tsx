@@ -189,7 +189,7 @@ function QuestionnaireForm() {
               htmlFor="goals"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              What would you like to get out of working with a coach?
+              What would you like to get out of working with us?
             </label>
             <textarea
               id="goals"
@@ -201,9 +201,6 @@ function QuestionnaireForm() {
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-700"
               aria-describedby="goals-help"
             />
-            <p id="goals-help" className="text-sm text-gray-500 mt-1">
-              Tell us about your goals and what you hope to achieve
-            </p>
           </div>
 
           <fieldset>
@@ -240,9 +237,6 @@ function QuestionnaireForm() {
                 </div>
               )}
             </div>
-            <p id="skills-help" className="text-sm text-gray-500 mt-1">
-              Select 3-7 skills that are most relevant to your goals
-            </p>
           </fieldset>
 
           <div>
@@ -284,9 +278,6 @@ function QuestionnaireForm() {
               placeholder="https://linkedin.com/in/yourprofile"
               aria-describedby="linkedin-help"
             />
-            <p id="linkedin-help" className="text-sm text-gray-500 mt-1">
-              Optional: Share your LinkedIn profile for additional context
-            </p>
           </div>
 
           <div>
@@ -306,9 +297,6 @@ function QuestionnaireForm() {
               placeholder="Optional additional information..."
               aria-describedby="additionalInfo-help"
             />
-            <p id="additionalInfo-help" className="text-sm text-gray-500 mt-1">
-              Optional: Any additional information you'd like to share
-            </p>
           </div>
 
           <div className="flex items-center">
