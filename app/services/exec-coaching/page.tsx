@@ -53,6 +53,9 @@ export default function ExecCoaching() {
                 While mentoring provides a bit more of a blended approach, executive coaching is not about giving advice, but about helping you clarify your values, expand your perspective, and move forward with confidence.
               </p>
               <p className="text-gray-600 mb-6">
+                As I work toward completing my ICF credentialing hours, I’m currently offering 60-minute coaching sessions at a reduced rate of $200.              
+              </p>
+              <p className="text-gray-600 mb-6">
                 Book your free introduction session with me{' '}
                 <Link
                   href="https://calendly.com/shira-haddad/25-min-with-shira"
