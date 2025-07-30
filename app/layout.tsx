@@ -9,11 +9,11 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "Elevate(Her) - Empowering Women in Tech",
+    default: "Elevate(Her) - Women in Tech Coaching & Leadership Development",
     template: "%s | Elevate(Her)"
   },
-  description: "Empowering women in tech through coaching, mentorship, and leadership development. Join our community of women leaders in technology.",
-  keywords: ["women in tech", "tech leadership", "career coaching", "mentorship", "women empowerment", "tech career", "leadership development"],
+  description: "Expert women in tech coaching, leadership development, and career mentorship. Specialized coaching for women in technology, engineering, and STEM careers. Executive coaching for tech leaders.",
+  keywords: ["women in tech coaching", "tech leadership coaching", "women in technology careers", "engineering career coaching", "STEM leadership development", "women tech executives", "tech career mentorship", "software engineering coaching", "women in engineering", "tech industry coaching", "career coaching", "mentorship", "women empowerment", "leadership development"],
   authors: [{ name: "Shira Haddad" }],
   creator: "Elevate(Her)",
   publisher: "Elevate(Her)",

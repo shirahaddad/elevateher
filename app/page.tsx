@@ -9,7 +9,7 @@ export default function Home() {
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/hero-background.jpg"
-            alt="Hero background"
+            alt="Women in Tech Coaching - Elevate Your Technology Career"
             fill
             className="object-cover"
             priority
