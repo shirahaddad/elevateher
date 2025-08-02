@@ -21,7 +21,7 @@ function QuestionnaireForm() {
     linkedin: '',
     additionalInfo: '',
     mailingList: false,
-    source: searchParams.get('source') || '',
+    source: searchParams?.get('source') || '',
     website: '', // Honeypot field for spam prevention
   });
 

@@ -3,9 +3,10 @@
 import { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { trackCustomPageView, trackPageView } from '@/lib/analytics';
+import { Suspense } from 'react';
 
-// Client-side analytics tracker component
-export default function AnalyticsTracker() {
+// Client-side analytics tracker component implementation
+function AnalyticsTrackerImplementation() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -21,6 +22,15 @@ export default function AnalyticsTracker() {
   }, [pathname, searchParams]);
 
   return null; // This component doesn't render anything
+}
+
+// Wrapper component with Suspense boundary
+export default function AnalyticsTracker() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyticsTrackerImplementation />
+    </Suspense>
+  );
 }
 
 // Hook for tracking events in components
