@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { questionnaireFormSchema } from '@/lib/validation/base';
+import { useAnalytics } from '@/components/analytics/AnalyticsTracker';
 
 function QuestionnaireForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { trackFormSubmission } = useAnalytics();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -67,6 +69,9 @@ function QuestionnaireForm() {
       if (!response.ok) {
         throw new Error(data.message || 'Failed to submit form');
       }
+
+      // Track successful form submission
+      trackFormSubmission('questionnaire', formData.source);
 
       router.push('/thank-you');
     } catch (err) {

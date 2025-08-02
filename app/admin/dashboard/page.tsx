@@ -67,15 +67,18 @@ export default function AdminDashboard() {
             </p>
           </Link>
           
-          <div className="bg-gradient-to-r from-gray-400 to-gray-500 text-white p-6 rounded-lg shadow opacity-75">
+          <Link 
+            href="/admin/analytics"
+            className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
+          >
             <div className="flex items-center mb-3">
               <div className="text-2xl mr-3">📊</div>
               <h3 className="text-lg font-semibold">Analytics</h3>
             </div>
-            <p className="text-gray-100 text-sm">
-              Coming soon - View detailed analytics
+            <p className="text-indigo-100 text-sm">
+              View website analytics and user insights
             </p>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

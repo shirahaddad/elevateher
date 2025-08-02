@@ -13,7 +13,8 @@
     "test:connection-pool": "node scripts/test-connection-pool.js",
     "test:cache": "node scripts/test-cache.js",
     "db:indexes": "node scripts/apply-database-indexes.js",
-    "db:indexes:rollback": "node scripts/rollback-database-indexes.js"
+    "db:indexes:rollback": "node scripts/rollback-database-indexes.js",
+    "db:analytics": "node scripts/apply-analytics-migration.js"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
