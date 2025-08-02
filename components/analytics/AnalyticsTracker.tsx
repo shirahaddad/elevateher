@@ -12,6 +12,18 @@ function AnalyticsTrackerImplementation() {
 
   useEffect(() => {
     try {
+      // Skip tracking for admin pages and Vercel preview deployments
+      const isAdminPage = pathname.startsWith('/admin');
+      const isVercelPreview = typeof window !== 'undefined' && 
+        (window.location.hostname.includes('.vercel.app') && 
+         !window.location.hostname.includes('elevateher.tech'));
+      
+      if (isAdminPage || isVercelPreview) {
+        console.log('📊 Analytics: Skipping tracking for:', pathname, 
+          isAdminPage ? '(admin page)' : '(vercel preview)');
+        return;
+      }
+      
       // Track page view on route changes
       const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
       

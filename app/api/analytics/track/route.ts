@@ -6,6 +6,20 @@ export async function POST(request: NextRequest) {
     const data = await request.json();
     const clientIP = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
     
+    // Server-side filtering: Skip admin pages and Vercel preview deployments
+    if (data.page_url) {
+      const url = new URL(data.page_url);
+      const isAdminPage = url.pathname.startsWith('/admin');
+      const isVercelPreview = url.hostname.includes('.vercel.app') && 
+        !url.hostname.includes('elevateher.tech');
+      
+      if (isAdminPage || isVercelPreview) {
+        console.log('📊 Server: Skipping analytics for:', data.page_url, 
+          isAdminPage ? '(admin page)' : '(vercel preview)');
+        return NextResponse.json({ success: true, skipped: true });
+      }
+    }
+    
     // Extract UTM parameters from URL if present
     const url = new URL(data.page_url || '');
     const utmParams = {

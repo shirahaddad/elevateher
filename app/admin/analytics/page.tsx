@@ -83,12 +83,31 @@ export default function AnalyticsPage() {
               <button
                 onClick={async () => {
                   try {
+                    const response = await fetch('/api/analytics/cleanup', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' }
+                    });
+                    const result = await response.json();
+                    alert(`Cleanup result: ${response.status} - ${result.message || JSON.stringify(result)}`);
+                    // Refresh data after cleanup
+                    fetchAnalyticsData();
+                  } catch (error) {
+                    alert(`Error: ${error}`);
+                  }
+                }}
+                className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700"
+              >
+                🧹 Cleanup
+              </button>
+              <button
+                onClick={async () => {
+                  try {
                     const response = await fetch('/api/analytics/track', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
                         event_type: 'test_event',
-                        page_url: window.location.href,
+                        page_url: 'https://elevateher.tech/test-page',
                         page_title: 'Manual Test',
                         session_id: 'manual_test_' + Date.now()
                       })
