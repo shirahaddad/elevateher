@@ -11,17 +11,24 @@ function AnalyticsTrackerImplementation() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Track page view on route changes
-    const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
-    
-    // Track with Google Analytics
-    trackPageView(url);
-    
-    // Track with our custom analytics
-    trackCustomPageView();
+    try {
+      // Track page view on route changes
+      const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
+      
+      console.log('📊 Analytics: Tracking page view for:', url);
+      
+      // Track with Google Analytics
+      trackPageView(url);
+      
+      // Track with our custom analytics
+      trackCustomPageView();
+    } catch (error) {
+      console.error('❌ Analytics tracking error:', error);
+    }
   }, [pathname, searchParams]);
 
-  return null; // This component doesn't render anything
+  // Add a marker so we can check if component is loaded
+  return <div data-analytics-tracker="true" style={{ display: 'none' }} />;
 }
 
 // Wrapper component with Suspense boundary

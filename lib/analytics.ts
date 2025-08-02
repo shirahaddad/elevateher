@@ -76,14 +76,24 @@ export const trackCustomEvent = async (eventType: string, metadata?: Record<stri
       metadata: metadata,
     };
 
+    console.log('📊 Sending analytics event:', eventType, event.page_url);
+    
     // Send to our analytics API
-    await fetch('/api/analytics/track', {
+    const response = await fetch('/api/analytics/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(event),
     });
+
+    if (!response.ok) {
+      throw new Error(`Analytics API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('✅ Analytics event tracked:', result);
+    
   } catch (error) {
-    console.warn('Failed to track custom event:', error);
+    console.warn('❌ Failed to track custom event:', error);
   }
 };
 
@@ -91,11 +101,17 @@ export const trackCustomEvent = async (eventType: string, metadata?: Record<stri
 export const trackCustomPageView = async () => {
   if (typeof window === 'undefined') return;
   
-  await trackCustomEvent('page_view', {
-    path: window.location.pathname,
-    search: window.location.search,
-    hash: window.location.hash,
-  });
+  try {
+    console.log('📊 Custom analytics: Tracking page view');
+    await trackCustomEvent('page_view', {
+      path: window.location.pathname,
+      search: window.location.search,
+      hash: window.location.hash,
+    });
+    console.log('✅ Custom analytics: Page view tracked successfully');
+  } catch (error) {
+    console.error('❌ Custom analytics error:', error);
+  }
 };
 
 // Get or generate session ID
