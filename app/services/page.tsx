@@ -36,7 +36,7 @@ export default async function Services({ searchParams }: ServicesPageProps) {
             {isIndividualFilter ? '1 on 1 Coaching Services' : 'Our Services'}
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            Book your <a href="https://calendly.com/shira-haddad/elevateher-info-session" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-800 underline">first free session</a> with us and see how we can support your career growth.
+            Book your <a href="https://zcal.co/t/elevateher/intoduction" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-800 underline">first free session</a> with us and see how we can support your career growth.
           </p>
         </div>
 
@@ -181,7 +181,7 @@ export default async function Services({ searchParams }: ServicesPageProps) {
         <div className="text-center mt-12 sm:mt-16">
           <p className="text-lg sm:text-xl text-gray-700 mb-4">
             If you're not sure what you need - schedule a free 30-minute intro call <a 
-              href="https://calendly.com/shira-haddad/elevateher-info-session" 
+              href="https://zcal.co/t/elevateher/intoduction" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="text-purple-600 hover:text-purple-800 underline"

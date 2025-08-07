@@ -58,7 +58,7 @@ export default function ExecCoaching() {
               <p className="text-gray-600 mb-6">
                 Book your free introduction session with me{' '}
                 <Link
-                  href="https://calendly.com/shira-haddad/25-min-with-shira"
+                  href="https://zcal.co/shirahaddad/learn-more-coaching"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-purple-600 hover:text-purple-800 underline"
