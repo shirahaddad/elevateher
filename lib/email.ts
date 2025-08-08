@@ -279,8 +279,8 @@ export async function sendLearnMoreEmailProspect(data: ProspectEmailData) {
     <p>We blend real-world tech leadership experience with proven coaching methods to help you grow with clarity, confidence, and impact.</p>
     <p>This isn't just career coaching—it's career elevation.</p>
     <br/>
-    <p>Not sure where to begin? Book a free 30 min information session with us <a href="https://zcal.co/t/elevateher/intoduction">here</a>.</p>
-    <p>Ready to elevate? Book your free 60 min intake session <a href="https://zcal.co/t/elevateher/intoduction">now!</a></p>
+    <p>Not sure where to begin? Book a free 30 min information session with us <a href="https://zcal.co/t/elevateher/introduction">here</a>.</p>
+    <p>Ready to elevate? Book your free 60 min intake session <a href="https://zcal.co/t/elevateher/introduction">now!</a></p>
     <br/>
     <p>We can't wait to get to know you.</p>
     <p>Shira and Cassie<br/><a href="ElevateHer.Tech">ElevateHer.Tech</p>
@@ -355,7 +355,7 @@ export async function sendQuestionnaireEmailProspect(data: { email: string; name
     <p>Hi ${firstName},</p>
     <p>Thank you so much for filling out the questionnaire with us — we're thrilled to meet you!</p>
     <p>
-      Please use this <a href="https://zcal.co/t/elevateher/intoduction">link</a> to book your first free session - we'll use the information provided in the questionnaire to tailor the conversation to your needs.
+      Please use this <a href="https://zcal.co/t/elevateher/introduction">link</a> to book your first free session - we'll use the information provided in the questionnaire to tailor the conversation to your needs.
     </p>
     <p>
       During our 60-minutes we'll discuss your top goals and priorities, and explore how we can best support you on your career journey in tech. Whether you're stepping into leadership, considering a career pivot, or looking to build confidence in a male-dominated space — this is your time to be heard and celebrated.
