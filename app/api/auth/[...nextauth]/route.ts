@@ -7,7 +7,7 @@ import { emailSchema } from "@/lib/validation/base";
 const allowedEmailsSchema = z.array(emailSchema);
 
 // List of allowed admin emails
-const allowedEmails = ['shira.haddad@gmail.com', 'michiko3.CM@gmail.com'];
+const allowedEmails = ['shira.haddad@gmail.com', 'cassiedinhmoore@gmail.com'];
 
 // Validate the allowed emails list
 const validatedEmails = allowedEmailsSchema.parse(allowedEmails);
