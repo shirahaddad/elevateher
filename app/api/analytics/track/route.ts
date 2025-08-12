@@ -6,16 +6,20 @@ export async function POST(request: NextRequest) {
     const data = await request.json();
     const clientIP = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
     
-    // Server-side filtering: Skip admin pages and Vercel preview deployments
+    // Server-side filtering: Skip admin pages, localhost, and Vercel preview deployments
     if (data.page_url) {
       const url = new URL(data.page_url);
       const isAdminPage = url.pathname.startsWith('/admin');
       const isVercelPreview = url.hostname.includes('.vercel.app') && 
         !url.hostname.includes('elevateher.tech');
+      const isLocalhost = url.hostname === 'localhost' 
+        || url.hostname === '127.0.0.1' 
+        || url.hostname === '::1' 
+        || url.hostname.endsWith('.local');
       
-      if (isAdminPage || isVercelPreview) {
+      if (isAdminPage || isVercelPreview || isLocalhost) {
         console.log('📊 Server: Skipping analytics for:', data.page_url, 
-          isAdminPage ? '(admin page)' : '(vercel preview)');
+          isAdminPage ? '(admin page)' : isLocalhost ? '(localhost)' : '(vercel preview)');
         return NextResponse.json({ success: true, skipped: true });
       }
     }

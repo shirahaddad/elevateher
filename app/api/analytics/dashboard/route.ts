@@ -11,25 +11,33 @@ export async function GET(request: NextRequest) {
     startDate.setDate(startDate.getDate() - days);
     const startDateISO = startDate.toISOString();
 
-    // Get total page views (exclude admin pages and vercel previews)
-    const { data: totalPageViews, error: pageViewsError } = await supabaseAdmin
+    // Get total page views (exclude admin pages, localhost, and vercel previews)
+    const { count: totalPageViewsCount, error: pageViewsError } = await supabaseAdmin
       .from('page_views')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', startDateISO)
       .not('page_url', 'like', '%/admin%')
-      .not('page_url', 'like', '%.vercel.app%');
+      .not('page_url', 'like', '%.vercel.app%')
+      .not('page_url', 'like', '%://localhost%')
+      .not('page_url', 'like', '%://127.0.0.1%')
+      .not('page_url', 'like', '%://::1%')
+      .not('page_url', 'like', '%.local%');
 
     if (pageViewsError) {
       console.error('Error fetching page views:', pageViewsError);
     }
 
-    // Get unique visitors (exclude admin pages and vercel previews)
+    // Get unique visitors (exclude admin pages, localhost, and vercel previews)
     const { data: uniqueVisitorsData, error: uniqueVisitorsError } = await supabaseAdmin
       .from('page_views')
       .select('session_id')
       .gte('created_at', startDateISO)
       .not('page_url', 'like', '%/admin%')
-      .not('page_url', 'like', '%.vercel.app%');
+      .not('page_url', 'like', '%.vercel.app%')
+      .not('page_url', 'like', '%://localhost%')
+      .not('page_url', 'like', '%://127.0.0.1%')
+      .not('page_url', 'like', '%://::1%')
+      .not('page_url', 'like', '%.local%');
 
     const uniqueVisitors = uniqueVisitorsData 
       ? new Set(uniqueVisitorsData.map(v => v.session_id)).size 
@@ -51,7 +59,11 @@ export async function GET(request: NextRequest) {
         .select('page_url, page_title')
         .gte('created_at', startDateISO)
         .not('page_url', 'like', '%/admin%')
-        .not('page_url', 'like', '%.vercel.app%');
+        .not('page_url', 'like', '%.vercel.app%')
+        .not('page_url', 'like', '%://localhost%')
+        .not('page_url', 'like', '%://127.0.0.1%')
+        .not('page_url', 'like', '%://::1%')
+        .not('page_url', 'like', '%.local%');
       
       const pageViewCounts = fallbackTopPages?.reduce((acc: any, view) => {
         const key = view.page_url;
@@ -139,7 +151,7 @@ export async function GET(request: NextRequest) {
     });
 
     const response = {
-      totalPageViews: totalPageViews?.length || 0,
+      totalPageViews: totalPageViewsCount || 0,
       uniqueVisitors,
       topPages: topPagesData || [],
       formSubmissions: allFormSubmissions,
