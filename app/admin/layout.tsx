@@ -29,26 +29,6 @@ export default function AdminLayout({
                   Dashboard
                 </Link>
                 <Link
-                  href="/admin/connection-pool"
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    pathname === '/admin/connection-pool'
-                      ? 'bg-purple-100 text-purple-900'
-                      : 'text-gray-600 hover:text-purple-900 hover:bg-purple-50'
-                  }`}
-                >
-                  Connection Pool
-                </Link>
-                <Link
-                  href="/admin/cache"
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    pathname === '/admin/cache'
-                      ? 'bg-purple-100 text-purple-900'
-                      : 'text-gray-600 hover:text-purple-900 hover:bg-purple-50'
-                  }`}
-                >
-                  Cache
-                </Link>
-                <Link
                   href="/admin/blog"
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     pathname === '/admin/blog'
@@ -59,24 +39,14 @@ export default function AdminLayout({
                   Blog
                 </Link>
                 <Link
-                  href="/admin/submissions"
+                  href="/admin/analytics"
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     pathname === '/admin/submissions'
                       ? 'bg-purple-100 text-purple-900'
                       : 'text-gray-600 hover:text-purple-900 hover:bg-purple-50'
                   }`}
                 >
-                  Submissions
-                </Link>
-                <Link
-                  href="/admin/waitlist"
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    pathname === '/admin/waitlist'
-                      ? 'bg-purple-100 text-purple-900'
-                      : 'text-gray-600 hover:text-purple-900 hover:bg-purple-50'
-                  }`}
-                >
-                  Waitlist
+                  Analytics
                 </Link>
               </div>
             </div>
