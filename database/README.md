@@ -75,9 +75,15 @@ database/
 
 ### Check Index Usage
 
+Note: The previous `index_usage_stats` view has been removed for security hardening and because it isn't used by the application. Use the Postgres catalog views directly in the SQL editor when needed, for example:
+
 ```sql
--- View index usage statistics
-SELECT * FROM index_usage_stats ORDER BY index_scans DESC;
+SELECT schemaname,
+       relname  AS tablename,
+       indexrelname AS indexname,
+       idx_scan AS index_scans
+FROM pg_stat_user_indexes
+ORDER BY idx_scan DESC;
 ```
 
 ### Monitor Query Performance

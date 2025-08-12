@@ -114,17 +114,7 @@ CREATE INDEX IF NOT EXISTS idx_posts_updated_at ON posts(updated_at DESC);
 -- PERFORMANCE MONITORING VIEWS
 -- ============================================================================
 
--- Create a view to monitor index usage (useful for performance analysis)
-CREATE OR REPLACE VIEW index_usage_stats AS
-SELECT 
-    schemaname,
-    relname as tablename,
-    indexrelname as indexname,
-    idx_scan as index_scans,
-    idx_tup_read as tuples_read,
-    idx_tup_fetch as tuples_fetched
-FROM pg_stat_user_indexes
-ORDER BY idx_scan DESC;
+-- Removed: index_usage_stats view (security hardening; view unused by app)
 
 -- Create a view to monitor slow queries (requires pg_stat_statements extension)
 -- Note: This requires the pg_stat_statements extension to be enabled

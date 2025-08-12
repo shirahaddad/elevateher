@@ -162,18 +162,20 @@ The application uses Supabase (PostgreSQL) as its database, and these indexes ar
 
 ## Performance Monitoring
 
-### Index Usage Statistics View
+### Checking Index Usage
 
-The migration creates an `index_usage_stats` view that provides insights into index performance:
+The previous `index_usage_stats` view has been removed for security hardening and because it isn't used by the application. You can query Postgres statistics directly when needed:
 
 ```sql
-SELECT * FROM index_usage_stats ORDER BY index_scans DESC;
+SELECT schemaname,
+       relname      AS tablename,
+       indexrelname AS indexname,
+       idx_scan     AS index_scans,
+       idx_tup_read AS tuples_read,
+       idx_tup_fetch AS tuples_fetched
+FROM pg_stat_user_indexes
+ORDER BY idx_scan DESC;
 ```
-
-This view shows:
-- `index_scans`: Number of times each index was used
-- `tuples_read`: Number of tuples read using the index
-- `tuples_fetched`: Number of tuples actually returned
 
 ### Expected Performance Improvements
 

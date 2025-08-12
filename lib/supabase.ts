@@ -121,7 +121,7 @@ export class ConnectionPoolManager {
       try {
         // Simple health check query
         const result = await this.trackOperation(async () => {
-          const { data, error } = await supabase
+          const { data, error } = await supabaseAdmin
             .from('posts')
             .select('id')
             .limit(1);
