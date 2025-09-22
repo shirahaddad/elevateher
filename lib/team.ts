@@ -16,7 +16,8 @@ export const TEAM: TeamMember[] = [
     linkedin: 'https://www.linkedin.com/in/shirahaddad/',
     bio: [
       'With over 15 years of experience in systems design, architecture and product management, Shira helps tech professionals grow in their careers, develop leadership skills, and navigate organizational changes.',
-      'Shira creates high performing teams, implements hiring best practices, and fosters inclusive culture. Her passion is supporting women in technology and developing the next generation of engineering leaders.'
+      'Shira creates high performing teams, implements hiring best practices, and fosters inclusive culture. Her passion is supporting women in technology and developing the next generation of engineering leaders.',
+      'She is currently completing her intermediate training with the Co-Active Training Institute (CTI) and is on track toward professional coaching certification.'
     ]
   },
   {
