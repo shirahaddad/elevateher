@@ -29,7 +29,7 @@ export const TEAM: TeamMember[] = [
     bio: [
       'Cassandra Dinh-Moore brings a unique perspective to leadership development, combining her experience in tech with a deep understanding of organizational psychology. She has helped numerous women break through glass ceilings and establish themselves as influential leaders in their organizations.',
       'Her expertise in building high-performing teams and creating inclusive work environments has made her a sought-after advisor for both individual leaders and organizations looking to develop their female talent pipeline.',
-      'Cassandra is passionate about creating sustainable change in the tech industry and regularly contributes to discussions about diversity, equity, and inclusion in leadership.'
+      'Cassandra is passionate about creating sustainable change in the tech industry and regularly contributes to discussions about diversity, equity, and inclusion in leadership. She holds a Diversity, Equity, and Inclusion certification from Cornell University (issued November 2023), further grounding her work in research-based practices that promote belonging and inclusive leadership.'
     ]
   },
 ];
