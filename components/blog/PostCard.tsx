@@ -98,10 +98,10 @@ export default function PostCard({
               {excerpt}
             </p>
           )}
-          <div className="flex items-center text-sm text-gray-500">
-            <span>{author}</span>
-            <span className="mx-2">•</span>
-            <time dateTime={published_at}>
+          <div className="flex items-center text-sm text-gray-500 gap-2 min-w-0">
+            <span className="flex-1 truncate">{author}</span>
+            <span className="shrink-0">•</span>
+            <time dateTime={published_at} className="shrink-0 whitespace-nowrap">
               {formattedDate}
             </time>
           </div>
