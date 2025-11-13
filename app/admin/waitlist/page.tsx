@@ -23,6 +23,7 @@ export default function WaitlistPage() {
       const queryParams = new URLSearchParams({
         page: currentPage.toString(),
         limit: limit.toString(),
+        exclude: 'community-test',
       });
       
       if (selectedCategory) {

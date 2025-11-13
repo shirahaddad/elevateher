@@ -4,8 +4,8 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { createValidationMiddleware } from '@/lib/validation/middleware';
 import { workshopWaitlistSchema } from '@/lib/validation/base';
 
-// Create validation middleware
-const validateWorkshopWaitlist = createValidationMiddleware({
+// Validation middleware shared with waitlist flow
+const validateCommunityJoin = createValidationMiddleware({
   schema: workshopWaitlistSchema,
   onError: (result) => {
     return NextResponse.json(
@@ -22,12 +22,12 @@ const validateWorkshopWaitlist = createValidationMiddleware({
 export async function POST(request: NextRequest) {
   try {
     // Validate request data
-    const validationResponse = await validateWorkshopWaitlist(request);
+    const validationResponse = await validateCommunityJoin(request);
     if (validationResponse) return validationResponse;
 
     // Get validated data from request
     const data = (request as any).validatedData;
-    console.log('Received workshop waitlist data:', JSON.stringify(data, null, 2));
+    console.log('Received community join data:', JSON.stringify(data, null, 2));
 
     // Save to database
     const { data: dbData, error: dbError } = await supabaseAdmin
@@ -52,10 +52,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send "Vetting Needed" email to admin, including deep link
+    // Send admin email (Vetting Needed)
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const adminVettingLink = dbData?.id ? `${baseUrl}/admin/community-test?id=${dbData.id}` : undefined;
-    console.log('Attempting to send email to admin...');
+    console.log('Attempting to send email to admin (community-join)...');
     const resultAdmin = await sendWorkshopWaitlistEmail({
       ...data,
       adminVettingLink,
@@ -72,10 +72,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Waitlist form processed successfully');
+    console.log('Community join processed successfully');
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error processing waitlist data:', error);
+    console.error('Error processing community join:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Full error details:', error);
     
@@ -87,4 +87,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
+
+

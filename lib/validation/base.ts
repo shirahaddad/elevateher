@@ -244,6 +244,7 @@ export const workshopWaitlistSchema = z.object({
   email: emailSchema,
   mailingList: z.boolean().default(false),
   category: z.string().min(1, 'Category is required'),
+  linkedin: z.string().url('Please enter a valid LinkedIn URL').optional(),
   // Honeypot field for spam prevention - must be empty
   website: z.string().max(0).optional(),
 });

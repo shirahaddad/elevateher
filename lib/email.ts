@@ -162,6 +162,10 @@ interface WorkshopWaitlistData {
   mailingList: boolean;
   /** Category for the waitlist (e.g., 'workshops') */
   category: string;
+  /** Optional LinkedIn profile URL */
+  linkedin?: string;
+  /** Optional deep link to admin vetting page for this entry */
+  adminVettingLink?: string;
 }
 
 /**
@@ -433,7 +437,7 @@ export async function sendQuestionnaireEmailProspect(data: { email: string; name
  * ```
  */
 export async function sendWorkshopWaitlistEmail(data: WorkshopWaitlistData) {
-  const { name, email, mailingList, category } = data;
+  const { name, email, mailingList, category, linkedin, adminVettingLink } = data;
 
   // Capitalize category for display
   const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
@@ -443,8 +447,10 @@ export async function sendWorkshopWaitlistEmail(data: WorkshopWaitlistData) {
     <p><strong>Category:</strong> <span style="background-color: #f3e8ff; padding: 2px 6px; border-radius: 4px; color: #7c3aed; font-weight: bold;">${categoryDisplay}</span></p>
     <p><strong>Name:</strong> ${name}</p>
     <p><strong>Email:</strong> ${email}</p>
+    <p><strong>LinkedIn:</strong> ${linkedin ? `<a href="${linkedin}">${linkedin}</a>` : 'Not provided'}</p>
     <p><strong>Mailing List:</strong> ${mailingList ? 'Yes' : 'No'}</p>
     <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+    ${adminVettingLink ? `<p><strong>Vetting Link:</strong> <a href="${adminVettingLink}">Open in Admin</a></p>` : ''}
   `;
 
   try {

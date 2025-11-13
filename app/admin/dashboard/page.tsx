@@ -62,6 +62,20 @@ export default function AdminDashboard() {
             </p>
           </Link>
 
+          {/*community test vetting*/}
+          <Link 
+            href="/admin/community-test"
+            className="bg-gradient-to-r from-pink-500 to-pink-600 text-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
+          >
+            <div className="flex items-center mb-3">
+              <div className="text-2xl mr-3">🧪</div>
+              <h3 className="text-lg font-semibold">Community Vetting (Test)</h3>
+            </div>
+            <p className="text-pink-100 text-sm">
+              Review and vet community-test signups
+            </p>
+          </Link>
+
           {/*analytics*/}
           <Link 
             href="/admin/analytics"

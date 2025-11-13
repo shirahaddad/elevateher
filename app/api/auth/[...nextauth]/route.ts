@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { z } from "zod";
 import { emailSchema } from "@/lib/validation/base";
@@ -12,7 +12,7 @@ const allowedEmails = ['shira.haddad@gmail.com', 'cassiedinhmoore@gmail.com'];
 // Validate the allowed emails list
 const validatedEmails = allowedEmailsSchema.parse(allowedEmails);
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -39,6 +39,9 @@ const handler = NextAuth({
     signIn: '/admin/login', // Optional: custom login page
     error: '/admin/login',  // Optional: custom error page
   },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
+export { authOptions };

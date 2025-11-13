@@ -5,4 +5,5 @@ export interface WaitlistEntry {
   email: string;
   mailing_list: boolean;
   category: string;
+  linkedin?: string | null;
 } 

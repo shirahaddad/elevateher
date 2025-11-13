@@ -48,6 +48,37 @@ When the flow is approved:
   - Send a workspace invite link by email (immediate).
   - Later (Enterprise Grid), integrate Slack Admin API to programmatically issue invites.
 
+### Email and Vetting Flow (Planned)
+We will move from a simple "waitlist" notification to a structured vetting workflow.
+
+1) Submission email to admin (Vetting Needed)
+- Triggered by a new `community-test` submission.
+- Subject: "Community Vetting Needed — {name}"
+- Body includes: Name, Email, LinkedIn, Mailing list opt-in, Category (`community-test`), and direct link to the admin vetting page with the specific record preselected.
+
+2) Admin decisions
+- Approve: sends the candidate an email with a Slack invite link and marks record as `approved`.
+- Reject: requires a reason; sends the candidate a thoughtfully worded decline email with the reason and suggested next steps (e.g., email Shira).
+- Delay: no email to candidate; marks record as `delayed` and flags for Shira follow-up.
+
+3) Slack on Approve (Free plan)
+- We will email a Slack invite link (configurable env var) rather than using the Slack Admin API (not available on free plan). Candidate must accept the invite.
+
+4) Audit and visibility
+- Record who made the decision, when, and the decision reason (for reject).
+- Surface status and metadata in `/admin/waitlist` with filters for `community-test`.
+
+5) Post-Approval Revocation (Future)
+- Business rule: When an entry is already `approved`, the "reject" path changes semantics to "revoke".
+- Behavior:
+  - Transition: `approved` → `revoked`
+  - Require reason, record reviewer and timestamp
+  - No candidate email by default
+  - Slack integration (future): remove from workspace/channels instead of emailing
+- UI:
+  - For `approved` rows, hide Reject/Delay; show a `Revoke` button instead
+  - Revoke prompts for a reason and records an audit entry
+
 ### QA Checklist
 - Name and email are required; email must be valid.
 - LinkedIn is required and must be a valid URL.
@@ -57,5 +88,39 @@ When the flow is approved:
 
 ### Rollback
 - Remove `app/services/community-test/` directory to fully disable the test page.
+
+---
+
+### Implementation Tasks (Ordered Checklist)
+Use this list to track progress. Items with [x] are complete.
+
+1. [x] Create non-indexed staging page at `/services/community-test`
+2. [x] Duplicate community page UI and wire to existing endpoint
+3. [x] Require LinkedIn on the test page; validate as URL
+4. [ ] Persist LinkedIn on the server (DB column on `waitlist`, API insert)
+5. [ ] Extend admin list to display LinkedIn (and allow copy)
+6. [ ] Add status fields to `waitlist`: `status` (pending|approved|rejected|delayed), `reviewed_by`, `reviewed_at`, `decision_reason`, `invite_link_sent_at`
+7. [ ] Update `/api/submit-workshop-waitlist` to send "Vetting Needed" admin email (new template) including LinkedIn and a deep link to vet the entry
+8. [ ] Create admin vetting actions (PATCH in `/api/admin/waitlist`): approve, reject (requires reason), delay
+9. [ ] Implement candidate emails:
+    - Approve: send Slack invite link email (env `SLACK_INVITE_LINK`)
+    - Reject: send decline email with required reason and suggested next steps
+    - Delay: no candidate email; optional notification to Shira
+10. [ ] Update `/admin/waitlist` UI: decision buttons, reason modal for reject, filters by status/category, and audit trail display
+11. [ ] Analytics/Logging: track decisions and email sends; surface basic counts on `/admin/dashboard`
+12. [ ] Security review: restrict vetting actions to authenticated admins; validate inputs server-side
+13. [ ] Final QA: e2e test of approve/reject/delay flows (emails, status updates, filters)
+14. [ ] Promotion: copy `community-test` content into `/services/community`, set `category` to `community`, keep `community-test` as sandbox or remove
+15. [ ] Add revoke flow for approved entries (status `revoked`, require reason, no email)
+16. [ ] Future: integrate Slack removal for revoked entries
+
+Suggested DB migration (high-level):
+- Table `waitlist` additions:
+  - `linkedin` text
+  - `status` text CHECK IN ('pending','approved','rejected','delayed','revoked') DEFAULT 'pending'
+  - `reviewed_by` uuid NULL
+  - `reviewed_at` timestamptz NULL
+  - `decision_reason` text NULL
+  - `invite_link_sent_at` timestamptz NULL
 
 

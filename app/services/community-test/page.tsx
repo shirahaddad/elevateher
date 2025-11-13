@@ -39,7 +39,7 @@ export default function CommunityTest() {
         return;
       }
 
-      const response = await fetch('/api/submit-workshop-waitlist', {
+      const response = await fetch('/api/community-join', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
