@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
 import { WaitlistEntry } from '@/types/waitlist';
 
 type VettingEntry = WaitlistEntry & {
@@ -24,7 +23,6 @@ export default function CommunityTestVettingPage() {
   const [limit] = useState(20);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     fetchEntries();
@@ -66,20 +64,20 @@ export default function CommunityTestVettingPage() {
     }
   };
 
-  // Highlight a specific row if id is present in query string
+  // Highlight a specific row if id is present in query string (client-only)
   useEffect(() => {
-    const id = searchParams.get('id');
-    if (!id) return;
-    // Wait until entries are loaded
     if (entries.length === 0) return;
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (!id) return;
     setHighlightId(id);
     setTimeout(() => setHighlightId(null), 4000);
-    // Scroll into view
     setTimeout(() => {
       const el = document.getElementById(`row-${id}`);
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
-  }, [entries, searchParams]);
+  }, [entries]);
   if (loading) {
     return (
       <div className="min-h-screen py-16 bg-white">
