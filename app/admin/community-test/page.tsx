@@ -34,10 +34,9 @@ export default function CommunityTestVettingPage() {
       const queryParams = new URLSearchParams({
         page: currentPage.toString(),
         limit: limit.toString(),
-        category: 'community-test',
       });
 
-      const response = await fetch(`/api/admin/waitlist?${queryParams}`);
+      const response = await fetch(`/api/admin/community-join?${queryParams}`);
       if (!response.ok) {
         throw new Error('Failed to fetch community-test entries');
       }
@@ -145,7 +144,7 @@ export default function CommunityTestVettingPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={async () => {
-                            const res = await fetch('/api/admin/waitlist', {
+                            const res = await fetch('/api/admin/community-join', {
                               method: 'PATCH',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({
@@ -165,7 +164,7 @@ export default function CommunityTestVettingPage() {
                           onClick={async () => {
                             const reason = window.prompt('Please provide a reason for rejection:');
                             if (!reason) return;
-                            const res = await fetch('/api/admin/waitlist', {
+                            const res = await fetch('/api/admin/community-join', {
                               method: 'PATCH',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({
@@ -184,7 +183,7 @@ export default function CommunityTestVettingPage() {
                         </button>
                         <button
                           onClick={async () => {
-                            const res = await fetch('/api/admin/waitlist', {
+                            const res = await fetch('/api/admin/community-join', {
                               method: 'PATCH',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({

@@ -4,32 +4,21 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { sendCommunityApprovalEmail, sendCommunityRejectionEmail } from '@/lib/email';
 
+// GET: list only community-test entries
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
-    const category = searchParams.get('category') || '';
-    const excludeCategory = searchParams.get('exclude') || '';
     const offset = (page - 1) * limit;
 
-    let query = supabaseAdmin
+    const query = supabaseAdmin
       .from('waitlist')
       .select('*', { count: 'exact' })
+      .eq('category', 'community-test')
       .order('created_at', { ascending: false });
 
-    // Filter by category if provided
-    if (category) {
-      query = query.eq('category', category);
-    }
-    // Exclude a category if requested
-    if (!category && excludeCategory) {
-      query = query.neq('category', excludeCategory);
-    }
-
-    const { data, error, count } = await query
-      .range(offset, offset + limit - 1);
-
+    const { data, error, count } = await query.range(offset, offset + limit - 1);
     if (error) throw error;
 
     return NextResponse.json({
@@ -40,14 +29,15 @@ export async function GET(request: Request) {
       totalPages: Math.ceil((count || 0) / limit)
     });
   } catch (error) {
-    console.error('Error fetching waitlist entries:', error);
+    console.error('Error fetching community-test entries:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch waitlist entries' },
+      { error: 'Failed to fetch community-test entries' },
       { status: 500 }
     );
   }
 }
 
+// PATCH: approve/reject/delay for community-test entries only
 export async function PATCH(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -75,6 +65,17 @@ export async function PATCH(request: Request) {
       );
     }
 
+    // Ensure the entry is in community-test category
+    const { data: existing, error: readError } = await supabaseAdmin
+      .from('waitlist')
+      .select('*')
+      .eq('id', id)
+      .eq('category', 'community-test')
+      .single();
+    if (readError || !existing) {
+      return NextResponse.json({ error: 'Entry not found' }, { status: 404 });
+    }
+
     const now = new Date().toISOString();
     let update: Record<string, any> = {
       reviewed_by_name: session.user.name || null,
@@ -96,57 +97,33 @@ export async function PATCH(request: Request) {
         break;
     }
 
-    // Fetch current status to handle notifications appropriately
-    const { data: existing, error: readError } = await supabaseAdmin
-      .from('waitlist')
-      .select('*')
-      .eq('id', id)
-      .single();
-    if (readError || !existing) {
-      console.error('Error reading waitlist entry before update:', readError);
-      return NextResponse.json(
-        { error: 'Entry not found' },
-        { status: 404 }
-      );
-    }
-
     const { data, error } = await supabaseAdmin
       .from('waitlist')
       .update(update)
       .eq('id', id)
       .select()
       .single();
-
     if (error) {
-      console.error('Error updating waitlist entry:', error);
-      return NextResponse.json(
-        { error: 'Failed to update waitlist entry' },
-        { status: 500 }
-      );
+      console.error('Error updating community-test entry:', error);
+      return NextResponse.json({ error: 'Failed to update entry' }, { status: 500 });
     }
 
-    // Send candidate notifications based on transition
+    // Notifications
     if (action === 'approve') {
-      const slackInviteLink = process.env.SLACK_INVITE_LINK;
       const result = await sendCommunityApprovalEmail({
         name: data.name,
         email: data.email,
-        slackInviteLink,
+        slackInviteLink: process.env.SLACK_INVITE_LINK,
       });
       if (!result.success) {
         console.error('Failed to send approval email:', result.error);
-        return NextResponse.json(
-          { error: 'Approval email failed to send' },
-          { status: 500 }
-        );
+      } else {
+        await supabaseAdmin
+          .from('waitlist')
+          .update({ invite_link_sent_at: new Date().toISOString() })
+          .eq('id', id);
       }
-      // Mark invite_link_sent_at if column exists (best-effort)
-      await supabaseAdmin
-        .from('waitlist')
-        .update({ invite_link_sent_at: new Date().toISOString() })
-        .eq('id', id);
     } else if (action === 'reject') {
-      // Only notify user if rejecting from pending/delayed
       if (existing.status === null || existing.status === 'pending' || existing.status === 'delayed') {
         const result = await sendCommunityRejectionEmail({
           name: data.name,
@@ -155,17 +132,13 @@ export async function PATCH(request: Request) {
         });
         if (!result.success) {
           console.error('Failed to send rejection email:', result.error);
-          return NextResponse.json(
-            { error: 'Rejection email failed to send' },
-            { status: 500 }
-          );
         }
       }
     }
 
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.error('Error processing PATCH request:', error);
+    console.error('Error processing PATCH /admin/community-join:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -173,36 +146,4 @@ export async function PATCH(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
-  try {
-    const { id } = await request.json();
 
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Missing waitlist entry ID' },
-        { status: 400 }
-      );
-    }
-
-    const { error } = await supabaseAdmin
-      .from('waitlist')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      console.error('Error deleting waitlist entry:', error);
-      return NextResponse.json(
-        { error: 'Failed to delete waitlist entry' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error processing request:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-} 

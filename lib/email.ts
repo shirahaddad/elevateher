@@ -418,6 +418,62 @@ export async function sendQuestionnaireEmailProspect(data: { email: string; name
 }
 
 /**
+ * Sends an approval email to the candidate with the Slack invite link.
+ */
+export async function sendCommunityApprovalEmail(data: { name: string; email: string; slackInviteLink?: string }) {
+  const { name, email, slackInviteLink } = data;
+  const firstName = name.split(' ')[0] || 'there';
+  const link = slackInviteLink || process.env.SLACK_INVITE_LINK || 'https://slack.com';
+  const html = `
+    <p>Hi ${firstName},</p>
+    <p>Great news — your request to join the Elevate(Her) Slack community has been approved!</p>
+    <p>Please use the link below to join:</p>
+    <p><a href="${link}" style="color:#7c3aed; font-weight:bold;">Join Elevate(Her) on Slack</a></p>
+    <p>If the link doesn’t work or expires, reply to this email and we’ll help you get set up.</p>
+    <p>Welcome!<br/>Shira & Cassie</p>
+  `;
+  try {
+    const { data: resendData, error } = await resend.emails.send({
+      from: fromEmail,
+      to: email,
+      subject: 'Welcome to the Elevate(Her) Slack Community!',
+      html,
+    });
+    if (error) throw error;
+    return { success: true };
+  } catch (error) {
+    return { success: false, error };
+  }
+}
+
+/**
+ * Sends a respectful decline email to the candidate with the provided reason.
+ */
+export async function sendCommunityRejectionEmail(data: { name: string; email: string; reason: string }) {
+  const { name, email, reason } = data;
+  const firstName = name.split(' ')[0] || 'there';
+  const html = `
+    <p>Hi ${firstName},</p>
+    <p>Thank you for your interest in joining the Elevate(Her) Slack community. We reviewed your request and we're not able to approve it at this time.</p>
+    <p><strong>Reason:</strong> ${reason}</p>
+    <p>If you'd like to discuss further, please reply to this email or reach out directly to Shira — we're happy to explore other ways to connect and support you.</p>
+    <p>Warmly,<br/>Shira & Cassie</p>
+  `;
+  try {
+    const { data: resendData, error } = await resend.emails.send({
+      from: fromEmail,
+      to: email,
+      subject: 'Regarding your Elevate(Her) community request',
+      html,
+    });
+    if (error) throw error;
+    return { success: true };
+  } catch (error) {
+    return { success: false, error };
+  }
+}
+
+/**
  * Sends a notification email to the admin when someone submits the waitlist form.
  * 
  * This function sends an email to the admin with the prospect's information for 
