@@ -27,6 +27,8 @@ if (!ADMIN_EMAIL) {
 const resend = new Resend(RESEND_API_KEY);
 const fromEmail: string = 'Elevate(Her) <no-reply@elevateher.tech>';
 const adminEmail: string = ADMIN_EMAIL;
+// Default sender for candidate-facing emails
+const fromCandidate: string = 'Elevate(Her) <info@elevateher.tech>';
 
 /**
  * Data structure for questionnaire submissions
@@ -426,7 +428,7 @@ export async function sendCommunityApprovalEmail(data: { name: string; email: st
   const link = slackInviteLink || process.env.SLACK_INVITE_LINK || 'https://slack.com';
   const html = `
     <p>Hi ${firstName},</p>
-    <p>Great news — your request to join the Elevate(Her) Slack community has been approved!</p>
+    <p>Great news - your request to join the Elevate(Her) Slack community has been approved!</p>
     <p>Please use the link below to join:</p>
     <p><a href="${link}" style="color:#7c3aed; font-weight:bold;">Join Elevate(Her) on Slack</a></p>
     <p>If the link doesn’t work or expires, reply to this email and we’ll help you get set up.</p>
@@ -434,7 +436,7 @@ export async function sendCommunityApprovalEmail(data: { name: string; email: st
   `;
   try {
     const { data: resendData, error } = await resend.emails.send({
-      from: fromEmail,
+      from: fromCandidate,
       to: email,
       subject: 'Welcome to the Elevate(Her) Slack Community!',
       html,
@@ -461,7 +463,7 @@ export async function sendCommunityRejectionEmail(data: { name: string; email: s
   `;
   try {
     const { data: resendData, error } = await resend.emails.send({
-      from: fromEmail,
+      from: fromCandidate,
       to: email,
       subject: 'Regarding your Elevate(Her) community request',
       html,

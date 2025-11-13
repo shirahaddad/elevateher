@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { sendCommunityApprovalEmail, sendCommunityRejectionEmail } from '@/lib/email';
+import { getSlackInviteLink } from '@/lib/settings';
 
 // GET: list only community-test entries
 export async function GET(request: Request) {
@@ -46,10 +47,11 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json();
-    const { id, action, reason } = body as {
+    const { id, action, reason, slackInviteLink } = body as {
       id: string;
       action: 'approve' | 'reject' | 'delay';
       reason?: string;
+      slackInviteLink?: string;
     };
 
     if (!id || !action) {
@@ -110,10 +112,11 @@ export async function PATCH(request: Request) {
 
     // Notifications
     if (action === 'approve') {
+      const resolvedLink = slackInviteLink || (await getSlackInviteLink());
       const result = await sendCommunityApprovalEmail({
         name: data.name,
         email: data.email,
-        slackInviteLink: process.env.SLACK_INVITE_LINK,
+        slackInviteLink: resolvedLink,
       });
       if (!result.success) {
         console.error('Failed to send approval email:', result.error);
