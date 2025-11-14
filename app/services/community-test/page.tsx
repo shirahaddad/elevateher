@@ -20,9 +20,9 @@ export default function CommunityTest() {
     website: '', // Honeypot field
   });
 
-  // Extend the base schema to require a LinkedIn URL for this test page
+  // Extend the base schema to require LinkedIn but not enforce URL format
   const communityTestSchema = workshopWaitlistSchema.extend({
-    linkedin: z.string().url('Please enter a valid LinkedIn profile URL'),
+    linkedin: z.string().min(1, 'Please enter your LinkedIn profile'),
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -173,7 +173,7 @@ export default function CommunityTest() {
                   LinkedIn Profile URL
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   id="linkedin"
                   name="linkedin"
                   value={formData.linkedin}

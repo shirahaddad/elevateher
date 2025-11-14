@@ -501,7 +501,7 @@ export async function sendWorkshopWaitlistEmail(data: WorkshopWaitlistData) {
   const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
   
   const html = `
-    <h1>New ${categoryDisplay} Waitlist Signup</h1>
+    <h1>New ${categoryDisplay} Submission</h1>
     <p><strong>Category:</strong> <span style="background-color: #f3e8ff; padding: 2px 6px; border-radius: 4px; color: #7c3aed; font-weight: bold;">${categoryDisplay}</span></p>
     <p><strong>Name:</strong> ${name}</p>
     <p><strong>Email:</strong> ${email}</p>
@@ -515,14 +515,14 @@ export async function sendWorkshopWaitlistEmail(data: WorkshopWaitlistData) {
     console.log('Email configuration:', {
       from: fromEmail,
       to: adminEmail,
-      subject: `New ${categoryDisplay} Waitlist Signup`,
+      subject: `New ${categoryDisplay} Submission`,
       hasHtml: !!html
     });
 
     const { data: resendData, error } = await resend.emails.send({
       from: fromEmail,
       to: adminEmail,
-      subject: `New ${categoryDisplay} Waitlist Signup`,
+      subject: `New ${categoryDisplay} Submission`,
       html,
     });
 
