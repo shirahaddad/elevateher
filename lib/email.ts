@@ -458,7 +458,7 @@ export async function sendCommunityRejectionEmail(data: { name: string; email: s
     <p>Hi ${firstName},</p>
     <p>Thank you for your interest in joining the Elevate(Her) Slack community. We reviewed your request and we're not able to approve it at this time.</p>
     <p><strong>Reason:</strong> ${reason}</p>
-    <p>If you'd like to discuss further, please reply to this email or reach out directly to Shira — we're happy to explore other ways to connect and support you.</p>
+    <p>If you'd like to discuss further, please reply to this email or reach out directly to Shira - we're happy to explore other ways to connect and support you.</p>
     <p>Warmly,<br/>Shira & Cassie</p>
   `;
   try {

@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { WaitlistEntry } from '@/types/waitlist';
 
 type VettingEntry = WaitlistEntry & {
-  status?: 'pending' | 'approved' | 'rejected' | 'delayed' | null;
+  status?: 'pending' | 'approved' | 'rejected' | 'delayed' | 'revoked' | null;
   reviewed_by_name?: string | null;
   reviewed_by_email?: string | null;
   reviewed_at?: string | null;
@@ -142,63 +142,105 @@ export default function CommunityTestVettingPage() {
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={async () => {
-                            const res = await fetch('/api/admin/community-join', {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                id: entry.id,
-                                action: 'approve',
-                              }),
-                            });
-                            if (res.ok) fetchEntries();
-                          }}
-                          className="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700"
-                          title="Approve"
-                          aria-label="Approve"
-                        >
-                          A
-                        </button>
-                        <button
-                          onClick={async () => {
-                            const reason = window.prompt('Please provide a reason for rejection:');
-                            if (!reason) return;
-                            const res = await fetch('/api/admin/community-join', {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                id: entry.id,
-                                action: 'reject',
-                                reason,
-                              }),
-                            });
-                            if (res.ok) fetchEntries();
-                          }}
-                          className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
-                          title="Reject"
-                          aria-label="Reject"
-                        >
-                          R
-                        </button>
-                        <button
-                          onClick={async () => {
-                            const res = await fetch('/api/admin/community-join', {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                id: entry.id,
-                                action: 'delay',
-                              }),
-                            });
-                            if (res.ok) fetchEntries();
-                          }}
-                          className="px-3 py-1 rounded bg-yellow-600 text-white hover:bg-yellow-700"
-                          title="Delay"
-                          aria-label="Delay"
-                        >
-                          D
-                        </button>
+                        {entry.status === 'approved' ? (
+                          <>
+                            <button
+                              onClick={async () => {
+                                const reason = window.prompt('Please provide a reason for revocation:');
+                                if (!reason) return;
+                                const res = await fetch('/api/admin/community-join', {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    id: entry.id,
+                                    action: 'revoke',
+                                    reason,
+                                  }),
+                                });
+                                if (res.ok) fetchEntries();
+                              }}
+                              className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-800"
+                              title="Revoke"
+                              aria-label="Revoke"
+                            >
+                              V
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (!confirm('Delete this entry? This cannot be undone.')) return;
+                                const res = await fetch('/api/admin/community-join', {
+                                  method: 'DELETE',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ id: entry.id }),
+                                });
+                                if (res.ok) fetchEntries();
+                              }}
+                              className="px-3 py-1 rounded bg-gray-600 text-white hover:bg-gray-700"
+                              title="Delete"
+                              aria-label="Delete"
+                            >
+                              D
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={async () => {
+                                const res = await fetch('/api/admin/community-join', {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    id: entry.id,
+                                    action: 'approve',
+                                  }),
+                                });
+                                if (res.ok) fetchEntries();
+                              }}
+                              className="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700"
+                              title="Approve"
+                              aria-label="Approve"
+                            >
+                              A
+                            </button>
+                            <button
+                              onClick={async () => {
+                                const reason = window.prompt('Please provide a reason for rejection:');
+                                if (!reason) return;
+                                const res = await fetch('/api/admin/community-join', {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    id: entry.id,
+                                    action: 'reject',
+                                    reason,
+                                  }),
+                                });
+                                if (res.ok) fetchEntries();
+                              }}
+                              className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                              title="Reject"
+                              aria-label="Reject"
+                            >
+                              R
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (!confirm('Delete this entry? This cannot be undone.')) return;
+                                const res = await fetch('/api/admin/community-join', {
+                                  method: 'DELETE',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ id: entry.id }),
+                                });
+                                if (res.ok) fetchEntries();
+                              }}
+                              className="px-3 py-1 rounded bg-gray-600 text-white hover:bg-gray-700"
+                              title="Delete"
+                              aria-label="Delete"
+                            >
+                              D
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

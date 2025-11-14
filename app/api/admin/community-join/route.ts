@@ -49,7 +49,7 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { id, action, reason, slackInviteLink } = body as {
       id: string;
-      action: 'approve' | 'reject' | 'delay';
+      action: 'approve' | 'reject' | 'revoke';
       reason?: string;
       slackInviteLink?: string;
     };
@@ -60,9 +60,9 @@ export async function PATCH(request: Request) {
         { status: 400 }
       );
     }
-    if (action === 'reject' && !reason) {
+    if ((action === 'reject' || action === 'revoke') && !reason) {
       return NextResponse.json(
-        { error: 'Reject action requires a reason' },
+        { error: `${action} action requires a reason` },
         { status: 400 }
       );
     }
@@ -94,8 +94,9 @@ export async function PATCH(request: Request) {
         update.status = 'rejected';
         update.decision_reason = reason || null;
         break;
-      case 'delay':
-        update.status = 'delayed';
+      case 'revoke':
+        update.status = 'revoked';
+        update.decision_reason = reason || null;
         break;
     }
 
@@ -137,6 +138,8 @@ export async function PATCH(request: Request) {
           console.error('Failed to send rejection email:', result.error);
         }
       }
+    } else if (action === 'revoke') {
+      // No candidate email on revoke; future: remove from Slack
     }
 
     return NextResponse.json({ success: true, data });
@@ -146,6 +149,32 @@ export async function PATCH(request: Request) {
       { error: 'Internal server error' },
       { status: 500 }
     );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const { id } = await request.json() as { id?: string };
+    if (!id) {
+      return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+    }
+    const { error } = await supabaseAdmin
+      .from('waitlist')
+      .delete()
+      .eq('id', id)
+      .eq('category', 'community-test');
+    if (error) {
+      console.error('Error deleting community-test entry:', error);
+      return NextResponse.json({ error: 'Failed to delete entry' }, { status: 500 });
+    }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error processing DELETE /admin/community-join:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 

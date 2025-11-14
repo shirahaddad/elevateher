@@ -28,12 +28,38 @@
 */
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+type VettingStats = {
+  total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+  delayed: number;
+  last7Total: number;
+};
 
 /**
  * Admin Dashboard page listing primary admin tools.
  * No props. Renders a responsive grid of navigation cards.
  */
 export default function AdminDashboard() {
+  const [stats, setStats] = useState<VettingStats | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/admin/community-join/stats', { cache: 'no-store' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to fetch stats');
+        setStats(data);
+      } catch (e: any) {
+        setStatsError(e.message || 'Failed to fetch stats');
+      }
+    };
+    load();
+  }, []);
   return (
     <div className="min-h-screen py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4">
@@ -71,9 +97,16 @@ export default function AdminDashboard() {
               <div className="text-2xl mr-3">🧪</div>
               <h3 className="text-lg font-semibold">Community Vetting (Test)</h3>
             </div>
-            <p className="text-pink-100 text-sm">
-              Review and vet community-test signups
-            </p>
+            <div className="text-pink-100 text-sm">
+              <p className="mb-2">Review and vet community-test signups</p>
+              {stats ? (
+                <div className="text-xs bg-white/10 rounded px-2 py-1 inline-block">
+                  Pending: <span className="font-semibold">{stats.pending}</span>
+                </div>
+              ) : (
+                <p className="text-pink-100/80">{statsError ? 'Stats unavailable' : 'Loading pending count...'}</p>
+              )}
+            </div>
           </Link>
 
           {/*analytics*/}
