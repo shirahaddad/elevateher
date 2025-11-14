@@ -104,6 +104,20 @@ export default function AdminDashboard() {
             </p>
           </Link>
 
+          {/*settings*/}
+          <Link 
+            href="/admin/settings"
+            className="bg-gradient-to-r from-slate-500 to-slate-600 text-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
+          >
+            <div className="flex items-center mb-3">
+              <div className="text-2xl mr-3">⚙️</div>
+              <h3 className="text-lg font-semibold">Settings</h3>
+            </div>
+            <p className="text-slate-100 text-sm">
+              Manage Slack invite link
+            </p>
+          </Link>
+
           {/*submissions*/}
           <Link 
             href="/admin/waitlist"
