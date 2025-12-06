@@ -25,8 +25,11 @@ function substituteTokens(
   out = out.replace(/\{\{\s*publicID\s*\}\}/gi, values.publicID);
   out = out.replace(/\{\{\s*public_id\s*\}\}/gi, values.publicID);
   // URL-encoded tokens inside hrefs
-  out = out.replace(/%7B%7BpublicID%7D%7D/gi, values.publicID);
-  out = out.replace(/%7B%7Bpublic_id%7D%7D/gi, values.publicID);
+  out = out.replace(/%7B%7B\s*publicID\s*%7D%7D/gi, values.publicID);
+  out = out.replace(/%7B%7B\s*public_id\s*%7D%7D/gi, values.publicID);
+  // HTML entity-encoded braces: &#123;&#123;publicID&#125;&#125;
+  out = out.replace(/&#123;\s*&#123;\s*publicID\s*&#125;\s*&#125;/gi, values.publicID);
+  out = out.replace(/&#123;\s*&#123;\s*public_id\s*&#125;\s*&#125;/gi, values.publicID);
   // Back-compat
   if (values.unsubscribeUrl) {
     out = out.replace(/\{\{\s*unsubscribeUrl\s*\}\}/gi, values.unsubscribeUrl);

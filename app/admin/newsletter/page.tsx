@@ -23,8 +23,11 @@ function substitutePreview(html: string, subscriber: Subscriber | null): string 
     .replace(/\{\{\s*publicID\s*\}\}/gi, subscriber.public_id)
     .replace(/\{\{\s*public_id\s*\}\}/gi, subscriber.public_id);
   // URL-encoded variants for preview
-  out = out.replace(/%7B%7BpublicID%7D%7D/gi, subscriber.public_id);
-  out = out.replace(/%7B%7Bpublic_id%7D%7D/gi, subscriber.public_id);
+  out = out.replace(/%7B%7B\s*publicID\s*%7D%7D/gi, subscriber.public_id);
+  out = out.replace(/%7B%7B\s*public_id\s*%7D%7D/gi, subscriber.public_id);
+  // HTML entity-encoded variants
+  out = out.replace(/&#123;\s*&#123;\s*publicID\s*&#125;\s*&#125;/gi, subscriber.public_id);
+  out = out.replace(/&#123;\s*&#123;\s*public_id\s*&#125;\s*&#125;/gi, subscriber.public_id);
   return out;
 }
 
