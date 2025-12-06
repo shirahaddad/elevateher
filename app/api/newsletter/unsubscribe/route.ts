@@ -54,7 +54,9 @@ export async function GET(request: NextRequest) {
         console.error('Unsubscribe by id error:', error);
         return NextResponse.redirect(new URL('/unsubscribe?error=1', request.url), 303);
       }
-      return NextResponse.redirect(new URL('/unsubscribe?done=1', request.url), 303);
+      const u = new URL('/unsubscribe?done=1', request.url);
+      if (id) u.searchParams.set('id', id);
+      return NextResponse.redirect(u, 303);
     }
     if (!token) {
       return NextResponse.json({ error: 'Missing token or id' }, { status: 400 });
@@ -73,6 +75,7 @@ export async function GET(request: NextRequest) {
     }
     const u = new URL('/unsubscribe?done=1', request.url);
     if (email) u.searchParams.set('email', email);
+    if (token) u.searchParams.set('token', token);
     return NextResponse.redirect(u, 303);
   } catch (err) {
     console.error('Unsubscribe error:', err);
