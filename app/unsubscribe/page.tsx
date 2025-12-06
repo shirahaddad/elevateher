@@ -7,6 +7,7 @@ export default function UnsubscribePage() {
   const [email, setEmail] = useState<string>('');
   const [token, setToken] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  const [resubscribed, setResubscribed] = useState<boolean>(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -83,6 +84,7 @@ export default function UnsubscribePage() {
       if (!res.ok) throw new Error(data.error || 'Failed to resubscribe');
       setMessage('You are subscribed again. Welcome back!');
       setStatus('done');
+      setResubscribed(true);
     } catch (e: any) {
       setStatus('error');
       setMessage(e.message || 'Failed to resubscribe.');
@@ -103,12 +105,29 @@ export default function UnsubscribePage() {
             </p>
             {status !== 'loading' && (
               <div className="flex items-center gap-3">
-                <button
-                  onClick={resubscribe}
-                  className="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700"
-                >
-                  Resubscribe
-                </button>
+                {!resubscribed ? (
+                  <button
+                    onClick={resubscribe}
+                    className="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700"
+                  >
+                    Resubscribe
+                  </button>
+                ) : (
+                  <>
+                    <a
+                      href="/"
+                      className="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700"
+                    >
+                      Back Home
+                    </a>
+                    <a
+                      href="/blog"
+                      className="px-4 py-2 rounded bg-slate-700 text-white hover:bg-slate-800"
+                    >
+                      Read our Blog
+                    </a>
+                  </>
+                )}
               </div>
             )}
             {email && (
