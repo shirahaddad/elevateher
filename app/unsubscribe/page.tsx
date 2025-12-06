@@ -10,6 +10,24 @@ export default function UnsubscribePage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    // Short-circuit rendering based on redirect flags
+    if (params.get('test') === '1') {
+      setStatus('done');
+      setMessage('This is a preview-only unsubscribe link. No changes were made.');
+      return;
+    }
+    if (params.get('done') === '1') {
+      const e = params.get('email') || '';
+      if (e) setEmail(e);
+      setStatus('done');
+      setMessage('You have been unsubscribed from our newsletter.');
+      return;
+    }
+    if (params.get('error') === '1' || params.get('invalid') === '1') {
+      setStatus('error');
+      setMessage('Unsubscribe link is invalid or could not be processed.');
+      return;
+    }
     const id = params.get('id') || '';
     const t = params.get('token') || '';
     if (id) {

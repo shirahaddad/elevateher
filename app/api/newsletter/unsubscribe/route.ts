@@ -38,35 +38,10 @@ export async function GET(request: NextRequest) {
       return new NextResponse(html, { status: 400, headers: { 'Content-Type': 'text/html; charset=utf-8' } } as any);
     }
 
-    // Test mode: do not mutate DB, return confirmation page
+    // Test mode: do not mutate DB, redirect to designed page
     if (test === '1' && (id || token)) {
-      const html = `
-        <!doctype html>
-        <html>
-          <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <title>Unsubscribe (Test)</title>
-            <style>
-              body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; background:#fff; color:#111; padding: 2rem; }
-              .card { max-width: 560px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; }
-              .title { color: #6d28d9; font-weight: 700; font-size: 1.25rem; margin-bottom: .5rem; }
-              .muted { color: #6b7280; font-size: .9rem; }
-            </style>
-          </head>
-          <body>
-            <div class="card">
-              <div class="title">Unsubscribe (Test Mode)</div>
-              <p>This is a preview-only unsubscribe link. No changes were made to subscriber status.</p>
-              <p class="muted">If this were a real email, clicking here would unsubscribe the recipient.</p>
-            </div>
-          </body>
-        </html>
-      `;
-      return new NextResponse(html, {
-        status: 200,
-        headers: { 'Content-Type': 'text/html; charset=utf-8' },
-      } as any);
+      const url = new URL('/unsubscribe?test=1', request.url);
+      return NextResponse.redirect(url, 303);
     }
 
     if (id) {
@@ -77,32 +52,9 @@ export async function GET(request: NextRequest) {
         .eq('public_id', id);
       if (error) {
         console.error('Unsubscribe by id error:', error);
-        return NextResponse.json({ error: 'Failed to unsubscribe' }, { status: 500 });
+        return NextResponse.redirect(new URL('/unsubscribe?error=1', request.url), 303);
       }
-      const html = `
-        <!doctype html>
-        <html>
-          <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <title>Unsubscribed</title>
-            <style>
-              body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; background:#fff; color:#111; padding: 2rem; }
-              .card { max-width: 560px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; }
-              .title { color: #6d28d9; font-weight: 700; font-size: 1.25rem; margin-bottom: .5rem; }
-              .muted { color: #6b7280; font-size: .9rem; }
-            </style>
-          </head>
-          <body>
-            <div class="card">
-              <div class="title">You're unsubscribed</div>
-              <p>We've removed you from future emails. If this was a mistake, you can reply to the original message to re-subscribe.</p>
-              <p class="muted">Thank you.</p>
-            </div>
-          </body>
-        </html>
-      `;
-      return new NextResponse(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } } as any);
+      return NextResponse.redirect(new URL('/unsubscribe?done=1', request.url), 303);
     }
     if (!token) {
       return NextResponse.json({ error: 'Missing token or id' }, { status: 400 });
@@ -117,32 +69,11 @@ export async function GET(request: NextRequest) {
       }, { onConflict: 'email' });
     if (error) {
       console.error('Unsubscribe upsert error:', error);
-      return NextResponse.json({ error: 'Failed to unsubscribe' }, { status: 500 });
+      return NextResponse.redirect(new URL('/unsubscribe?error=1', request.url), 303);
     }
-    const html = `
-      <!doctype html>
-      <html>
-        <head>
-          <meta charset="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <title>Unsubscribed</title>
-          <style>
-            body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; background:#fff; color:#111; padding: 2rem; }
-            .card { max-width: 560px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; }
-            .title { color: #6d28d9; font-weight: 700; font-size: 1.25rem; margin-bottom: .5rem; }
-            .muted { color: #6b7280; font-size: .9rem; }
-          </style>
-        </head>
-        <body>
-          <div class="card">
-            <div class="title">You're unsubscribed</div>
-            <p>${email ? `We unsubscribed ${email}.` : 'You are unsubscribed.'}</p>
-            <p class="muted">If this was a mistake, reply to the original email.</p>
-          </div>
-        </body>
-      </html>
-    `;
-    return new NextResponse(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } } as any);
+    const u = new URL('/unsubscribe?done=1', request.url);
+    if (email) u.searchParams.set('email', email);
+    return NextResponse.redirect(u, 303);
   } catch (err) {
     console.error('Unsubscribe error:', err);
     return NextResponse.json({ error: 'Invalid or expired token' }, { status: 400 });
