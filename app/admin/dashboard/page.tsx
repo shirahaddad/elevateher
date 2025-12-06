@@ -88,6 +88,20 @@ export default function AdminDashboard() {
             </p>
           </Link>
 
+          {/*newsletter*/}
+          <Link 
+            href="/admin/newsletter"
+            className="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
+          >
+            <div className="flex items-center mb-3">
+              <div className="text-2xl mr-3">📣</div>
+              <h3 className="text-lg font-semibold">Newsletter</h3>
+            </div>
+            <p className="text-teal-100 text-sm">
+              Upload, preview, test, and broadcast newsletters
+            </p>
+          </Link>
+
           {/*community test vetting*/}
           <Link 
             href="/admin/community-test"
@@ -147,7 +161,7 @@ export default function AdminDashboard() {
               <h3 className="text-lg font-semibold">Settings</h3>
             </div>
             <p className="text-slate-100 text-sm">
-              Various Settings, including Slack and Newsletter settings
+              Slack invite link
             </p>
           </Link>
 
