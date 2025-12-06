@@ -147,7 +147,7 @@ export default function AdminDashboard() {
               <h3 className="text-lg font-semibold">Settings</h3>
             </div>
             <p className="text-slate-100 text-sm">
-              Manage Slack invite link
+              Various Settings, including Slack and Newsletter settings
             </p>
           </Link>
 

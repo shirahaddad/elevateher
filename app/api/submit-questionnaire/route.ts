@@ -78,6 +78,27 @@ export async function POST(request: NextRequest) {
       console.log('Prospect confirmation email sent successfully');
     }
 
+    // Newsletter integration: upsert subscriber if opted-in
+    try {
+      if (data.mailingList) {
+        const now = new Date().toISOString();
+        const { error: subError } = await supabaseAdmin
+          .from('mailing_list_subscribers')
+          .upsert({
+            email: (data.email as string).toLowerCase(),
+            name: data.client_name,
+            status: 'subscribed',
+            subscribed_at: now,
+            last_source: 'questionnaire',
+          }, { onConflict: 'email' });
+        if (subError) {
+          console.error('Subscribe upsert (questionnaire) error:', subError);
+        }
+      }
+    } catch (e) {
+      console.error('Subscribe integration (questionnaire) error:', e);
+    }
+
     console.log('Form processed successfully');
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -77,6 +77,26 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Community join processed successfully');
+    try {
+      if (data.mailingList) {
+        // Subscribe to newsletter table (lowercased email)
+        const now = new Date().toISOString();
+        const { error: subError } = await supabaseAdmin
+          .from('mailing_list_subscribers')
+          .upsert({
+            email: (data.email as string).toLowerCase(),
+            name: data.name,
+            status: 'subscribed',
+            subscribed_at: now,
+            last_source: 'community-join',
+          }, { onConflict: 'email' });
+        if (subError) {
+          console.error('Error upserting subscriber:', subError);
+        }
+      }
+    } catch (e) {
+      console.error('Subscribe integration error:', e);
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error processing community join:', error);

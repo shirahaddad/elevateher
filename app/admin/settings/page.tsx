@@ -105,6 +105,25 @@ export default function AdminSettingsPage() {
             </button>
           </div>
         </form>
+
+        {/* Newsletter Export */}
+        <div className="bg-white rounded-lg shadow p-6 border border-gray-100 max-w-3xl mt-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">Newsletter Subscribers</h2>
+          <p className="text-sm text-gray-600 mb-2">
+            Use this CSV to import into your email platform. Unsubscribe link template:
+          </p>
+          <pre className="text-xs text-gray-800 bg-gray-50 border border-gray-200 rounded p-2 overflow-x-auto">
+            {`${(process.env.NEXT_PUBLIC_BASE_URL || 'https://elevateher.tech')}/unsubscribe?id={{public_id}}`}
+          </pre>
+          <div className="mt-4">
+            <a
+              href="/api/admin/newsletter/export"
+              className="px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-gray-800"
+            >
+              Download CSV (email, name, public_id, status)
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

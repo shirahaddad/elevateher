@@ -72,6 +72,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Newsletter integration: upsert subscriber if opted-in
+    try {
+      if (data.mailingList) {
+        const now = new Date().toISOString();
+        const { error: subError } = await supabaseAdmin
+          .from('mailing_list_subscribers')
+          .upsert({
+            email: (data.email as string).toLowerCase(),
+            name: data.name,
+            status: 'subscribed',
+            subscribed_at: now,
+            last_source: 'workshop-waitlist',
+          }, { onConflict: 'email' });
+        if (subError) {
+          console.error('Subscribe upsert (workshop) error:', subError);
+        }
+      }
+    } catch (e) {
+      console.error('Subscribe integration (workshop) error:', e);
+    }
+
     console.log('Waitlist form processed successfully');
     return NextResponse.json({ success: true });
   } catch (error) {
