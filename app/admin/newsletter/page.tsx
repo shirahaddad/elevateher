@@ -127,8 +127,8 @@ export default function NewsletterTestPage() {
     <div className="min-h-screen py-16 bg-white text-slate-900">
       <div className="max-w-6xl mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-purple-900">Admin Newsletter — Test Mode</h1>
-          <p className="text-gray-800 mt-1">Upload Canva ZIP, select one subscriber, preview, and send a single test.</p>
+          <h1 className="text-3xl font-bold text-purple-900">Admin Newsletter</h1>
+          <p className="text-gray-800 mt-1">Upload Canva ZIP, preview, and send a single test or broadcast to all subscribers.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
