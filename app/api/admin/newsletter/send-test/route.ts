@@ -19,12 +19,17 @@ function substituteTokens(
   template: string,
   values: { firstName: string; publicID: string; unsubscribeUrl?: string }
 ): string {
-  let out = template
-    .replace(/\{\{\s*firstName\s*\}\}/g, values.firstName)
-    .replace(/\{\{\s*publicID\s*\}\}/g, values.publicID);
-  // Back-compat: if templates still use {{unsubscribeUrl}}, fill it
+  let out = template;
+  // Text tokens
+  out = out.replace(/\{\{\s*firstName\s*\}\}/gi, values.firstName);
+  out = out.replace(/\{\{\s*publicID\s*\}\}/gi, values.publicID);
+  out = out.replace(/\{\{\s*public_id\s*\}\}/gi, values.publicID);
+  // URL-encoded tokens inside hrefs
+  out = out.replace(/%7B%7BpublicID%7D%7D/gi, values.publicID);
+  out = out.replace(/%7B%7Bpublic_id%7D%7D/gi, values.publicID);
+  // Back-compat
   if (values.unsubscribeUrl) {
-    out = out.replace(/\{\{\s*unsubscribeUrl\s*\}\}/g, values.unsubscribeUrl);
+    out = out.replace(/\{\{\s*unsubscribeUrl\s*\}\}/gi, values.unsubscribeUrl);
   }
   return out;
 }

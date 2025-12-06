@@ -98,7 +98,7 @@ export default function AdminDashboard() {
               <h3 className="text-lg font-semibold">Newsletter</h3>
             </div>
             <p className="text-teal-100 text-sm">
-              Upload, preview, test, and broadcast newsletters
+              Upload, preview, test, and broadcast. Unsubscribe token: {'{{publicID}}'} via /api/newsletter/unsubscribe
             </p>
           </Link>
 

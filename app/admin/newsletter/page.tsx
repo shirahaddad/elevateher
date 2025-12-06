@@ -18,9 +18,14 @@ type Subscriber = {
 function substitutePreview(html: string, subscriber: Subscriber | null): string {
   if (!subscriber) return html;
   const firstName = (subscriber.name?.trim()?.split(/\s+/)[0]) || subscriber.email.split('@')[0];
-  return html
-    .replace(/\{\{\s*firstName\s*\}\}/g, firstName)
-    .replace(/\{\{\s*publicID\s*\}\}/g, subscriber.public_id);
+  let out = html
+    .replace(/\{\{\s*firstName\s*\}\}/gi, firstName)
+    .replace(/\{\{\s*publicID\s*\}\}/gi, subscriber.public_id)
+    .replace(/\{\{\s*public_id\s*\}\}/gi, subscriber.public_id);
+  // URL-encoded variants for preview
+  out = out.replace(/%7B%7BpublicID%7D%7D/gi, subscriber.public_id);
+  out = out.replace(/%7B%7Bpublic_id%7D%7D/gi, subscriber.public_id);
+  return out;
 }
 
 export default function NewsletterTestPage() {
