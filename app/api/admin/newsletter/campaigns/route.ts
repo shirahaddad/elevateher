@@ -23,7 +23,29 @@ export async function GET(request: NextRequest) {
       console.error('Campaigns list error:', error);
       return NextResponse.json({ error: 'Failed to load campaigns' }, { status: 500 });
     }
-    return NextResponse.json({ campaigns: data || [] });
+    const campaigns = data || [];
+    const ids = campaigns.map((c: any) => c.id).filter(Boolean);
+    let archiveMap: Record<number, { is_public: boolean; slug: string | null; published_at?: string | null }> = {};
+    if (ids.length > 0) {
+      const { data: archives, error: aErr } = await supabaseAdmin
+        .from('newsletter_archive')
+        .select('campaign_id,is_public,slug,published_at')
+        .in('campaign_id', ids);
+      if (!aErr && Array.isArray(archives)) {
+        for (const row of archives) {
+          archiveMap[row.campaign_id] = {
+            is_public: !!row.is_public,
+            slug: row.slug || null,
+            published_at: row.published_at || null,
+          };
+        }
+      }
+    }
+    const merged = campaigns.map((c: any) => ({
+      ...c,
+      archive: archiveMap[c.id] || null,
+    }));
+    return NextResponse.json({ campaigns: merged });
   } catch (error) {
     console.error('GET /api/admin/newsletter/campaigns error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

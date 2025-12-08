@@ -116,6 +116,23 @@ export async function POST(request: NextRequest) {
     } catch (e) {
       console.warn('Campaign start log failed (will continue sending):', (e as any)?.message || e);
     }
+    // Capture template for potential public archive (not published yet)
+    if (campaignId) {
+      try {
+        await supabaseAdmin
+          .from('newsletter_archive')
+          .upsert(
+            {
+              campaign_id: campaignId,
+              subject: body.subject,
+              html_template: body.html,
+            },
+            { onConflict: 'campaign_id' }
+          );
+      } catch (e) {
+        console.warn('Archive template upsert failed:', (e as any)?.message || e);
+      }
+    }
 
     // Send sequentially with throttling to respect provider limits (e.g., 2 rps)
     const batchSize = 25;

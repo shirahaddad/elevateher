@@ -14,12 +14,18 @@ type Campaign = {
   started_at: string;
   completed_at?: string | null;
   created_at: string;
+  archive?: {
+    is_public: boolean;
+    slug?: string | null;
+    published_at?: string | null;
+  } | null;
 };
 
 export default function CampaignsPage() {
   const [items, setItems] = useState<Campaign[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<number | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -37,6 +43,53 @@ export default function CampaignsPage() {
     };
     load();
   }, []);
+
+  const publish = async (campaignId: number) => {
+    setError(null);
+    setBusyId(campaignId);
+    try {
+      const res = await fetch('/api/admin/newsletter/archive/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ campaignId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to publish');
+      // refresh a single row in memory
+      setItems((prev) =>
+        prev.map((c) =>
+          c.id === campaignId ? { ...c, archive: { ...(c.archive || {}), is_public: true, slug: data.slug, published_at: new Date().toISOString() } } : c
+        )
+      );
+    } catch (e: any) {
+      setError(e.message || 'Failed to publish');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const unpublish = async (campaignId: number) => {
+    setError(null);
+    setBusyId(campaignId);
+    try {
+      const res = await fetch('/api/admin/newsletter/archive/unpublish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ campaignId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to unpublish');
+      setItems((prev) =>
+        prev.map((c) =>
+          c.id === campaignId ? { ...c, archive: c.archive ? { ...c.archive, is_public: false } : { is_public: false, slug: null } } : c
+        )
+      );
+    } catch (e: any) {
+      setError(e.message || 'Failed to unpublish');
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   return (
     <div className="min-h-screen py-16 bg-white text-slate-900">
@@ -66,7 +119,7 @@ export default function CampaignsPage() {
                   <th className="px-4 py-2">Total</th>
                   <th className="px-4 py-2">Success</th>
                   <th className="px-4 py-2">Failed</th>
-                  <th className="px-4 py-2">Key</th>
+                  <th className="px-4 py-2">Archive</th>
                 </tr>
               </thead>
               <tbody>
@@ -78,7 +131,37 @@ export default function CampaignsPage() {
                     <td className="px-4 py-2">{c.total}</td>
                     <td className="px-4 py-2 text-green-700">{c.success_count}</td>
                     <td className="px-4 py-2 text-red-700">{c.error_count}</td>
-                    <td className="px-4 py-2">{c.campaign_key || '—'}</td>
+                    <td className="px-4 py-2">
+                      {c.archive?.is_public ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-700">Published</span>
+                          {c.archive?.slug ? (
+                            <Link
+                              href={`/newsletter/${c.archive.slug}`}
+                              className="text-purple-700 underline"
+                              target="_blank"
+                            >
+                              View
+                            </Link>
+                          ) : null}
+                          <button
+                            onClick={() => unpublish(c.id)}
+                            className="px-2 py-1 rounded bg-gray-100 hover:bg-gray-200"
+                            disabled={busyId === c.id}
+                          >
+                            {busyId === c.id ? 'Working…' : 'Unpublish'}
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => publish(c.id)}
+                          className="px-2 py-1 rounded bg-purple-600 text-white hover:bg-purple-700 disabled:bg-purple-300"
+                          disabled={busyId === c.id}
+                        >
+                          {busyId === c.id ? 'Working…' : 'Publish'}
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
