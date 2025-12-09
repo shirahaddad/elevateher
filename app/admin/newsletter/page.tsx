@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type ParseResult = {
   html: string;
@@ -33,6 +33,7 @@ function substitutePreview(html: string, subscriber: Subscriber | null): string 
 
 export default function NewsletterTestPage() {
   const [zipFile, setZipFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
   const [subject, setSubject] = useState('');
   const [query, setQuery] = useState('');
@@ -144,11 +145,24 @@ export default function NewsletterTestPage() {
             <div className="border rounded-lg p-4">
               <h2 className="font-semibold mb-2">1) Upload Canva ZIP</h2>
               <input
+                ref={fileInputRef}
                 type="file"
                 accept=".zip"
                 onChange={(e) => setZipFile(e.target.files?.[0] || null)}
-                className="block w-full text-sm"
+                className="hidden"
               />
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-900 px-3 py-2 rounded text-sm"
+                >
+                  Choose ZIP…
+                </button>
+                <span className="text-xs text-gray-700 truncate">
+                  {zipFile ? zipFile.name : 'No file selected'}
+                </span>
+              </div>
               <button
                 onClick={onUpload}
                 className="mt-3 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"

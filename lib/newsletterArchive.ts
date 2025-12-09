@@ -1,7 +1,7 @@
 export function sanitizeForPublic(html: string): string {
   let out = html || '';
   // Token replacements
-  out = out.replace(/\{\{\s*firstName\s*\}\}/gi, 'friend');
+  out = out.replace(/\{\{\s*firstName\s*\}\}/gi, 'Friend');
   out = out.replace(/\{\{\s*publicID\s*\}\}/gi, '');
   out = out.replace(/\{\{\s*public_id\s*\}\}/gi, '');
   out = out.replace(/\{\{\s*unsubscribeUrl\s*\}\}/gi, '');
