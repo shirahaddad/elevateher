@@ -109,7 +109,14 @@ export default function Workshops() {
                   <path d="M12 3l2.6 5.2L20 10.8l-5.4 2.6L12 19l-2.6-5.6L4 10.8l5.4-2.6L12 3z" strokeWidth="1.8" strokeLinejoin="round" />
                 </svg>
               </div>
-              <h2 className="text-xl font-bold text-purple-900 mb-2 line-clamp-3 leading-snug">Career Clarity: Empowering Your Next Chapter</h2>
+              <h2 className="text-xl font-bold text-purple-900 mb-2 line-clamp-3 leading-snug">
+                <Link 
+                  href="/services/workshops/career-clarity" 
+                  className="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 rounded-sm"
+                >
+                  Career Clarity: Empowering Your Next Chapter
+                </Link>
+              </h2>
               <p className="text-gray-600 mb-6">
                 Join our next live workshop, on January 15th, 2026 at 5:00 PM ET.
               </p>
