@@ -16,6 +16,8 @@ export default function Workshops() {
     category: 'workshops',
     website: '', // Honeypot field
   });
+  const upcomingZoomUrl =
+    'https://example.zoom.us/meeting/register/your-link';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,8 +99,34 @@ export default function Workshops() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12">
-          {/* Option 1: Join Workshop Waitlist */}
+        <div className="grid md:grid-cols-3 gap-12">
+          {/* Section 1: Upcoming Workshop with Zoom Registration */}
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+                <svg className="w-10 h-10 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <path d="M12 3l2.6 5.2L20 10.8l-5.4 2.6L12 19l-2.6-5.6L4 10.8l5.4-2.6L12 3z" strokeWidth="1.8" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-purple-900 mb-2 line-clamp-3 leading-snug">Career Clarity: Empowering Your Next Chapter</h2>
+              <p className="text-gray-600 mb-6">
+                Join our next live workshop, on January 15th, 2026 at 5:00 PM ET.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <Link
+                href="/services/workshops/career-clarity"
+                className="block w-full text-center bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl hover:bg-purple-700"
+              >
+                Learn more
+              </Link>
+              <p className="text-xs text-gray-500 text-center">
+                Learn more about the session details and register.
+              </p>
+            </div>
+          </div>
+
+          {/* Section 2: Show Interest in Future Workshops (Short Form) */}
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
@@ -106,9 +134,9 @@ export default function Workshops() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-purple-900 mb-3">Join Our Workshop Waitlist</h2>
+              <h2 className="text-2xl font-bold text-purple-900 mb-3">Show Interest in Future Workshops</h2>
               <p className="text-gray-600 mb-6">
-                Sign up to be added to our waiting list. We'll let you know when spots become available.
+                Share your interest below and we'll notify you when dates of our next workshops are announced.
               </p>
             </div>
 
@@ -189,7 +217,7 @@ export default function Workshops() {
             </form>
           </div>
 
-          {/* Option 2: Invite ElevateHer to Your Organization */}
+          {/* Section 3: Invite ElevateHer to Your Organization */}
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
@@ -206,7 +234,7 @@ export default function Workshops() {
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Workshop Topics Include:</h3>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-gray-600">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-2 text-gray-600">
                   <div className="flex items-center">
                     <svg className="w-4 h-4 text-purple-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
