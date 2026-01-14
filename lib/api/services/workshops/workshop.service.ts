@@ -204,7 +204,8 @@ export class WorkshopService {
         registration_url: input.registration_url,
         status: input.status || ('FUTURE' as WorkshopStatus),
         hero_image_key: input.hero_image_key,
-        resource_password_hash: null, // deferred; store hash later if enabled
+        // Store plaintext per product decision (marketing gate only)
+        resource_password_hash: input.resource_password?.trim() || null,
       };
 
       const { data, error } = await supabaseAdmin
@@ -234,6 +235,10 @@ export class WorkshopService {
         status: input.status,
         hero_image_key: input.hero_image_key,
       };
+
+      if (input.resource_password !== undefined) {
+        updates.resource_password_hash = input.resource_password?.trim() || null;
+      }
 
       if (input.title && !input.slug) {
         updates.slug = this.generateSlug(input.title);

@@ -15,6 +15,7 @@ type Workshop = {
   registration_url?: string;
   status: 'NEXT' | 'FUTURE' | 'PAST';
   hero_image_key?: string;
+  resource_password_hash?: string | null;
   resources?: { id: number; name: string; kind?: 'FILE' | 'URL' | 'TEXT'; s3_key?: string; value?: string; mime_type?: string }[];
 };
 
@@ -24,6 +25,7 @@ export default function EditWorkshopPage() {
   const [form, setForm] = useState<Partial<Workshop>>({});
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
+  const [passkey, setPasskey] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +38,12 @@ export default function EditWorkshopPage() {
         const json = await res.json();
         if (!res.ok) throw new Error(json?.error || 'Failed to load workshop');
         setForm(json.data);
+        // Initialize passkey view with saved value (plaintext)
+        if (json.data?.resource_password_hash) {
+          setPasskey(json.data.resource_password_hash);
+        } else {
+          setPasskey('');
+        }
         // Derive date/time from start_at in America/New_York (EST display)
         if (json.data?.start_at && typeof json.data.start_at === 'string') {
           const d = new Date(json.data.start_at);
@@ -82,6 +90,8 @@ export default function EditWorkshopPage() {
           ...form,
           start_at,
           location: undefined, // omit location; all virtual
+          // To clear: leave field empty; to set/replace: enter a value
+          resource_password: passkey !== undefined ? passkey : undefined,
         }),
       });
       const json = await res.json();
@@ -216,6 +226,21 @@ export default function EditWorkshopPage() {
             <input name="hero_image_key" value={form.hero_image_key || ''} onChange={onChange} className="border border-gray-300 text-gray-900 rounded w-full px-3 py-2" />
           </div>
         </div>
+        <div>
+          <label className="block text-sm mb-1 text-gray-800">Resource Passkey (optional)</label>
+          <input
+            name="resource_password"
+            value={passkey}
+            onChange={(e) => setPasskey(e.target.value)}
+            className="border border-gray-300 text-gray-900 rounded w-full px-3 py-2"
+            placeholder={form.resource_password_hash ? '••••••• (leave empty to keep, clear to remove)' : 'e.g. CLARITY-2026'}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            {form.resource_password_hash
+              ? 'A passkey is currently set. To clear it, save with this field empty.'
+              : 'Set a passkey to gate resources on the public page.'}
+          </p>
+        </div>
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <div className="flex gap-2">
           <button disabled={saving} className="px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700 transition-colors">
@@ -250,27 +275,12 @@ export default function EditWorkshopPage() {
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 {r.kind === 'FILE' && r.s3_key && (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const presign = await fetch(`/api/admin/workshops/${form.id}/resources/presign`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ s3_key: r.s3_key }),
-                        });
-                        const data = await presign.json();
-                        if (!presign.ok) throw new Error(data?.error || 'Failed to get URL');
-                        window.open(data.url, '_blank');
-                      } catch (e) {
-                        console.error(e);
-                        alert('Failed to open file');
-                      }
-                    }}
+                  <a
+                    href={`/api/admin/workshops/${form.id}/resources/presign?resourceId=${r.id}`}
                     className="px-2 py-1 rounded-md border border-gray-300 text-gray-900 hover:bg-gray-50"
-                    title="Open"
                   >
-                    Open
-                  </button>
+                    Download
+                  </a>
                 )}
                 <button
                   onClick={() => removeResource(r.id)}
