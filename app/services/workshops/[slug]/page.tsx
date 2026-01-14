@@ -2,8 +2,6 @@ import Link from 'next/link';
 import { workshopService } from '@/lib/api/services/workshops/workshop.service';
 import MarkdownPreview from '@/components/blog/MarkdownPreview';
 import ResourceSection from '@/components/workshops/ResourceSection';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import type { Metadata } from 'next';
 
 function formatEst(iso?: string) {
@@ -34,8 +32,6 @@ export default async function WorkshopDetailPage({
   const sp = await searchParams;
   const fromPast = sp?.from === 'past';
   const workshop = await workshopService.getWorkshopBySlug(slug);
-  const session = await getServerSession(authOptions);
-  const isAdmin = Boolean(session);
 
   return (
     <div className="min-h-screen bg-white">
@@ -95,7 +91,6 @@ export default async function WorkshopDetailPage({
               slug={slug}
               resources={workshop.resources}
               requiresPasskey={!!workshop.resource_password_hash}
-              forceUnlocked={isAdmin}
             />
           )}
         </div>

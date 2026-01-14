@@ -14,21 +14,15 @@ export default function ResourceSection({
   slug,
   resources,
   requiresPasskey,
-  forceUnlocked = false,
 }: {
   slug: string;
   resources: Resource[];
   requiresPasskey: boolean;
-  forceUnlocked?: boolean;
 }) {
-  const [unlocked, setUnlocked] = useState<boolean>(forceUnlocked || !requiresPasskey);
+  const [unlocked, setUnlocked] = useState<boolean>(!requiresPasskey);
   const [passkey, setPasskey] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (forceUnlocked) setUnlocked(true);
-  }, [forceUnlocked]);
 
   const verify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +46,13 @@ export default function ResourceSection({
 
   return (
     <div className="mt-10">
-      <h2 className="text-xl font-semibold mb-2 text-purple-700">Resources</h2>
+      <h2 className="text-xl font-semibold mb-2 text-purple-700">Workshop Materials</h2>
+      {requiresPasskey && !unlocked && (
+        <p className="text-sm text-gray-600 mb-3">
+          The passkey is provided to workshop participants. To get more acces,{' '}
+          <a href="mailto:info@elevateher.tech" className="text-purple-700 hover:text-purple-900 underline">email</a> us.
+        </p>
+      )}
 
       {!unlocked ? (
         <form onSubmit={verify} className="flex items-center gap-2">
