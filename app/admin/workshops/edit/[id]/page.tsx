@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import FileUpload from '@/components/common/FileUpload';
 
 type Workshop = {
   id: number;
@@ -26,6 +27,10 @@ export default function EditWorkshopPage() {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [passkey, setPasskey] = useState('');
+  const [heroKey, setHeroKey] = useState<string | null>(null);
+  const [heroPreview, setHeroPreview] = useState<string | null>(null);
+  const [heroFileName, setHeroFileName] = useState<string | null>(null);
+  const uploadSeqRef = useRef(0); // Tracks latest selected file to avoid race updates
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +48,39 @@ export default function EditWorkshopPage() {
           setPasskey(json.data.resource_password_hash);
         } else {
           setPasskey('');
+        }
+        // Initialize hero preview (form.hero_image_key may already be a full URL)
+        if (json.data?.hero_image_key) {
+          setHeroPreview(json.data.hero_image_key);
+          try {
+            const fromUrl = json.data.hero_image_key as string;
+            const name = fromUrl.split('?')[0].split('/').pop() || null;
+            setHeroFileName(name);
+          } catch {
+            setHeroFileName(null);
+          }
+          // Bug 1: Initialize heroKey with existing S3 key (derived from URL) to preserve on save
+          try {
+            const urlStr = json.data.hero_image_key as string;
+            let key: string | null = null;
+            try {
+              const u = new URL(urlStr);
+              key = u.pathname.startsWith('/') ? u.pathname.slice(1) : u.pathname;
+            } catch {
+              // Fallback: split on common S3 domain separator
+              const idx = urlStr.indexOf('.amazonaws.com/');
+              if (idx !== -1) key = urlStr.slice(idx + '.amazonaws.com/'.length);
+            }
+            if (key) {
+              setHeroKey(key);
+            } else {
+              // Bug 1 fallback: preserve original value if extraction failed
+              setHeroKey(json.data.hero_image_key);
+            }
+          } catch {
+            // Final fallback: preserve original value
+            setHeroKey(json.data.hero_image_key);
+          }
         }
         // Derive date/time from start_at in America/New_York (EST display)
         if (json.data?.start_at && typeof json.data.start_at === 'string') {
@@ -92,6 +130,7 @@ export default function EditWorkshopPage() {
           location: undefined, // omit location; all virtual
           // To clear: leave field empty; to set/replace: enter a value
           resource_password: passkey !== undefined ? passkey : undefined,
+          hero_image_key: heroKey ?? undefined,
         }),
       });
       const json = await res.json();
@@ -222,8 +261,47 @@ export default function EditWorkshopPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm mb-1 text-gray-800">Hero Image S3 Key</label>
-            <input name="hero_image_key" value={form.hero_image_key || ''} onChange={onChange} className="border border-gray-300 text-gray-900 rounded w-full px-3 py-2" />
+            <FileUpload
+              label="Hero Image"
+              accept="image/*"
+              valueUrl={heroPreview}
+              valueName={heroFileName || undefined}
+              previewImage
+              disabled={saving}
+              onSelect={async (file) => {
+                if (!file || !form.id) return;
+                // Bug 2: Track current selection to avoid race in concurrent uploads
+                const mySeq = ++uploadSeqRef.current;
+                try {
+                  const previewUrl = URL.createObjectURL(file);
+                  setHeroPreview(previewUrl);
+                  setHeroFileName(file.name);
+                } catch {}
+                setSaving(true);
+                try {
+                  const fd = new FormData();
+                  fd.append('file', file);
+                  const up = await fetch(`/api/admin/workshops/${form.id}/hero`, {
+                    method: 'POST',
+                    body: fd,
+                  });
+                  const data = await up.json();
+                  if (!up.ok) throw new Error(data?.error || 'Upload failed');
+                  // Only update if this is the latest selected file
+                  if (uploadSeqRef.current === mySeq) {
+                    setHeroKey(data.s3_key);
+                  }
+                } catch (err: any) {
+                  alert(err.message || 'Failed to upload image');
+                } finally {
+                  // Bug 2: Only clear saving if this upload corresponds to latest selection
+                  if (uploadSeqRef.current === mySeq) {
+                    setSaving(false);
+                  }
+                }
+              }}
+            />
+            <p className="text-xs text-gray-500 mt-1">Upload replaces the current hero image.</p>
           </div>
         </div>
         <div>
@@ -310,12 +388,14 @@ export default function EditWorkshopPage() {
               <option value="TEXT">Text</option>
             </select>
             {resForm.kind === 'FILE' ? (
-              <input
-                key="file-input"
-                type="file"
-                className="border border-gray-300 text-gray-900 rounded px-2 py-1"
-                onChange={(e) => setResForm((p) => ({ ...p, file: e.target.files?.[0] || null }))}
-              />
+              <div className="col-span-1 md:col-span-3">
+                <FileUpload
+                  label="Resource File"
+                  accept="*/*"
+                  valueName={resForm.file?.name || undefined}
+                  onSelect={(file) => setResForm((p) => ({ ...p, file }))}
+                />
+              </div>
             ) : (
               <input
                 key={`value-input-${resForm.kind}`}

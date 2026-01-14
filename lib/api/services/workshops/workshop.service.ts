@@ -233,8 +233,12 @@ export class WorkshopService {
         location: input.location,
         registration_url: input.registration_url,
         status: input.status,
-        hero_image_key: input.hero_image_key,
       };
+
+      // Only update hero_image_key when explicitly provided
+      if (input.hero_image_key !== undefined) {
+        updates.hero_image_key = input.hero_image_key;
+      }
 
       if (input.resource_password !== undefined) {
         updates.resource_password_hash = input.resource_password?.trim() || null;
