@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { workshopService } from '@/lib/api/services/workshops/workshop.service';
 
 export default async function PastWorkshopsPage() {
@@ -16,11 +17,25 @@ export default async function PastWorkshopsPage() {
             {items.map((w) => (
               <Link
                 key={w.id}
-                href={`/services/workshops/${w.slug}`}
-                className="block border rounded-lg p-4 hover:shadow-md transition"
+                href={`/services/workshops/${w.slug}?from=past`}
+                className="block border rounded-lg hover:shadow-md transition overflow-hidden"
               >
-                <div className="text-lg font-semibold text-gray-900 mb-1">{w.title}</div>
-                <div className="text-sm text-gray-700">{new Date(w.start_at || '').toLocaleDateString('en-US')}</div>
+                {w.hero_image_key ? (
+                  <div className="relative w-full h-40 bg-gray-50">
+                    <Image
+                      src={w.hero_image_key}
+                      alt={w.title}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                ) : null}
+                <div className="p-4">
+                  <div className="text-lg font-semibold text-purple-900 mb-1">{w.title}</div>
+                  <div className="text-sm text-gray-700">
+                    {w.start_at ? new Date(w.start_at).toLocaleDateString('en-US') : ''}
+                  </div>
+                </div>
               </Link>
             ))}
           </div>

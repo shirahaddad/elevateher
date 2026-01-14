@@ -22,8 +22,16 @@ function formatEst(iso?: string) {
   return `${date} at ${time} (EST)`;
 }
 
-export default async function WorkshopDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function WorkshopDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { slug } = await params;
+  const sp = await searchParams;
+  const fromPast = sp?.from === 'past';
   const workshop = await workshopService.getWorkshopBySlug(slug);
   const session = await getServerSession(authOptions);
   const isAdmin = Boolean(session);
@@ -32,13 +40,13 @@ export default async function WorkshopDetailPage({ params }: { params: Promise<{
     <div className="min-h-screen bg-white">
       <div className="max-w-3xl mx-auto px-8 py-16">
         <Link
-          href="/services/workshops"
+          href={fromPast ? '/services/workshops/past' : '/services/workshops'}
           className="inline-flex items-center gap-1 text-purple-600 hover:text-purple-800 transition-colors mb-8 text-sm font-medium"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Workshops
+          {fromPast ? 'Back to Past Workshops' : 'Back to Workshops'}
         </Link>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
