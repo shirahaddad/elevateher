@@ -1,79 +1,15 @@
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { workshopWaitlistSchema } from '@/lib/validation/base';
+import { workshopService } from '@/lib/api/services/workshops/workshop.service';
+import WaitlistForm from '@/components/workshops/WaitlistForm';
+export const revalidate = 60;
 
-export default function Workshops() {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    mailingList: false,
-    category: 'workshops',
-    website: '', // Honeypot field
-  });
-  const upcomingZoomUrl =
-    'https://example.zoom.us/meeting/register/your-link';
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      // Client-side validation
-      const validationResult = workshopWaitlistSchema.safeParse(formData);
-      if (!validationResult.success) {
-        const errors = validationResult.error.errors.map(err => err.message);
-        setError(errors.join(', '));
-        return;
-      }
-
-      const response = await fetch('/api/submit-workshop-waitlist', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to submit form');
-      }
-
-      router.push('/thank-you');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'There was an error submitting your form. Please try again.');
-      console.error('Form submission error:', err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target;
-    if (type === 'checkbox') {
-      const checkbox = e.target as HTMLInputElement;
-      setFormData((prev) => ({
-        ...prev,
-        [name]: checkbox.checked,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-  };
+export default async function Workshops() {
+  const [nextWorkshop, pastPage] = await Promise.all([
+    workshopService.getNextWorkshop(),
+    workshopService.listPastWorkshops({ page: 1, limit: 1 }),
+  ]);
+  const hasPast = Number((pastPage as any)?.total || 0) > 0;
 
   return (
     <div className="min-h-screen bg-white">
@@ -96,12 +32,12 @@ export default function Workshops() {
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Workshops</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Interactive sessions to enhance your leadership skills and career development. Choose the option that works best for you.
+            Interactive sessions to enhance your leadership skills and career development.
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-12">
-          {/* Section 1: Upcoming Workshop with Zoom Registration */}
+          {/* Section 1: Upcoming Workshop (NEXT) */}
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
             <div className="text-center mb-6">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
@@ -110,36 +46,57 @@ export default function Workshops() {
                 </svg>
               </div>
               <h2 className="text-xl font-bold text-purple-900 mb-2 line-clamp-3 leading-snug">
-                <Link 
-                  href="/services/workshops/career-clarity" 
-                  className="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 rounded-sm"
-                >
-                  Career Clarity: Empowering Your Next Chapter
-                </Link>
+                {nextWorkshop ? (
+                  <Link 
+                    href={`/services/workshops/${nextWorkshop.slug}`} 
+                    className="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 rounded-sm"
+                  >
+                    {nextWorkshop.title}
+                  </Link>
+                ) : (
+                  <span>No upcoming workshop yet</span>
+                )}
               </h2>
               <p className="text-gray-600 mb-6">
-                Join our next live workshop, on January 15th, 2026 at 5:00 PM ET.
+                {nextWorkshop?.start_at
+                  ? `Join our next live workshop, on ${new Intl.DateTimeFormat('en-US', {
+                      timeZone: 'America/New_York',
+                      year: 'numeric',
+                      month: 'long',
+                      day: '2-digit',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    }).format(new Date(nextWorkshop.start_at))}`
+                  : 'Stay tuned for our next date.'}
               </p>
             </div>
             <div className="space-y-4">
               <div className="relative w-full h-56 rounded-lg overflow-hidden">
-                <Image
-                  src="/images/free-live-workshop.png"
-                  alt="Free live workshop at 5PM on 01/15"
-                  fill
-                  sizes="(min-width: 768px) 33vw, 100vw"
-                  className="object-contain"
-                  priority
-                />
+                {nextWorkshop?.hero_image_key ? (
+                  <Image
+                    src={nextWorkshop.hero_image_key}
+                    alt={nextWorkshop.title}
+                    fill
+                    sizes="(min-width: 1024px) 640px, 100vw"
+                    className="object-contain"
+                    priority
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-400">
+                    No image
+                  </div>
+                )}
               </div>
-              <Link
-                href="/services/workshops/career-clarity"
-                className="block w-full text-center bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl hover:bg-purple-700"
-              >
-                Learn more
-              </Link>
+              {nextWorkshop && (
+                <Link
+                  href={`/services/workshops/${nextWorkshop.slug}`}
+                  className="block w-full text-center bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl hover:bg-purple-700"
+                >
+                  Learn more
+                </Link>
+              )}
               <p className="text-xs text-gray-500 text-center">
-                Learn more about the session details and register.
+                {nextWorkshop ? 'Learn more about the session details and register.' : 'Join the waitlist below for updates.'}
               </p>
             </div>
           </div>
@@ -158,81 +115,7 @@ export default function Workshops() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Honeypot field - hidden from users */}
-              <div style={{ display: 'none' }}>
-                <input
-                  type="text"
-                  name="website"
-                  value={formData.website}
-                  onChange={handleChange}
-                  tabIndex={-1}
-                  autoComplete="off"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Your Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-700"
-                  placeholder="Enter your full name"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-700"
-                  placeholder="your.email@example.com"
-                />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="mailingList"
-                  name="mailingList"
-                  checked={formData.mailingList}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                />
-                <label htmlFor="mailingList" className="ml-2 text-sm text-gray-700 cursor-pointer">
-                  Sure, add me to your mailing list.
-                </label>
-              </div>
-
-              {error && (
-                <div className="text-red-600 text-sm mt-2" role="alert" aria-live="polite">
-                  {error}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`w-full bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl ${
-                  isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-purple-700'
-                }`}
-              >
-                {isSubmitting ? 'Joining Waitlist...' : 'Join Waitlist'}
-              </button>
-            </form>
+            <WaitlistForm />
           </div>
 
           {/* Section 3: Invite ElevateHer to Your Organization */}
@@ -329,6 +212,21 @@ export default function Workshops() {
             </div>
           </div>
         </div>
+
+        {/* Link to Past Workshops */}
+        {hasPast && (
+          <div className="mt-12 text-center">
+            <Link
+              href="/services/workshops/past"
+              className="inline-flex items-center gap-2 text-purple-700 hover:text-purple-900 font-medium"
+            >
+              <span>See past workshops</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

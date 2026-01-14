@@ -4,6 +4,7 @@ import MarkdownPreview from '@/components/blog/MarkdownPreview';
 import ResourceSection from '@/components/workshops/ResourceSection';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import type { Metadata } from 'next';
 
 function formatEst(iso?: string) {
   if (!iso) return null;
@@ -101,5 +102,39 @@ export default async function WorkshopDetailPage({
       </div>
     </div>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const w = await workshopService.getWorkshopBySlug(slug);
+    const title = `${w.title} | Workshops`;
+    const description =
+      (w.summary && w.summary.slice(0, 180)) ||
+      'Workshop details, resources, and registration.';
+    const images = w.hero_image_key ? [{ url: w.hero_image_key }] : undefined;
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images,
+        url: `/services/workshops/${slug}`,
+        type: 'article',
+      },
+      alternates: {
+        canonical: `/services/workshops/${slug}`,
+      },
+    };
+  } catch {
+    return {
+      title: 'Workshop | ElevateHer',
+    };
+  }
 }
 

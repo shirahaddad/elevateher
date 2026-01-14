@@ -42,5 +42,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...blogPostRoutes];
+  // Fetch workshops (NEXT and PAST only)
+  const { data: workshops, error: wError } = await supabaseAdmin
+    .from('workshops')
+    .select('slug, updated_at, start_at, status')
+    .in('status', ['NEXT', 'PAST']);
+
+  const workshopRoutes =
+    wError || !workshops
+      ? []
+      : workshops.map((w) => {
+          const src = w.updated_at ?? w.start_at;
+          return {
+            url: `${baseUrl}/services/workshops/${w.slug}`,
+            lastModified: src ? new Date(src) : new Date(),
+            changeFrequency: w.status === 'NEXT' ? ('daily' as const) : ('monthly' as const),
+            priority: w.status === 'NEXT' ? 0.8 : 0.6,
+          };
+        });
+
+  return [...staticRoutes, ...blogPostRoutes, ...workshopRoutes];
 } 
