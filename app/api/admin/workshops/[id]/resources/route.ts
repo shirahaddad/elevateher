@@ -1,28 +1,33 @@
 import { NextResponse } from 'next/server';
 import { workshopService } from '@/lib/api/services/workshops/workshop.service';
 
-interface Params {
-  params: { id: string };
-}
+type IdParams = { id: string };
 
-export async function POST(request: Request, { params }: Params) {
+export async function POST(request: Request, context: { params: Promise<IdParams> }) {
   try {
-    const workshopId = params.id;
-    if (!workshopId) {
+    const { id: idParam } = await context.params;
+    const workshopId = Number(idParam);
+    if (!workshopId || Number.isNaN(workshopId)) {
       return NextResponse.json({ error: 'Missing workshop id' }, { status: 400 });
     }
     const body = await request.json();
-    if (!body?.name || !body?.s3_key) {
-      return NextResponse.json(
-        { error: 'Missing resource name or s3_key' },
-        { status: 400 }
-      );
+    const kind = (body?.kind as 'FILE' | 'URL' | 'TEXT') || 'FILE';
+    if (!body?.name) {
+      return NextResponse.json({ error: 'Missing resource name' }, { status: 400 });
+    }
+    if (kind === 'FILE' && !body?.s3_key) {
+      return NextResponse.json({ error: 'Missing s3_key for FILE resource' }, { status: 400 });
+    }
+    if ((kind === 'URL' || kind === 'TEXT') && !body?.value) {
+      return NextResponse.json({ error: 'Missing value for URL/TEXT resource' }, { status: 400 });
     }
 
     const resource = await workshopService.addResource(workshopId, {
       workshop_id: workshopId,
       name: body.name,
+      kind,
       s3_key: body.s3_key,
+      value: body.value,
       mime_type: body.mime_type,
     });
 
@@ -36,11 +41,12 @@ export async function POST(request: Request, { params }: Params) {
   }
 }
 
-export async function DELETE(request: Request, { params }: Params) {
+export async function DELETE(request: Request, _context: { params: Promise<IdParams> }) {
   try {
     const body = await request.json();
-    const resourceId = body?.resourceId as string | undefined;
-    if (!resourceId) {
+    const resourceIdParam = body?.resourceId;
+    const resourceId = Number(resourceIdParam);
+    if (!resourceId || Number.isNaN(resourceId)) {
       return NextResponse.json({ error: 'Missing resourceId' }, { status: 400 });
     }
     await workshopService.removeResource(resourceId);

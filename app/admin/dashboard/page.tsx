@@ -102,6 +102,20 @@ export default function AdminDashboard() {
             </p>
           </Link>
 
+          {/*workshops*/}
+          <Link 
+            href="/admin/workshops"
+            className="bg-gradient-to-r from-rose-500 to-rose-600 text-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
+          >
+            <div className="flex items-center mb-3">
+              <div className="text-2xl mr-3">🎟️</div>
+              <h3 className="text-lg font-semibold">Workshops</h3>
+            </div>
+            <p className="text-rose-100 text-sm">
+              Stage NEXT/FUTURE/PAST and manage resources
+            </p>
+          </Link>
+
           {/*community test vetting*/}
           <Link 
             href="/admin/community-test"

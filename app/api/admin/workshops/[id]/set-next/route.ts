@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server';
 import { workshopService } from '@/lib/api/services/workshops/workshop.service';
 
-interface Params {
-  params: { id: string };
-}
+type IdParams = { id: string };
 
-export async function POST(request: Request, { params }: Params) {
+export async function POST(request: Request, context: { params: Promise<IdParams> }) {
   try {
-    const id = params.id;
-    if (!id) {
+    const { id: idParam } = await context.params;
+    const id = Number(idParam);
+    if (!id || Number.isNaN(id)) {
       return NextResponse.json({ error: 'Missing workshop id' }, { status: 400 });
     }
     await workshopService.setNext(id);

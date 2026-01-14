@@ -3,7 +3,7 @@ import { ApiResponse, PaginatedResponse } from './common';
 export type WorkshopStatus = 'NEXT' | 'FUTURE' | 'PAST';
 
 export interface Workshop {
-  id: string;
+  id: number;
   slug: string;
   title: string;
   summary?: string;
@@ -20,10 +20,12 @@ export interface Workshop {
 }
 
 export interface WorkshopResource {
-  id: string;
-  workshop_id: string;
+  id: number;
+  workshop_id: number;
   name: string;
-  s3_key: string;
+  kind?: 'FILE' | 'URL' | 'TEXT';
+  s3_key?: string;
+  value?: string;
   mime_type?: string;
   created_at: string;
 }
@@ -42,7 +44,7 @@ export interface CreateWorkshopInput {
 }
 
 export interface UpdateWorkshopInput extends Partial<CreateWorkshopInput> {
-  id: string;
+  id: number;
 }
 
 export interface WorkshopsResponse extends ApiResponse<PaginatedResponse<Workshop>> {}

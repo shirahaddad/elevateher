@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server';
 import { workshopService } from '@/lib/api/services/workshops/workshop.service';
 
-interface Params {
-  params: { id: string };
-}
+type IdParams = { id: string };
 
-export async function PATCH(request: Request, { params }: Params) {
+export async function PATCH(request: Request, context: { params: Promise<IdParams> }) {
   try {
-    const id = params.id;
+    const { id: idParam } = await context.params;
+    const id = Number(idParam);
     const body = await request.json();
-    if (!id) {
+    if (!id || Number.isNaN(id)) {
       return NextResponse.json({ error: 'Missing workshop id' }, { status: 400 });
     }
 
@@ -37,10 +36,11 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 }
 
-export async function DELETE(request: Request, { params }: Params) {
+export async function DELETE(request: Request, context: { params: Promise<IdParams> }) {
   try {
-    const id = params.id;
-    if (!id) {
+    const { id: idParam } = await context.params;
+    const id = Number(idParam);
+    if (!id || Number.isNaN(id)) {
       return NextResponse.json({ error: 'Missing workshop id' }, { status: 400 });
     }
 
@@ -50,6 +50,24 @@ export async function DELETE(request: Request, { params }: Params) {
     console.error('DELETE /admin/workshops/[id] error:', error);
     return NextResponse.json(
       { error: 'Failed to delete workshop' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: Request, context: { params: Promise<IdParams> }) {
+  try {
+    const { id: idParam } = await context.params;
+    const id = Number(idParam);
+    if (!id || Number.isNaN(id)) {
+      return NextResponse.json({ error: 'Missing workshop id' }, { status: 400 });
+    }
+    const workshop = await workshopService.getById(id);
+    return NextResponse.json({ data: workshop });
+  } catch (error) {
+    console.error('GET /admin/workshops/[id] error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch workshop' },
       { status: 500 }
     );
   }

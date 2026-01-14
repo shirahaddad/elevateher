@@ -87,6 +87,39 @@ export class WorkshopService {
     });
   }
 
+  async getById(id: number) {
+    return withConnectionTracking(async () => {
+      const { data, error } = await supabaseAdmin
+        .from('workshops')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          throw Object.assign(new Error('Workshop not found'), { status: 404 });
+        }
+        throw new Error(`Failed to fetch workshop by id: ${error.message}`);
+      }
+
+      if (data.hero_image_key) {
+        data.hero_image_key = await getS3Url(data.hero_image_key);
+      }
+
+      const { data: resources, error: resError } = await supabaseAdmin
+        .from('workshop_resources')
+        .select('*')
+        .eq('workshop_id', data.id)
+        .order('created_at', { ascending: false });
+
+      if (resError) {
+        throw new Error(`Failed to fetch workshop resources: ${resError.message}`);
+      }
+
+      return { ...(data as Workshop), resources: resources as WorkshopResource[] };
+    });
+  }
+
   async listPastWorkshops(params?: PaginationParams) {
     return withConnectionTracking(async () => {
       const page = params?.page || 1;
@@ -224,7 +257,7 @@ export class WorkshopService {
     });
   }
 
-  async delete(id: string) {
+  async delete(id: number) {
     return withConnectionTracking(async () => {
       const { error } = await supabaseAdmin.from('workshops').delete().eq('id', id);
       if (error) {
@@ -234,7 +267,7 @@ export class WorkshopService {
     });
   }
 
-  async setNext(id: string) {
+  async setNext(id: number) {
     return withConnectionTracking(async () => {
       // Demote any current NEXT to PAST
       const { error: demoteErr } = await supabaseAdmin
@@ -256,7 +289,7 @@ export class WorkshopService {
     });
   }
 
-  async addResource(workshopId: string, resource: Omit<WorkshopResource, 'id' | 'created_at'>) {
+  async addResource(workshopId: number, resource: Omit<WorkshopResource, 'id' | 'created_at'>) {
     return withConnectionTracking(async () => {
       const { data, error } = await supabaseAdmin
         .from('workshop_resources')
@@ -264,7 +297,9 @@ export class WorkshopService {
           {
             workshop_id: workshopId,
             name: resource.name,
-            s3_key: resource.s3_key,
+            kind: resource.kind || 'FILE',
+            s3_key: resource.s3_key || null,
+            value: resource.value || null,
             mime_type: resource.mime_type,
           },
         ])
@@ -280,7 +315,7 @@ export class WorkshopService {
     });
   }
 
-  async removeResource(resourceId: string) {
+  async removeResource(resourceId: number) {
     return withConnectionTracking(async () => {
       const { error } = await supabaseAdmin.from('workshop_resources').delete().eq('id', resourceId);
       if (error) {
@@ -308,7 +343,7 @@ export class WorkshopService {
     });
   }
 
-  private async getWorkshopSlugById(id: string): Promise<string | undefined> {
+  private async getWorkshopSlugById(id: number): Promise<string | undefined> {
     const { data } = await supabaseAdmin.from('workshops').select('slug').eq('id', id).single();
     return data?.slug;
   }
