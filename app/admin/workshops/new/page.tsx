@@ -4,6 +4,50 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+// Convert a New York local date+time to an ISO UTC string, DST-safe.
+function getOffsetMs(timeZone: string, epochMs: number): number {
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+  const parts = dtf.formatToParts(new Date(epochMs));
+  const map: Record<string, string> = {};
+  for (const p of parts) map[p.type] = p.value;
+  const asUtc = Date.UTC(
+    Number(map.year),
+    Number(map.month) - 1,
+    Number(map.day),
+    Number(map.hour),
+    Number(map.minute),
+    Number(map.second)
+  );
+  // asUtc - epochMs equals the zone offset in ms at epochMs
+  return asUtc - epochMs;
+}
+
+function nyLocalToUtcIso(dateStr: string, timeStr: string): string | null {
+  if (!dateStr || !timeStr) return null;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const [hh, mm] = timeStr.split(':').map(Number);
+  // Initial guess: interpret wall time as if it were UTC
+  const guess = Date.UTC(y, m - 1, d, hh, mm, 0);
+  const tz = 'America/New_York';
+  let offset = getOffsetMs(tz, guess);
+  let utc = guess - offset;
+  // Re-evaluate once to handle transitions around DST boundaries
+  const offset2 = getOffsetMs(tz, utc);
+  if (offset2 !== offset) {
+    utc = guess - offset2;
+  }
+  return new Date(utc).toISOString();
+}
+
 export default function NewWorkshopPage() {
   const router = useRouter();
   const [form, setForm] = useState({
@@ -31,8 +75,7 @@ export default function NewWorkshopPage() {
     setSaving(true);
     setError(null);
     try {
-      const start_at =
-        form.date && form.time ? `${form.date}T${form.time}:00-05:00` : null;
+      const start_at = nyLocalToUtcIso(form.date, form.time);
 
       const res = await fetch('/api/admin/workshops', {
         method: 'POST',
@@ -94,11 +137,11 @@ export default function NewWorkshopPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm mb-1 text-gray-800">Date (EST)</label>
+            <label className="block text-sm mb-1 text-gray-800">Date (ET)</label>
             <input type="date" name="date" value={form.date} onChange={onChange} className="border border-gray-300 text-gray-900 rounded w-full px-3 py-2" />
           </div>
           <div>
-            <label className="block text-sm mb-1 text-gray-800">Time (EST)</label>
+            <label className="block text-sm mb-1 text-gray-800">Time (ET)</label>
             <input type="time" name="time" value={form.time} onChange={onChange} className="border border-gray-300 text-gray-900 rounded w-full px-3 py-2" />
           </div>
         </div>
