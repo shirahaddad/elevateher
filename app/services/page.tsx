@@ -8,14 +8,22 @@ export default async function Services({ searchParams }: ServicesPageProps) {
   const params = await searchParams;
   const filter = params?.filter;
   const isIndividualFilter = filter === 'individual';
+  const isPackagesFilter = filter === 'packages';
 
   // Define which services to show based on filter
   const shouldShowService = (serviceName: string) => {
-    if (!isIndividualFilter) return true; // Show all services by default
-    
-    // Only show individual services when filtering
-    const individualServices = ['career-advising', 'mentoring', 'exec-coaching'];
-    return individualServices.includes(serviceName);
+    // Individual services filter
+    if (isIndividualFilter) {
+      const individualServices = ['career-advising', 'mentoring', 'exec-coaching'];
+      return individualServices.includes(serviceName);
+    }
+    // Packages filter: only show Career Advising and Mentoring
+    if (isPackagesFilter) {
+      const packageServices = ['career-advising', 'mentoring'];
+      return packageServices.includes(serviceName);
+    }
+    // Default: show all services
+    return true;
   };
 
   return (
@@ -33,7 +41,7 @@ export default async function Services({ searchParams }: ServicesPageProps) {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16 relative">
         <div className="text-center mb-8 sm:mb-12 md:mb-16">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 text-purple-900 tracking-tight">
-            {isIndividualFilter ? '1 on 1 Coaching Services' : 'Our Services'}
+            {isIndividualFilter ? '1 on 1 Coaching Services' : isPackagesFilter ? 'Coaching Packages' : 'Our Services'}
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
             Book your <a href="https://zcal.co/t/elevateher/introduction" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-800 underline">first free session</a> with us and see how we can support your career growth.
