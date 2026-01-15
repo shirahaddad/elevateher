@@ -41,8 +41,10 @@ export default function NewsletterTestPage() {
   const [results, setResults] = useState<Subscriber[]>([]);
   const [selected, setSelected] = useState<Subscriber | null>(null);
   const [sending, setSending] = useState(false);
+  const [customSending, setCustomSending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<Array<{ email: string; error: string }>>([]);
+  const [customRecipients, setCustomRecipients] = useState('');
 
   const previewHtml = useMemo(() => {
     if (!parseResult?.html) return '';
@@ -330,6 +332,55 @@ export default function NewsletterTestPage() {
                 </details>
               </div>
             )}
+          </div>
+
+          <div className="border rounded-lg p-4">
+            <h2 className="font-semibold mb-2">Custom Recipients (Non-subscribers)</h2>
+            <p className="text-sm text-gray-700 mb-2">
+              Send to specific email addresses not in your subscribers list. Separate multiple emails with commas.
+            </p>
+            <textarea
+              value={customRecipients}
+              onChange={(e) => setCustomRecipients(e.target.value)}
+              placeholder="email1@example.com, email2@example.com"
+              className="w-full border rounded px-3 py-2 text-sm"
+              rows={3}
+            />
+            <button
+              onClick={async () => {
+                setMessage(null);
+                setErrorDetails([]);
+                if (!parseResult?.html || !subject || !customRecipients.trim()) {
+                  setMessage('Enter subject, parse a ZIP, and add at least one recipient.');
+                  return;
+                }
+                setCustomSending(true);
+                try {
+                  const res = await fetch('/api/admin/newsletter/send-ad-hoc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      html: parseResult.html,
+                      text: parseResult.text,
+                      subject,
+                      recipients: customRecipients,
+                    }),
+                  });
+                  const data = await res.json();
+                  if (!res.ok) throw new Error(data.error || 'Custom send failed');
+                  setMessage(`Custom send complete: sent ${data.sent}/${data.total}. ${data.failed} failed.`);
+                  setErrorDetails(Array.isArray(data.errors) ? data.errors : []);
+                } catch (e: any) {
+                  setMessage(e.message || 'Custom send failed');
+                } finally {
+                  setCustomSending(false);
+                }
+              }}
+              disabled={customSending || !hasParsed || !hasSubject || !customRecipients.trim()}
+              className="mt-3 bg-blue-600 disabled:bg-blue-300 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              {customSending ? 'Sending…' : 'Send to Custom Emails'}
+            </button>
           </div>
 
           <div className="border rounded-lg p-4 lg:col-span-2">
