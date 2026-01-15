@@ -72,20 +72,14 @@ export default async function Workshops() {
             </div>
             <div className="space-y-4">
               <div className="relative w-full h-56 rounded-lg overflow-hidden">
-                {nextWorkshop?.hero_image_key ? (
-                  <Image
-                    src={nextWorkshop.hero_image_key}
-                    alt={nextWorkshop.title}
-                    fill
-                    sizes="(min-width: 1024px) 640px, 100vw"
-                    className="object-contain"
-                    priority
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-400">
-                    No image
-                  </div>
-                )}
+                <Image
+                  src="/images/free-live-workshop.png"
+                  alt={nextWorkshop?.title ?? 'Upcoming workshop'}
+                  fill
+                  sizes="(min-width: 1024px) 640px, 100vw"
+                  className="object-contain"
+                  priority
+                />
               </div>
               {nextWorkshop && (
                 <Link
