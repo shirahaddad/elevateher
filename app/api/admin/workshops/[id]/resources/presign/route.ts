@@ -58,14 +58,21 @@ export async function GET(request: Request, context: { params: Promise<IdParams>
     if (!resource?.s3_key) {
       return NextResponse.json({ error: 'Resource not found' }, { status: 404 });
     }
-    const fallbackName =
-      (resource.name && `${resource.name}`.replace(/\s+/g, '_')) ||
-      resource.s3_key.split('/').pop() ||
-      'download';
+    // Build a friendly filename: prefer resource.name plus original extension
+    const keyBase = (resource.s3_key as string).split('/').pop() || '';
+    const dotIdx = keyBase.lastIndexOf('.');
+    const ext = dotIdx >= 0 ? keyBase.slice(dotIdx) : '';
+    const safeName = (resource.name || '')
+      .trim()
+      .replace(/[^\w\-.]+/g, '_')
+      .replace(/_+/g, '_');
+    const filename =
+      (safeName ? safeName + (ext && !safeName.endsWith(ext) ? ext : '') : keyBase) ||
+      ('download' + (ext || ''));
     const cmd = new GetObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME!,
       Key: resource.s3_key as string,
-      ResponseContentDisposition: `attachment; filename="${fallbackName}"`,
+      ResponseContentDisposition: `attachment; filename="${filename}"`,
     });
     const signed = await getSignedUrl(s3, cmd, { expiresIn: 60 * 5 });
     return NextResponse.redirect(signed, { status: 302 });

@@ -93,7 +93,7 @@ export async function GET(request: Request, context: { params: Promise<SlugParam
 
     const { data: resource } = await supabaseAdmin
       .from('workshop_resources')
-      .select('s3_key')
+      .select('s3_key, name')
       .eq('id', resourceId)
       .eq('workshop_id', workshop.id)
       .single();
@@ -101,13 +101,22 @@ export async function GET(request: Request, context: { params: Promise<SlugParam
       return NextResponse.json({ error: 'Resource not found' }, { status: 404 });
     }
 
-    // Derive a friendly filename from the key
+    // Derive a friendly filename: prefer resource.name plus original extension
     const key = resource.s3_key as string;
-    const fallbackName = key.split('/').pop() || 'download';
+    const keyBase = key.split('/').pop() || '';
+    const dotIdx = keyBase.lastIndexOf('.');
+    const ext = dotIdx >= 0 ? keyBase.slice(dotIdx) : '';
+    const safeName = (resource.name || '')
+      .trim()
+      .replace(/[^\w\-.]+/g, '_')
+      .replace(/_+/g, '_');
+    const filename =
+      (safeName ? safeName + (ext && !safeName.endsWith(ext) ? ext : '') : keyBase) ||
+      ('download' + (ext || ''));
     const cmd = new GetObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME!,
       Key: key,
-      ResponseContentDisposition: `attachment; filename="${fallbackName}"`,
+      ResponseContentDisposition: `attachment; filename="${filename}"`,
     });
     const signed = await getSignedUrl(s3, cmd, { expiresIn: 60 * 5 });
     return NextResponse.redirect(signed, { status: 302 });

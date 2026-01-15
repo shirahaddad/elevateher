@@ -161,10 +161,26 @@ export default function EditWorkshopPage() {
           method: 'POST',
           body: fd,
         });
-        const ujson = await upload.json();
-        if (!upload.ok) throw new Error(ujson?.error || 'Upload failed');
-        payload.s3_key = ujson.s3_key;
-        payload.mime_type = ujson.mime_type;
+        const contentType = upload.headers.get('content-type') || '';
+        let ujson: any = null;
+        let utext: string | null = null;
+        if (contentType.includes('application/json')) {
+          try {
+            ujson = await upload.json();
+          } catch {
+            utext = await upload.text().catch(() => null);
+          }
+        } else {
+          utext = await upload.text().catch(() => null);
+        }
+        if (!upload.ok) {
+          if (upload.status === 413) {
+            throw new Error('File too large to upload. Please choose a smaller file.');
+          }
+          throw new Error(ujson?.error || utext || 'Upload failed');
+        }
+        payload.s3_key = ujson?.s3_key;
+        payload.mime_type = ujson?.mime_type;
       } else {
         if (!resForm.value) throw new Error('Please enter a value');
         payload.value = resForm.value;
@@ -285,11 +301,27 @@ export default function EditWorkshopPage() {
                     method: 'POST',
                     body: fd,
                   });
-                  const data = await up.json();
-                  if (!up.ok) throw new Error(data?.error || 'Upload failed');
+                  const upContentType = up.headers.get('content-type') || '';
+                  let heroJson: any = null;
+                  let heroText: string | null = null;
+                  if (upContentType.includes('application/json')) {
+                    try {
+                      heroJson = await up.json();
+                    } catch {
+                      heroText = await up.text().catch(() => null);
+                    }
+                  } else {
+                    heroText = await up.text().catch(() => null);
+                  }
+                  if (!up.ok) {
+                    if (up.status === 413) {
+                      throw new Error('File too large for upload. Please use a smaller image.');
+                    }
+                    throw new Error(heroJson?.error || heroText || 'Upload failed');
+                  }
                   // Only update if this is the latest selected file
                   if (uploadSeqRef.current === mySeq) {
-                    setHeroKey(data.s3_key);
+                    setHeroKey((heroJson && heroJson.s3_key) || undefined as any);
                   }
                 } catch (err: any) {
                   alert(err.message || 'Failed to upload image');
