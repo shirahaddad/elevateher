@@ -55,22 +55,26 @@ export default function ResourceSection({
       )}
 
       {!unlocked ? (
-        <form onSubmit={verify} className="flex items-center gap-2">
+        <form onSubmit={verify} className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
           <input
             type="text"
             value={passkey}
             onChange={(e) => setPasskey(e.target.value)}
             placeholder="Enter passkey"
-            className="border border-gray-300 rounded px-3 py-2 text-gray-900"
+            className="border border-gray-300 rounded px-3 py-2 text-gray-900 w-full sm:flex-1 min-w-0"
           />
           <button
             type="submit"
             disabled={loading}
-            className="px-3 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700"
+            className="px-3 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700 w-full sm:w-auto"
           >
             {loading ? 'Checking...' : 'Submit'}
           </button>
-          {error && <span className="text-sm text-red-600 ml-2">{error}</span>}
+          {error && (
+            <span className="text-sm text-red-600 mt-1 sm:mt-0 sm:ml-2">
+              {error}
+            </span>
+          )}
         </form>
       ) : (
         <ul className="space-y-3">
