@@ -2,6 +2,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { workshopService } from '@/lib/api/services/workshops/workshop.service';
 
+export const revalidate = 60;
+
 export default async function PastWorkshopsPage() {
   const result: any = await workshopService.listPastWorkshops({ page: 1, limit: 50 });
   const items = result.data as any[];

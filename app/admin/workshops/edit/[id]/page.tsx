@@ -75,6 +75,8 @@ export default function EditWorkshopPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const MAX_HERO_BYTES = 10 * 1024 * 1024; // 10MB
+  const MAX_RESOURCE_BYTES = 100 * 1024 * 1024; // 100MB
 
   useEffect(() => {
     const load = async () => {
@@ -196,32 +198,30 @@ export default function EditWorkshopPage() {
       let payload: any = { name: resForm.name, kind: resForm.kind };
       if (resForm.kind === 'FILE') {
         if (!resForm.file) throw new Error('Please choose a file');
-        const fd = new FormData();
-        fd.append('file', resForm.file);
-        const upload = await fetch(`/api/admin/workshops/${form.id}/resources/upload`, {
+        if (resForm.file.size > MAX_RESOURCE_BYTES) {
+          throw new Error(`File is ${(resForm.file.size / 1024 / 1024).toFixed(1)}MB. Max allowed is ${Math.round(MAX_RESOURCE_BYTES / 1024 / 1024)}MB.`);
+        }
+        // Request a presigned PUT URL
+        const presign = await fetch(`/api/admin/workshops/${form.id}/resources/upload/presign`, {
           method: 'POST',
-          body: fd,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileName: resForm.file.name, contentType: resForm.file.type || 'application/octet-stream' }),
         });
-        const contentType = upload.headers.get('content-type') || '';
-        let ujson: any = null;
-        let utext: string | null = null;
-        if (contentType.includes('application/json')) {
-          try {
-            ujson = await upload.json();
-          } catch {
-            utext = await upload.text().catch(() => null);
-          }
-        } else {
-          utext = await upload.text().catch(() => null);
+        const presignJson = await presign.json().catch(() => ({}));
+        if (!presign.ok) {
+          throw new Error(presignJson?.error || 'Failed to prepare upload');
         }
-        if (!upload.ok) {
-          if (upload.status === 413) {
-            throw new Error('File too large to upload. Please choose a smaller file.');
-          }
-          throw new Error(ujson?.error || utext || 'Upload failed');
+        const put = await fetch(presignJson.url as string, {
+          method: 'PUT',
+          headers: { 'Content-Type': presignJson.mime_type || resForm.file.type || 'application/octet-stream' },
+          body: resForm.file,
+        });
+        if (!put.ok) {
+          const t = await put.text().catch(() => '');
+          throw new Error(t || 'Failed to upload file to storage');
         }
-        payload.s3_key = ujson?.s3_key;
-        payload.mime_type = ujson?.mime_type;
+        payload.s3_key = presignJson.s3_key;
+        payload.mime_type = presignJson.mime_type || resForm.file.type || 'application/octet-stream';
       } else {
         if (!resForm.value) throw new Error('Please enter a value');
         payload.value = resForm.value;
@@ -330,35 +330,39 @@ export default function EditWorkshopPage() {
                 // Bug 2: Track current selection to avoid race in concurrent uploads
                 const mySeq = ++uploadSeqRef.current;
                 try {
+                  if (file.size > MAX_HERO_BYTES) {
+                    throw new Error(`Image is ${(file.size / 1024 / 1024).toFixed(1)}MB. Max allowed is ${Math.round(MAX_HERO_BYTES / 1024 / 1024)}MB.`);
+                  }
+                  if (file.type && !file.type.startsWith('image/')) {
+                    throw new Error('Please upload an image file.');
+                  }
                   const previewUrl = URL.createObjectURL(file);
                   setHeroPreview(previewUrl);
                   setHeroFileName(file.name);
                 } catch {}
                 setSaving(true);
                 try {
-                  const fd = new FormData();
-                  fd.append('file', file);
-                  const up = await fetch(`/api/admin/workshops/${form.id}/hero`, {
+                  // Presign a PUT for hero (public-read)
+                  const presign = await fetch(`/api/admin/workshops/${form.id}/hero/presign`, {
                     method: 'POST',
-                    body: fd,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileName: file.name, contentType: file.type || 'image/jpeg' }),
                   });
-                  const upContentType = up.headers.get('content-type') || '';
-                  let heroJson: any = null;
-                  let heroText: string | null = null;
-                  if (upContentType.includes('application/json')) {
-                    try {
-                      heroJson = await up.json();
-                    } catch {
-                      heroText = await up.text().catch(() => null);
-                    }
-                  } else {
-                    heroText = await up.text().catch(() => null);
+                  const heroJson = await presign.json().catch(() => ({}));
+                  if (!presign.ok) {
+                    throw new Error(heroJson?.error || 'Failed to prepare hero upload');
                   }
-                  if (!up.ok) {
-                    if (up.status === 413) {
-                      throw new Error('File too large for upload. Please use a smaller image.');
-                    }
-                    throw new Error(heroJson?.error || heroText || 'Upload failed');
+                  const put = await fetch(heroJson.url as string, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': heroJson.mime_type || file.type || 'image/jpeg',
+                      ...(heroJson.requiredHeaders || {}),
+                    },
+                    body: file,
+                  });
+                  if (!put.ok) {
+                    const t = await put.text().catch(() => '');
+                    throw new Error(t || 'Failed to upload hero image to storage');
                   }
                   // Only update if this is the latest selected file
                   if (uploadSeqRef.current === mySeq) {

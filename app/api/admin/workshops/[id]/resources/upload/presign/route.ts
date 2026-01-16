@@ -1,0 +1,45 @@
+import { NextResponse } from 'next/server';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+
+type IdParams = { id: string };
+
+const isServer = typeof window === 'undefined';
+const s3 = isServer
+  ? new S3Client({
+      region: process.env.AWS_REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+      },
+    })
+  : null;
+
+export async function POST(request: Request, context: { params: Promise<IdParams> }) {
+  try {
+    if (!s3) throw new Error('S3 not available');
+    const { id: idParam } = await context.params;
+    const workshopId = Number(idParam);
+    if (!workshopId || Number.isNaN(workshopId)) {
+      return NextResponse.json({ error: 'Missing workshop id' }, { status: 400 });
+    }
+    const body = await request.json().catch(() => ({}));
+    const fileNameRaw: string = body?.fileName || '';
+    const contentTypeRaw: string = body?.contentType || 'application/octet-stream';
+    const ext = (fileNameRaw.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin';
+    const contentType = typeof contentTypeRaw === 'string' && contentTypeRaw ? contentTypeRaw : 'application/octet-stream';
+    const key = `workshops/${workshopId}/resources/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const cmd = new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME!,
+      Key: key,
+      ContentType: contentType,
+    });
+    const url = await getSignedUrl(s3, cmd, { expiresIn: 60 * 5 });
+    return NextResponse.json({ url, s3_key: key, mime_type: contentType });
+  } catch (error) {
+    console.error('Presign resource upload error:', error);
+    return NextResponse.json({ error: 'Failed to presign upload' }, { status: 500 });
+  }
+}
+
