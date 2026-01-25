@@ -377,24 +377,15 @@ export class BlogPostService {
    */
   private async invalidateBlogCache() {
     try {
-      // Call the cache invalidation endpoint
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-      await fetch(`${baseUrl}/api/admin/cache`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ type: 'all' }),
-      });
-    } catch (error) {
-      console.error('Failed to invalidate cache via endpoint:', error);
-      // Fallback to direct cache invalidation
+      // Direct cache invalidation
       const stats = appCache.getStats();
       stats.keys.forEach(key => {
-        if (key.startsWith('blog_posts:') || key.startsWith('blog_post:')) {
+        if (key.startsWith('blog_posts:') || key.startsWith('blog_post:') || key.startsWith('blog_tags:')) {
           appCache.delete(key);
         }
       });
+    } catch (error) {
+      console.error('Failed to invalidate cache:', error);
     }
   }
 } 

@@ -72,10 +72,9 @@ export const supabaseAdmin = createOptimizedClient(supabaseUrl, supabaseServiceK
 // Connection pool management utilities
 export class ConnectionPoolManager {
   private static instance: ConnectionPoolManager;
-  private healthCheckInterval: NodeJS.Timeout | null = null;
 
   private constructor() {
-    this.startHealthCheck();
+    // No initialization needed
   }
 
   static getInstance(): ConnectionPoolManager {
@@ -115,35 +114,8 @@ export class ConnectionPoolManager {
       });
   }
 
-  // Health check for connection pool
-  private async startHealthCheck(): Promise<void> {
-    this.healthCheckInterval = setInterval(async () => {
-      try {
-        // Simple health check query
-        const result = await this.trackOperation(async () => {
-          const { data, error } = await supabaseAdmin
-            .from('posts')
-            .select('id')
-            .limit(1);
-          return { data, error };
-        });
-        
-        if (result.error) {
-          console.warn('Connection pool health check failed:', result.error.message);
-        }
-      } catch (error) {
-        console.error('Health check error:', error);
-      }
-    }, 30000); // Check every 30 seconds
-  }
-
   // Graceful shutdown
   async shutdown(): Promise<void> {
-    if (this.healthCheckInterval) {
-      clearInterval(this.healthCheckInterval);
-      this.healthCheckInterval = null;
-    }
-    
     // Wait for active connections to complete
     await new Promise(resolve => setTimeout(resolve, 1000));
     

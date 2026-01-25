@@ -193,33 +193,6 @@ export default function AdminDashboard() {
             </p>
           </Link>
 
-          <Link 
-            href="/admin/connection-pool"
-            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
-          >
-            <div className="flex items-center mb-3">
-              <div className="text-2xl mr-3">🔗</div>
-              <h3 className="text-lg font-semibold">Connection Pool</h3>
-            </div>
-            <p className="text-blue-100 text-sm">
-              Monitor database performance and connection health
-            </p>
-          </Link>
-          
-          <Link 
-            href="/admin/cache"
-            className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
-          >
-            <div className="flex items-center mb-3">
-              <div className="text-2xl mr-3">⚡</div>
-              <h3 className="text-lg font-semibold">Cache Monitor</h3>
-            </div>
-            <p className="text-orange-100 text-sm">
-              Monitor and manage application caching
-            </p>
-          </Link>
-          
-
         </div>
       </div>
     </div>
