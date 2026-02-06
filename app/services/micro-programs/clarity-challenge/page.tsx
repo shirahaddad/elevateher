@@ -146,6 +146,35 @@ export default function ClarityChallenge() {
             </div>
           </div>
         </section>
+
+        {/* Bottom row: Start Today (33%) + What's Included (66%) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mt-12">
+          <Link
+            href="#signup"
+            className="md:col-span-1 flex flex-col justify-center bg-purple-100 rounded-2xl shadow-xl p-8 border-l-4 border-purple-500 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 block order-2 md:order-1"
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold text-purple-900 mb-4 inline-flex items-center gap-2">
+              Start Today
+              <svg className="w-6 h-6 sm:w-7 sm:h-7 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </h2>
+            <p className="text-sm text-gray-500">Price:</p>
+            <p className="text-xl font-bold text-purple-900">$49</p>
+          </Link>
+          <div className="md:col-span-2 bg-purple-900 rounded-2xl shadow-xl p-8 border border-purple-800 order-1 md:order-2">
+            <h2 className="text-2xl font-bold text-white mb-4 pb-4 border-b border-white/20">
+              What&apos;s Included
+            </h2>
+            <ul className="space-y-3 text-white text-purple-100 list-disc list-inside">
+              <li>Daily guided reflections</li>
+              <li>A simple clarity framework you can reuse</li>
+              <li>Skill-identification exercises</li>
+              <li>One confidence-building action step</li>
+              <li>Optional community support</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
