@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import JSZip from 'jszip';
-import { uploadPublicBlob } from '@/lib/storage';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+
+/** True when S3 is configured; when false, we use data URLs for assets so parse works without AWS. */
+function isStorageConfigured(): boolean {
+  return !!(
+    process.env.AWS_REGION &&
+    process.env.AWS_ACCESS_KEY_ID &&
+    process.env.AWS_SECRET_ACCESS_KEY &&
+    process.env.AWS_BUCKET_NAME
+  );
+}
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -113,7 +122,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No HTML file found in ZIP' }, { status: 400 });
     }
 
-    // Second pass: upload images/* (or any referenced assets)
+    // Second pass: upload images to S3 when configured, otherwise use data URLs (e.g. local dev without AWS)
+    const useS3 = isStorageConfigured();
     const uploadPromises: Array<Promise<void>> = [];
     zip.forEach((relativePath, entry) => {
       if (entry.dir) return;
@@ -124,7 +134,15 @@ export async function POST(request: NextRequest) {
             const arrayBuffer = await entry.async('arraybuffer');
             const contentType = guessContentType(relativePath);
             const blobKey = `newsletter-assets/${Date.now()}-${relativePath.replace(/[^a-zA-Z0-9._/-]+/g, '_')}`;
-            const { url } = await uploadPublicBlob(blobKey, arrayBuffer, contentType);
+            let url: string;
+            if (useS3) {
+              const { uploadPublicBlob } = await import('@/lib/storage');
+              const result = await uploadPublicBlob(blobKey, arrayBuffer, contentType);
+              url = result.url;
+            } else {
+              const base64 = Buffer.from(arrayBuffer).toString('base64');
+              url = `data:${contentType};base64,${base64}`;
+            }
             // Store by several keys to maximize hit chance during rewrite
             assetUploads[relativePath] = url;
             assetUploads[relativePath.replace(/^\.?\//, '')] = url;

@@ -1,6 +1,14 @@
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-})
+// Conditionally load bundle analyzer only if ANALYZE is true and package is installed
+let withBundleAnalyzer = (config) => config;
+if (process.env.ANALYZE === 'true') {
+  try {
+    withBundleAnalyzer = require('@next/bundle-analyzer')({
+      enabled: true,
+    });
+  } catch (e) {
+    console.warn('@next/bundle-analyzer not found. Install it with: npm install --save-dev @next/bundle-analyzer');
+  }
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

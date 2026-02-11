@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 
 type Campaign = {
@@ -27,22 +27,35 @@ export default function CampaignsPage() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch('/api/admin/newsletter/campaigns?limit=100', { cache: 'no-store' });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed to load campaigns');
-        setItems(data.campaigns || []);
-      } catch (e: any) {
-        setError(e.message || 'Failed to load campaigns');
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+  const loadCampaigns = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/newsletter/campaigns?limit=100', { cache: 'no-store' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to load campaigns');
+      setItems(data.campaigns || []);
+    } catch (e: any) {
+      setError(e.message || 'Failed to load campaigns');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    loadCampaigns();
+  }, [loadCampaigns]);
+
+  // Auto-refresh every 5 seconds if there are in-progress campaigns
+  useEffect(() => {
+    const hasInProgress = items.some(c => !c.completed_at);
+    if (!hasInProgress) return;
+
+    const interval = setInterval(() => {
+      loadCampaigns();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [items, loadCampaigns]);
 
   const publish = async (campaignId: number) => {
     setError(null);
@@ -115,6 +128,7 @@ export default function CampaignsPage() {
                 <tr className="text-left">
                   <th className="px-4 py-2">Created</th>
                   <th className="px-4 py-2">Subject</th>
+                  <th className="px-4 py-2">Status</th>
                   <th className="px-4 py-2">Sent By</th>
                   <th className="px-4 py-2">Total</th>
                   <th className="px-4 py-2">Success</th>
@@ -123,10 +137,29 @@ export default function CampaignsPage() {
                 </tr>
               </thead>
               <tbody>
-                {items.map((c) => (
+                {items.map((c) => {
+                  const status = c.completed_at ? 'completed' : 'in_progress';
+                  const progress = c.total > 0 ? Math.round(((c.success_count + c.error_count) / c.total) * 100) : 0;
+                  return (
                   <tr key={c.id} className="border-t">
                     <td className="px-4 py-2">{new Date(c.created_at || c.started_at).toLocaleString()}</td>
                     <td className="px-4 py-2">{c.subject}</td>
+                    <td className="px-4 py-2">
+                      {status === 'completed' ? (
+                        <span className="text-green-700 font-medium">✅ Completed</span>
+                      ) : (
+                        <div className="flex flex-col gap-1">
+                          <span className="text-blue-700 font-medium">⏳ In Progress</span>
+                          <div className="w-24 bg-gray-200 rounded-full h-1.5">
+                            <div 
+                              className="bg-blue-600 h-1.5 rounded-full transition-all" 
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-gray-600">{progress}% ({c.success_count + c.error_count}/{c.total})</span>
+                        </div>
+                      )}
+                    </td>
                     <td className="px-4 py-2">{c.sent_by || '—'}</td>
                     <td className="px-4 py-2">{c.total}</td>
                     <td className="px-4 py-2 text-green-700">{c.success_count}</td>
@@ -163,7 +196,8 @@ export default function CampaignsPage() {
                       )}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

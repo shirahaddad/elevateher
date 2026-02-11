@@ -19,15 +19,11 @@ function AnalyticsTrackerImplementation() {
          !window.location.hostname.includes('elevateher.tech'));
       
       if (isAdminPage || isVercelPreview) {
-        console.log('📊 Analytics: Skipping tracking for:', pathname, 
-          isAdminPage ? '(admin page)' : '(vercel preview)');
         return;
       }
-      
+
       // Track page view on route changes
       const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
-      
-      console.log('📊 Analytics: Tracking page view for:', url);
       
       // Track with Google Analytics
       trackPageView(url);

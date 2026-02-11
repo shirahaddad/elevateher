@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react';
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [googleLoading, setGoogleLoading] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -82,10 +83,40 @@ export default function AdminLogin() {
         <div className="mt-8 flex flex-col items-center">
           <span className="text-gray-500 mb-2">or</span>
           <button
-            onClick={() => signIn('google')}
-            className="w-full bg-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mt-2"
+            onClick={async (e) => {
+              e.preventDefault();
+              setError('');
+              setGoogleLoading(true);
+              try {
+                const result = await signIn('google', {
+                  callbackUrl: '/admin',
+                  redirect: false,
+                });
+                // For OAuth providers, NextAuth redirects internally and returns undefined - that's success
+                if (result === undefined) {
+                  return; // Redirect to Google already in progress
+                }
+                if (result?.error) {
+                  setError(`Google sign-in failed: ${result.error}`);
+                  setGoogleLoading(false);
+                } else if (result?.url) {
+                  window.location.href = result.url;
+                } else if (result?.ok) {
+                  router.push('/admin');
+                } else {
+                  setError('Unexpected response from sign-in');
+                  setGoogleLoading(false);
+                }
+              } catch (err: any) {
+                setError(`Google sign-in error: ${err?.message || 'Unknown error'}`);
+                setGoogleLoading(false);
+              }
+            }}
+            type="button"
+            disabled={googleLoading}
+            className="w-full bg-purple-600 disabled:bg-purple-300 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mt-2"
           >
-            Sign in with Google
+            {googleLoading ? 'Signing in...' : 'Sign in with Google'}
           </button>
         </div>
       </div>

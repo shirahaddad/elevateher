@@ -45,6 +45,7 @@ export default function NewsletterTestPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<Array<{ email: string; error: string }>>([]);
   const [customRecipients, setCustomRecipients] = useState('');
+  const [lastCampaignId, setLastCampaignId] = useState<number | null>(null);
 
   const previewHtml = useMemo(() => {
     if (!parseResult?.html) return '';
@@ -276,6 +277,7 @@ export default function NewsletterTestPage() {
               onClick={async () => {
                 setMessage(null);
                 setErrorDetails([]);
+                setLastCampaignId(null);
                 if (!canBroadcast || !parseResult?.html) return;
                 if (!window.confirm(`Send to ${recipientCount ?? 'all'} subscribed recipients?`)) return;
                 setSending(true);
@@ -290,11 +292,36 @@ export default function NewsletterTestPage() {
                     }),
                   });
                   const data = await res.json();
-                  if (!res.ok) throw new Error(data.error || 'Broadcast failed');
-                  setMessage(`Broadcast complete: sent ${data.sent}/${data.total}. ${data.failed} failed.`);
+                  if (!res.ok) {
+                    // Handle partial results or errors
+                    const campaignId = data.campaignId;
+                    if (campaignId) {
+                      setLastCampaignId(campaignId);
+                      if (data.partial) {
+                        setMessage(
+                          `⚠️ Broadcast encountered an error but partially completed: sent ${data.sent}/${data.total}. ${data.failed} failed. ` +
+                          `Campaign ID: ${campaignId}. Check status below or view campaign history.`
+                        );
+                      } else {
+                        setMessage(
+                          `❌ Broadcast failed: ${data.error || 'Unknown error'}. ` +
+                          `Campaign ID: ${campaignId}. Check status below or view campaign history.`
+                        );
+                      }
+                    } else {
+                      setMessage(data.error || 'Broadcast failed');
+                    }
+                    setErrorDetails(Array.isArray(data.errors) ? data.errors : []);
+                    return;
+                  }
+                  // Success case
+                  if (data.campaignId) {
+                    setLastCampaignId(data.campaignId);
+                  }
+                  setMessage(`✅ Broadcast complete: sent ${data.sent}/${data.total}. ${data.failed} failed.`);
                   setErrorDetails(Array.isArray(data.errors) ? data.errors : []);
                 } catch (e: any) {
-                  setMessage(e.message || 'Broadcast failed');
+                  setMessage(`❌ Broadcast failed: ${e.message || 'Unknown error'}. Check campaign history for details.`);
                 } finally {
                   setSending(false);
                 }
@@ -317,7 +344,47 @@ export default function NewsletterTestPage() {
                 </ul>
               </div>
             )}
-            {message && <p className="mt-2 text-sm text-gray-700">{message}</p>}
+            {message && (
+              <div className="mt-2">
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">{message}</p>
+                {lastCampaignId && (
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch(`/api/admin/newsletter/campaigns/${lastCampaignId}`);
+                          const data = await res.json();
+                          if (res.ok && data.campaign) {
+                            const c = data.campaign;
+                            setMessage(
+                              `📊 Campaign Status (ID: ${c.id}):\n` +
+                              `Status: ${c.status === 'completed' ? '✅ Completed' : '⏳ In Progress'}\n` +
+                              `Sent: ${c.success_count}/${c.total}\n` +
+                              `Failed: ${c.error_count}\n` +
+                              `Started: ${new Date(c.started_at).toLocaleString()}\n` +
+                              (c.completed_at ? `Completed: ${new Date(c.completed_at).toLocaleString()}` : 'Still processing...')
+                            );
+                          } else {
+                            setMessage(`Failed to load campaign status: ${data.error || 'Unknown error'}`);
+                          }
+                        } catch (e: any) {
+                          setMessage(`Error checking status: ${e.message || 'Unknown error'}`);
+                        }
+                      }}
+                      className="text-xs px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded"
+                    >
+                      Check Status
+                    </button>
+                    <a
+                      href="/admin/newsletter/campaigns"
+                      className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded inline-block"
+                    >
+                      View All Campaigns
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
             {errorDetails.length > 0 && (
               <div className="mt-3">
                 <details className="text-sm">

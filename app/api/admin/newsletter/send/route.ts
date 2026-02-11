@@ -140,58 +140,66 @@ export async function POST(request: NextRequest) {
     const perSendDelayMs = Math.ceil(1000 / requestsPerSecond) + 50; // small cushion
     let sent = 0;
     const errors: Array<{ email: string; error: string }> = [...invalids];
+    let sendError: Error | null = null;
 
-    for (let i = 0; i < list.length; i += batchSize) {
-      const batch = list.slice(i, i + batchSize);
-      for (const rec of batch) {
-        const firstName = (rec.name?.trim()?.split(/\s+/)[0]) || rec.email.split('@')[0];
-        const unsubscribeUrl = `${appUrl.replace(/\/+$/, '')}/api/newsletter/unsubscribe?id=${encodeURIComponent(rec.public_id)}`;
-        const html = substitute(body.html, { firstName, publicID: rec.public_id, unsubscribeUrl });
-        const text = body.text ? substitute(body.text, { firstName, publicID: rec.public_id, unsubscribeUrl }) : undefined;
-        try {
-          const { error } = await resend.emails.send({
-            from,
-            to: rec.email,
-            subject: body.subject,
-            html,
-            text,
-          } as any);
-          if (error) {
-            errors.push({ email: rec.email, error: error.message || 'send error' });
-          } else {
-            sent++;
-          }
-        } catch (e: any) {
-          const msg = e?.message || 'send exception';
-          // Basic 429 backoff: wait and retry once
-          if (/too many requests|rate limit/i.test(msg)) {
-            await new Promise((res) => setTimeout(res, perSendDelayMs * 2));
-            try {
-              const { error } = await resend.emails.send({
-                from,
-                to: rec.email,
-                subject: body.subject,
-                html,
-                text,
-              } as any);
-              if (error) {
-                errors.push({ email: rec.email, error: `retry: ${error.message || msg}` });
-              } else {
-                sent++;
-              }
-            } catch (e2: any) {
-              errors.push({ email: rec.email, error: `retry: ${e2?.message || msg}` });
+    try {
+      for (let i = 0; i < list.length; i += batchSize) {
+        const batch = list.slice(i, i + batchSize);
+        for (const rec of batch) {
+          const firstName = (rec.name?.trim()?.split(/\s+/)[0]) || rec.email.split('@')[0];
+          const unsubscribeUrl = `${appUrl.replace(/\/+$/, '')}/api/newsletter/unsubscribe?id=${encodeURIComponent(rec.public_id)}`;
+          const html = substitute(body.html, { firstName, publicID: rec.public_id, unsubscribeUrl });
+          const text = body.text ? substitute(body.text, { firstName, publicID: rec.public_id, unsubscribeUrl }) : undefined;
+          try {
+            const { error } = await resend.emails.send({
+              from,
+              to: rec.email,
+              subject: body.subject,
+              html,
+              text,
+            } as any);
+            if (error) {
+              errors.push({ email: rec.email, error: error.message || 'send error' });
+            } else {
+              sent++;
             }
-          } else {
-            errors.push({ email: rec.email, error: msg });
+          } catch (e: any) {
+            const msg = e?.message || 'send exception';
+            // Basic 429 backoff: wait and retry once
+            if (/too many requests|rate limit/i.test(msg)) {
+              await new Promise((res) => setTimeout(res, perSendDelayMs * 2));
+              try {
+                const { error } = await resend.emails.send({
+                  from,
+                  to: rec.email,
+                  subject: body.subject,
+                  html,
+                  text,
+                } as any);
+                if (error) {
+                  errors.push({ email: rec.email, error: `retry: ${error.message || msg}` });
+                } else {
+                  sent++;
+                }
+              } catch (e2: any) {
+                errors.push({ email: rec.email, error: `retry: ${e2?.message || msg}` });
+              }
+            } else {
+              errors.push({ email: rec.email, error: msg });
+            }
           }
+          // Throttle between individual sends
+          await new Promise((res) => setTimeout(res, perSendDelayMs));
         }
-        // Throttle between individual sends
-        await new Promise((res) => setTimeout(res, perSendDelayMs));
+        // No additional batch delay needed since we throttle per send
       }
-      // No additional batch delay needed since we throttle per send
+    } catch (error) {
+      // Capture error but continue to update campaign record
+      sendError = error instanceof Error ? error : new Error(String(error));
+      console.error('Error during send loop:', sendError);
     }
 
+    // Always update campaign record with current progress, even if there was an error
     if (campaignId) {
       try {
         await updateCampaignFinish(campaignId, sent, errors.length);
@@ -200,10 +208,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // If there was an error during sending, return partial results with campaign ID
+    if (sendError) {
+      const errorSample = errors.slice(0, 100);
+      return NextResponse.json({
+        success: false,
+        error: sendError.message || 'Send process encountered an error',
+        campaignId,
+        total,
+        sent,
+        failed: errors.length,
+        errors: errorSample,
+        partial: true, // Indicates this is a partial result
+      }, { status: 500 });
+    }
+
     // Trim error details to max 100 for payload size
     const errorSample = errors.slice(0, 100);
     return NextResponse.json({
       success: true,
+      campaignId,
       total,
       sent,
       failed: errors.length,
@@ -211,7 +235,25 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('POST /api/admin/newsletter/send error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    // Try to update campaign record even on catastrophic error
+    if (campaignId) {
+      try {
+        const { data: campaign } = await supabaseAdmin
+          .from('newsletter_campaign_logs')
+          .select('success_count, error_count')
+          .eq('id', campaignId)
+          .single();
+        const currentSent = campaign?.success_count || 0;
+        const currentFailed = campaign?.error_count || 0;
+        await updateCampaignFinish(campaignId, currentSent, currentFailed);
+      } catch (e) {
+        console.warn('Failed to update campaign on error:', (e as any)?.message || e);
+      }
+    }
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      campaignId: campaignId || undefined,
+    }, { status: 500 });
   }
 }
 
