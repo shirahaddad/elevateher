@@ -7,7 +7,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-purple-900 shadow-sm">
+    <header className="sticky top-0 z-50 bg-purple-900 shadow-sm">
       <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold text-white uppercase">
           Elevate(Her)
