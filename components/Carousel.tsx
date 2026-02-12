@@ -80,8 +80,8 @@ export default function Carousel({ cards }: CarouselProps) {
             sizes="(max-width: 768px) 100vw, 1152px"
           />
           {card.text && (
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-              <p className="text-white text-left text-lg sm:text-xl md:text-2xl font-medium drop-shadow-sm" style={{ fontFamily: '"Georgia Pro Condensed", Georgia, serif' }}>
+            <div className="absolute bottom-0 left-0 right-0 py-1.5 px-2 sm:py-2 sm:px-3 md:p-4 bg-gradient-to-t from-black/70 to-transparent">
+              <p className="text-white text-left text-xs sm:text-base md:text-xl lg:text-2xl font-medium drop-shadow-sm leading-tight line-clamp-2 sm:line-clamp-none" style={{ fontFamily: '"Georgia Pro Condensed", Georgia, serif' }}>
                 {card.text}
               </p>
             </div>
