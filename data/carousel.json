@@ -1,0 +1,21 @@
+[
+  {
+    "id": "card-1",
+    "image": "clarity-challenge.png",
+    "text": "",
+    "link": "/services/micro-programs/clarity-challenge"
+  },
+
+  {
+    "id": "card-2",
+    "image": "workshop1.png",
+    "text": "April 15, 1pm ET",
+    "link": "/services/workshops/upleveling-leadership"
+  },
+
+  {
+    "id": "card-3",
+    "image": "community1.png",
+    "link": "/services/community"
+  }
+]

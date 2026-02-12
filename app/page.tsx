@@ -1,5 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Carousel, { type CarouselCard } from '@/components/Carousel';
+import carouselCardsData from '@/data/carousel.json';
+
+const carouselCards = carouselCardsData as CarouselCard[];
 
 export default function Home() {
   return (
@@ -38,6 +42,15 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Carousel Section */}
+      {carouselCards.length > 0 && (
+        <section className="py-8 sm:py-12 px-4" aria-label="Featured">
+          <div className="max-w-6xl mx-auto">
+            <Carousel cards={carouselCards} />
+          </div>
+        </section>
+      )}
 
       {/* Services Section */}
       <section className="py-8 sm:py-12 md:py-16 px-4 bg-purple-50">
