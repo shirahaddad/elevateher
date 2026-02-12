@@ -2,6 +2,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
 
+const CLARITY_CHALLENGE_PAYMENT_URL =
+  'https://connect.intuit.com/portal/app/CommerceNetwork/view/scs-v1-9a4315ec38d84026b507260082a93a546539af0063a647ddac78bd0652e7a280468bd8089b794de4af1e047fa043c01b?locale=EN_US';
+
 export const metadata: Metadata = {
   title: 'Clarity Challenge | Elevate(Her)',
   description: 'A 7-day guided challenge to get clarity on what matters most, see your transferable skills, and take one aligned step that creates real momentum.',
@@ -56,7 +59,9 @@ export default function ClarityChallenge() {
 
           {/* Right card — CTA (1/3 width), clickable (Option A: refined white) */}
           <Link
-            href="#signup"
+            href={CLARITY_CHALLENGE_PAYMENT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="md:col-span-1 flex flex-col justify-center bg-purple-100 rounded-2xl shadow-xl p-8 border-l-4 border-purple-500 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 block"
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-purple-900 mb-4 inline-flex items-center gap-2">
@@ -66,7 +71,10 @@ export default function ClarityChallenge() {
               </svg>
             </h2>
             <p className="text-sm text-gray-500">Price:</p>
-            <p className="text-xl font-bold text-purple-900">$49</p>
+            <p className="text-xl font-bold text-purple-900 mb-3">$49</p>
+            <p className="text-sm text-gray-600">
+              You&apos;ll be taken to a secure payment page. After you&apos;re all set, we&apos;ll send your first program email.
+            </p>
           </Link>
         </div>
 
@@ -150,7 +158,9 @@ export default function ClarityChallenge() {
         {/* Bottom row: Start Today (33%) + What's Included (66%) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mt-12">
           <Link
-            href="#signup"
+            href={CLARITY_CHALLENGE_PAYMENT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="md:col-span-1 flex flex-col justify-center bg-purple-100 rounded-2xl shadow-xl p-8 border-l-4 border-purple-500 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 block order-2 md:order-1"
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-purple-900 mb-4 inline-flex items-center gap-2">
@@ -160,7 +170,10 @@ export default function ClarityChallenge() {
               </svg>
             </h2>
             <p className="text-sm text-gray-500">Price:</p>
-            <p className="text-xl font-bold text-purple-900">$49</p>
+            <p className="text-xl font-bold text-purple-900 mb-3">$49</p>
+            <p className="text-sm text-gray-600">
+              You&apos;ll be taken to a secure payment page. After you&apos;re all set, we&apos;ll send your first program email.
+            </p>
           </Link>
           <div className="md:col-span-2 bg-purple-900 rounded-2xl shadow-xl p-8 border border-purple-800 order-1 md:order-2">
             <h2 className="text-2xl font-bold text-white mb-4 pb-4 border-b border-white/20">
