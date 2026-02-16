@@ -220,20 +220,24 @@ export const deleteS3File = async (key: string, isFolder: boolean = false): Prom
 };
 
 /**
- * Gets the full URL for an S3 object
+ * Gets the full public URL for an S3 object (synchronous, for client-side use).
+ * Use this when the object is public and you only need the URL string.
+ * @param key - The key of the S3 object (or full URL)
+ * @returns The full URL
+ */
+export function getS3PublicUrl(key: string): string {
+  if (!key) return '';
+  if (key.startsWith('http')) return key;
+  const bucketName = process.env.NEXT_PUBLIC_AWS_BUCKET_NAME || process.env.AWS_BUCKET_NAME || 'elevateher-blog-images';
+  const region = process.env.NEXT_PUBLIC_AWS_REGION || process.env.AWS_REGION || 'us-east-1';
+  return `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
+}
+
+/**
+ * Gets the full URL for an S3 object (async for compatibility with server callers).
  * @param key - The key of the S3 object
  * @returns The full URL
  */
 export const getS3Url = async (key: string): Promise<string> => {
-  if (!key) return '';
-  
-  // If the key is already a full URL, return it as is
-  if (key.startsWith('http')) {
-    return key;
-  }
-
-  // Always construct the URL directly using the bucket name and region
-  const bucketName = process.env.NEXT_PUBLIC_AWS_BUCKET_NAME || process.env.AWS_BUCKET_NAME || 'elevateher-blog-images';
-  const region = process.env.NEXT_PUBLIC_AWS_REGION || process.env.AWS_REGION || 'us-east-1';
-  return `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
+  return getS3PublicUrl(key);
 }; 

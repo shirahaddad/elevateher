@@ -84,6 +84,7 @@ export default function InfiniteScroll({ initialPosts, initialHasMore, selectedT
             image_url={post.image_url}
             tags={post.post_tags?.map(tag => tag.tags?.name).filter(Boolean) || []}
             excerpt={post.excerpt}
+            priority={index < 2}
           />
         </div>
       ))}

@@ -9,7 +9,7 @@ async function loadEntry(slug: string) {
   const proto = h.get('x-forwarded-proto') || 'http';
   const host = h.get('x-forwarded-host') || h.get('host') || 'localhost:3000';
   const base = `${proto}://${host}`;
-  const res = await fetch(`${base}/api/newsletter/archive/${encodeURIComponent(slug)}`, { cache: 'no-store' });
+  const res = await fetch(`${base}/api/newsletter/archive/${encodeURIComponent(slug)}`, { next: { revalidate: 300 } });
   if (!res.ok) return null;
   const data = await res.json();
   return data;

@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { getS3Url } from '@/lib/s3Utils';
+import { getS3PublicUrl } from '@/lib/s3Utils';
 
 interface PostCardProps {
   title: string;
@@ -13,6 +12,8 @@ interface PostCardProps {
   image_url?: string;
   tags?: (string | null | undefined)[];
   excerpt?: string;
+  /** Set true for the first 1–2 cards above the fold so their images load first; rest stay lazy. */
+  priority?: boolean;
 }
 
 function formatDate(dateString: string) {
@@ -30,34 +31,11 @@ export default function PostCard({
   published_at,
   image_url,
   tags = [],
-  excerpt
+  excerpt,
+  priority = false,
 }: PostCardProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const formattedDate = formatDate(published_at);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadImage = async () => {
-      if (!image_url) return;
-      
-      try {
-        const url = await getS3Url(image_url);
-        if (isMounted) {
-          setImageUrl(url);
-        }
-      } catch (error) {
-        console.error('Error loading image:', error);
-      }
-    };
-
-    loadImage();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [image_url]);
-
+  const imageUrl = image_url ? getS3PublicUrl(image_url) : null;
   const validTags = tags.filter((tag): tag is string => typeof tag === 'string');
 
   return (
@@ -71,7 +49,7 @@ export default function PostCard({
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              priority={false}
+              priority={priority}
             />
           ) : image_url ? (
             <div className="w-full h-full bg-gray-200 animate-pulse" />

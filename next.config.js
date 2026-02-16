@@ -19,10 +19,25 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: [
-      'localhost',
-      'elevateher.tech',
-      'elevateher-blog-images.s3.us-east-1.amazonaws.com'
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'elevateher-blog-images.s3.us-east-1.amazonaws.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'elevateher.tech',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '',
+        pathname: '/**',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -36,7 +51,7 @@ const nextConfig = {
   webpack: (config, { dev, isServer }) => {
     // Enable tree shaking
     config.optimization.usedExports = true;
-    config.optimization.sideEffects = false;
+    // Avoid global sideEffects: false - can break packages that rely on side effects
     
     // Optimize bundle splitting
     if (!dev && !isServer) {

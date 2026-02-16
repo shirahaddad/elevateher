@@ -114,6 +114,7 @@ export default function InfiniteScroll({ initialPosts, initialHasMore, selectedT
             image_url={post.image_url}
             tags={getPostTags(post)}
             excerpt={post.excerpt}
+            priority={index < 2}
           />
         </div>
       ))}

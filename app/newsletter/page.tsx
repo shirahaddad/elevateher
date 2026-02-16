@@ -12,7 +12,7 @@ async function loadArchive() {
   const proto = h.get('x-forwarded-proto') || 'http';
   const host = h.get('x-forwarded-host') || h.get('host') || 'localhost:3000';
   const base = `${proto}://${host}`;
-  const res = await fetch(`${base}/api/newsletter/archive?limit=50`, { cache: 'no-store' });
+  const res = await fetch(`${base}/api/newsletter/archive?limit=50`, { next: { revalidate: 300 } });
   if (!res.ok) {
     return [];
   }
