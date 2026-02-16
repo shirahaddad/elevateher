@@ -81,13 +81,18 @@ export default function Mentoring() {
           Back to Services
         </Link>
         
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Mentoring</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Grow in your role with honest advice, confidence-building, and practical skill development
+        <section className="text-center mb-16" aria-labelledby="mentoring-heading">
+          <h1 id="mentoring-heading" className="text-4xl font-bold mb-4 text-purple-900 tracking-tight">Mentoring</h1>
+          <p className="text-lg text-gray-700 max-w-2xl mx-auto mb-4">
+            Elevate(Her) mentoring gives women in tech honest advice, confidence-building, and practical skill development through single sessions or a 10-session series.
           </p>
-        </div>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Grow in your role with honest advice, confidence-building, and practical skill development.
+          </p>
+        </section>
 
+        <section aria-labelledby="mentoring-options-heading">
+          <h2 id="mentoring-options-heading" className="sr-only">Mentoring options</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {mentoringOptions.map((option, index) => (
             <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -151,6 +156,7 @@ export default function Mentoring() {
             </div>
           ))}
         </div>
+        </section>
       </div>
     </div>
   );

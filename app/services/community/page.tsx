@@ -90,12 +90,15 @@ export default function Community() {
           Back to Services
         </Link>
         
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Community</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Join a supportive network of other women in tech. Connect, learn, and grow together in our vibrant community.
+        <section className="text-center mb-16" aria-labelledby="community-heading">
+          <h1 id="community-heading" className="text-4xl font-bold mb-4 text-purple-900 tracking-tight">Community</h1>
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-4">
+            The Elevate(Her) community is a supportive network of women in tech where you can connect, learn, and grow together.
           </p>
-        </div>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Join your peers on their journey to success and be the first to know when community events launch.
+          </p>
+        </section>
 
         <div className="grid md:grid-cols-2 gap-12">
           {/* Community Waitlist */}
@@ -112,7 +115,12 @@ export default function Community() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-6"
+              aria-label="Join community waitlist"
+              noValidate
+            >
               {/* Honeypot field - hidden from users */}
               <div style={{ display: 'none' }}>
                 <input
@@ -172,7 +180,7 @@ export default function Community() {
               </div>
 
               {error && (
-                <div className="text-red-600 text-sm mt-2" role="alert" aria-live="polite">
+                <div id="community-form-error" className="text-red-600 text-sm mt-2" role="alert" aria-live="polite">
                   {error}
                 </div>
               )}
@@ -183,6 +191,7 @@ export default function Community() {
                 className={`w-full bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl ${
                   isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-purple-700'
                 }`}
+                aria-describedby={error ? 'community-form-error' : undefined}
               >
                 {isSubmitting ? 'Joining Community...' : 'Join Community Waitlist'}
               </button>

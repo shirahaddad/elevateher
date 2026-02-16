@@ -93,7 +93,13 @@ function LearnMoreForm() {
           </p>
         </div>
 
-        <form id="learn-more-form" onSubmit={handleSubmit} className="space-y-8 bg-white rounded-2xl shadow-xl p-8">
+        <form
+          id="learn-more-form"
+          onSubmit={handleSubmit}
+          className="space-y-8 bg-white rounded-2xl shadow-xl p-8"
+          aria-label="Learn more contact form"
+          noValidate
+        >
           {/* Honeypot field - hidden from users */}
           <div style={{ display: 'none' }}>
             <input
@@ -165,7 +171,7 @@ function LearnMoreForm() {
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm mt-2" role="alert" aria-live="polite">
+            <div id="learn-more-error" className="text-red-600 text-sm mt-2" role="alert" aria-live="polite">
               {error}
             </div>
           )}
@@ -176,6 +182,7 @@ function LearnMoreForm() {
             className={`w-full bg-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold transition-colors shadow-lg hover:shadow-xl ${
               isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-purple-700'
             }`}
+            aria-describedby={error ? 'learn-more-error' : undefined}
           >
             {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>

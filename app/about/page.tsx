@@ -8,8 +8,10 @@ export default function About() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 py-16">
-        <h1 className="text-4xl font-bold mb-8 text-purple-900 tracking-tight">About Us</h1>
-        
+        <h1 className="text-4xl font-bold mb-4 text-purple-900 tracking-tight">About Us</h1>
+        <p className="text-lg text-gray-700 mb-6">
+          Elevate(Her) provides women-in-tech career coaching and leadership development through a unique two-coaches approach: real-world tech leadership plus proven coaching methods.
+        </p>
         <div className="prose prose-lg max-w-none text-gray-600 space-y-6 mb-8">
           <p>
             We help professionals in tech step into their power with purpose. Whether you're newly promoted or eyeing your next big move, our unique two-coaches approach gives you double the insight, strategy, and support.
@@ -22,6 +24,7 @@ export default function About() {
           </p>
         </div>
 
+        <h2 className="text-2xl font-bold text-purple-900 mb-6">Our coaches</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {TEAM.map((coach) => (
             <div key={coach.slug} className="group relative">

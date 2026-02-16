@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
 
+export const metadata = {
+  title: 'Newsletter Archive',
+  description:
+    'Browse past Elevate(Her) newsletters on women in tech, leadership, and career development.',
+};
+
 async function loadArchive() {
   const h = headers();
   const proto = h.get('x-forwarded-proto') || 'http';

@@ -15,24 +15,34 @@ async function loadEntry(slug: string) {
   return data;
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const entry = await loadEntry(params.slug);
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const entry = await loadEntry(slug);
   if (!entry) return { title: 'Newsletter' };
   const title = entry.subject || 'Newsletter';
   return {
     title,
-    description: 'A past Elevate(Her) newsletter.',
+    description: `Read "${title}" in the Elevate(Her) newsletter archive. Past issues on women in tech, leadership, and career development.`,
     openGraph: {
       title,
-      description: 'A past Elevate(Her) newsletter.',
+      description: `Read "${title}" in the Elevate(Her) newsletter archive.`,
       url: `/newsletter/${entry.slug}`,
       type: 'article',
     },
   };
 }
 
-export default async function NewsletterDetailPage({ params }: { params: { slug: string } }) {
-  const entry = await loadEntry(params.slug);
+export default async function NewsletterDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const entry = await loadEntry(slug);
   if (!entry) notFound();
   return (
     <div className="min-h-screen py-16 bg-white text-slate-900">

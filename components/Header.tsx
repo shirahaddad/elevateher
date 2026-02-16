@@ -1,37 +1,63 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+
+function NavLink({
+  href,
+  children,
+  current,
+}: {
+  href: string;
+  children: React.ReactNode;
+  current?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className="text-white hover:text-purple-200"
+      aria-current={current ? 'page' : undefined}
+      onClick={current ? undefined : undefined}
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 bg-purple-900 shadow-sm">
-      <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
+    <header className="sticky top-0 z-50 bg-purple-900 shadow-sm" role="banner">
+      <nav className="container mx-auto px-4 py-4 flex justify-between items-center" aria-label="Main navigation">
         <Link href="/" className="text-2xl font-bold text-white uppercase">
           Elevate(Her)
         </Link>
 
         <div className="hidden md:flex space-x-8">
-          <Link href="/about" className="text-white hover:text-purple-200">
+          <NavLink href="/about" current={pathname === '/about' || pathname?.startsWith('/about/')}>
             About
-          </Link>
-          <Link href="/services" className="text-white hover:text-purple-200">
+          </NavLink>
+          <NavLink href="/services" current={pathname?.startsWith('/services')}>
             Services
-          </Link>
-          <Link href="/blog" className="text-white hover:text-purple-200">
+          </NavLink>
+          <NavLink href="/blog" current={pathname === '/blog' || pathname?.startsWith('/blog/')}>
             Blog
-          </Link>
-          <Link href="/questionnaire" className="text-white hover:text-purple-200">
+          </NavLink>
+          <NavLink href="/questionnaire" current={pathname === '/questionnaire'}>
             Get Started
-          </Link>
+          </NavLink>
         </div>
 
         <button
+          type="button"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden text-white hover:text-purple-200 focus:outline-none"
-          aria-label="Toggle menu"
+          className="md:hidden text-white hover:text-purple-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded"
+          aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={isMenuOpen}
+          aria-controls="mobile-menu"
         >
           <svg
             className="h-6 w-6"
@@ -48,12 +74,18 @@ export default function Header() {
       </nav>
 
       {/* Mobile menu */}
-      <div className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'}`}>
+      <div
+        id="mobile-menu"
+        className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'}`}
+        role="navigation"
+        aria-label="Mobile menu"
+      >
         <div className="flex flex-col space-y-4 p-4 bg-purple-900">
           <Link
             href="/about"
             className="text-white hover:text-purple-200"
             onClick={() => setIsMenuOpen(false)}
+            aria-current={pathname === '/about' || pathname?.startsWith('/about/') ? 'page' : undefined}
           >
             About
           </Link>
@@ -61,6 +93,7 @@ export default function Header() {
             href="/services"
             className="text-white hover:text-purple-200"
             onClick={() => setIsMenuOpen(false)}
+            aria-current={pathname?.startsWith('/services') ? 'page' : undefined}
           >
             Services
           </Link>
@@ -68,6 +101,7 @@ export default function Header() {
             href="/blog"
             className="text-white hover:text-purple-200"
             onClick={() => setIsMenuOpen(false)}
+            aria-current={pathname === '/blog' || pathname?.startsWith('/blog/') ? 'page' : undefined}
           >
             Blog
           </Link>
@@ -75,6 +109,7 @@ export default function Header() {
             href="/questionnaire"
             className="text-white hover:text-purple-200"
             onClick={() => setIsMenuOpen(false)}
+            aria-current={pathname === '/questionnaire' ? 'page' : undefined}
           >
             Get Started
           </Link>

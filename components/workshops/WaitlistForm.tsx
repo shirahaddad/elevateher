@@ -69,7 +69,12 @@ export default function WaitlistForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6"
+      aria-label="Join workshop waitlist"
+      noValidate
+    >
       {/* Honeypot field - hidden from users */}
       <div style={{ display: 'none' }}>
         <input
@@ -129,7 +134,7 @@ export default function WaitlistForm() {
       </div>
 
       {error && (
-        <div className="text-red-600 text-sm mt-2" role="alert" aria-live="polite">
+        <div id="waitlist-error" className="text-red-600 text-sm mt-2" role="alert" aria-live="polite">
           {error}
         </div>
       )}
@@ -140,6 +145,7 @@ export default function WaitlistForm() {
         className={`w-full bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-purple-700'
         }`}
+        aria-describedby={error ? 'waitlist-error' : undefined}
       >
         {isSubmitting ? 'Joining Waitlist...' : 'Join Waitlist'}
       </button>

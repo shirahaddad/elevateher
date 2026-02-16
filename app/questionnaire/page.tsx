@@ -132,7 +132,13 @@ function QuestionnaireForm() {
           </p>
         </div>
 
-        <form id="questionnaire-form" onSubmit={handleSubmit} className="space-y-8 bg-white rounded-2xl shadow-xl p-8">
+        <form
+          id="questionnaire-form"
+          onSubmit={handleSubmit}
+          className="space-y-8 bg-white rounded-2xl shadow-xl p-8"
+          aria-label="Get started questionnaire"
+          noValidate
+        >
           {/* Honeypot field - hidden from users */}
           <div style={{ display: 'none' }}>
             <input
@@ -212,7 +218,7 @@ function QuestionnaireForm() {
             <legend className="block text-sm font-medium text-gray-700 mb-1">
               What skills are you most interested in developing? Please try to choose at least 3, no more than 7.
             </legend>
-            <div className="space-y-2" role="group" aria-describedby="skills-help">
+            <div className="space-y-2" role="group">
               {skillsOptions.map((skill) => (
                 <div key={skill} className="flex items-center">
                   <input
@@ -319,7 +325,7 @@ function QuestionnaireForm() {
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm mt-2" role="alert" aria-live="polite">
+            <div id="questionnaire-error" className="text-red-600 text-sm mt-2" role="alert" aria-live="polite">
               {error}
             </div>
           )}
@@ -330,6 +336,7 @@ function QuestionnaireForm() {
             className={`w-full bg-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold transition-colors shadow-lg hover:shadow-xl ${
               isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-purple-700'
             }`}
+            aria-describedby={error ? 'questionnaire-error' : undefined}
           >
             {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>

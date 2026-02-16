@@ -1,3 +1,12 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description:
+    'Elevate(Her) Privacy Policy: how we collect, use, and protect your personal information. GDPR and CCPA compliance.',
+  robots: { index: false, follow: true },
+};
+
 export default function Privacy() {
   return (
     <div className="min-h-screen bg-white">

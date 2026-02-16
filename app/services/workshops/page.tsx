@@ -29,12 +29,15 @@ export default async function Workshops() {
           Back to Services
         </Link>
         
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Workshops</h1>
+        <section className="text-center mb-16" aria-labelledby="workshops-heading">
+          <h1 id="workshops-heading" className="text-4xl font-bold mb-4 text-purple-900 tracking-tight">Workshops</h1>
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-4">
+            Elevate(Her) workshops are interactive sessions for women in tech to build leadership skills and advance their careers.
+          </p>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Interactive sessions to enhance your leadership skills and career development.
           </p>
-        </div>
+        </section>
 
         <div className="grid md:grid-cols-3 gap-12">
           {/* Section 1: Upcoming Workshop (NEXT) */}

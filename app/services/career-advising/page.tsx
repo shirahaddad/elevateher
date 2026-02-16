@@ -81,13 +81,18 @@ export default function CareerAdvising() {
           Back to Services
         </Link>
         
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Career Advising</h1>
+        <section className="text-center mb-16" aria-labelledby="career-advising-heading">
+          <h1 id="career-advising-heading" className="text-4xl font-bold mb-4 text-purple-900 tracking-tight">Career Advising</h1>
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-4">
+            Elevate(Her) career advising is 1:1 coaching for women in tech: choose from Bootstrap (3 sessions), Configuration (6), or Command Line (9) packages.
+          </p>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Personalized coaching that blends reflection, strategic guidance, and accountability to support your career growth and leadership journey.
           </p>
-        </div>
+        </section>
 
+        <section aria-labelledby="packages-heading">
+          <h2 id="packages-heading" className="sr-only">Coaching packages</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {series.map((item, index) => (
             <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -142,6 +147,7 @@ export default function CareerAdvising() {
             </div>
           ))}
         </div>
+        </section>
       </div>
     </div>
   );

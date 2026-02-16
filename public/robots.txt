@@ -1,13 +1,24 @@
-# Allow all crawlers
+# Default: allow all except admin
 User-agent: *
 Allow: /
-
-# Sitemap location
-Sitemap: https://elevateher.tech/sitemap.xml
-
-# Disallow admin routes
 Disallow: /admin/
 Disallow: /api/admin/
 
-# Crawl-delay for rate limiting
-Crawl-delay: 10 
+# Explicitly allow AI search crawlers (ChatGPT, Perplexity, Claude)
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/admin/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/admin/
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /admin/
+Disallow: /api/admin/
+
+# Sitemap
+Sitemap: https://elevateher.tech/sitemap.xml

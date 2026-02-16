@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { TEAM } from '@/lib/team';
+import { getPersonSchema } from '@/lib/schema';
+import { StructuredDataScript } from '@/components/StructuredData';
 
 export async function generateMetadata({
   params,
@@ -29,8 +31,18 @@ export default async function Page({
     notFound();
   }
 
+  const personSchema = getPersonSchema(
+    member.name,
+    member.title,
+    member.bio.join(' '),
+    `/about/${member.slug}`,
+    member.image,
+    [member.linkedin]
+  );
+
   return (
     <div className="min-h-screen bg-white">
+      <StructuredDataScript data={personSchema} />
       <div className="max-w-5xl mx-auto px-8 py-16">
                   <Link 
             href="/about" 

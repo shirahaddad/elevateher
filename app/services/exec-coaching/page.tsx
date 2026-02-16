@@ -44,7 +44,10 @@ export default function ExecCoaching() {
           {/* Content Section */}
           <div className="w-full md:w-2/3">
             <h1 className="text-4xl font-bold mb-2 text-purple-900 tracking-tight">Executive Coaching</h1>
-            <p className="text-xl text-purple-600 mb-6">with Shira</p>
+            <p className="text-xl text-purple-600 mb-4">with Shira</p>
+            <p className="text-lg text-gray-700 mb-6">
+              Elevate(Her) offers executive coaching for tech leaders with Shira: a decade of engineering leadership combined with ICF-aligned, Co-Active coaching.
+            </p>
             <div className="prose prose-lg max-w-none">
               <p className="text-gray-600 mb-6">
                 With over a decade of engineering leadership experience, I support leaders navigating complexity, change, and growth. I'm currently completing Co-Active coach training and I offer coaching aligned with ICF principles - providing a space grounded in trust, curiosity, and accountability.

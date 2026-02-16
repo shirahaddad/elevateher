@@ -6,6 +6,8 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AnalyticsTracker from "../components/analytics/AnalyticsTracker";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { getOrganizationSchema, getWebSiteSchema, ORGANIZATION_ID } from "@/lib/schema";
+import { StructuredDataScript } from "@/components/StructuredData";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -87,6 +89,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <StructuredDataScript data={getOrganizationSchema()} />
+        <StructuredDataScript data={getWebSiteSchema(ORGANIZATION_ID)} />
         {/* Google Analytics - only load when measurement ID is set to avoid failed requests */}
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <>

@@ -15,6 +15,8 @@ import dynamic from 'next/dynamic';
 import type { FullPost } from '@/types/blog';
 import TagList from '@/components/blog/TagList';
 import { Metadata } from 'next';
+import { getArticleSchema } from '@/lib/schema';
+import { StructuredDataScript } from '@/components/StructuredData';
 
 // Lazy load the MarkdownPreview component
 const MarkdownPreview = dynamic(() => import('@/components/blog/MarkdownPreview'), {
@@ -120,8 +122,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     day: 'numeric',
   });
 
+  const articleSchema = getArticleSchema(
+    post.title,
+    post.excerpt || post.content.slice(0, 200),
+    `/blog/${resolvedParams.slug}`,
+    post.published_at,
+    (post as { updated_at?: string }).updated_at,
+    post.author_name,
+    post.image_url
+  );
+
   return (
     <main className="min-h-screen bg-white">
+      <StructuredDataScript data={articleSchema} />
       <article className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Left Column (1/3) */}

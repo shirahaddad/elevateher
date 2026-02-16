@@ -5,6 +5,12 @@ import carouselCardsData from '@/data/carousel.json';
 
 const carouselCards = carouselCardsData as CarouselCard[];
 
+export const metadata = {
+  title: 'Elevate(Her) - Women in Tech Coaching & Leadership',
+  description:
+    'Elevate(Her) offers women in tech coaching, leadership development, and career mentorship. 1:1 coaching, workshops, and community for women in technology and STEM.',
+};
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
