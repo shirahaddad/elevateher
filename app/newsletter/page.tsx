@@ -27,6 +27,12 @@ export default async function NewsletterArchivePage() {
       <div className="max-w-4xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-purple-900 mb-2">Newsletter Archive</h1>
         <p className="text-gray-800 mb-6">Browse selected past newsletters.</p>
+        <p className="text-gray-700 mb-6 text-sm">
+          <Link href="/learn-more" className="text-purple-700 hover:underline font-medium">
+            Click here
+          </Link>
+          {' '} to subscribe to future newsletters.
+        </p>
         {items.length === 0 ? (
           <p className="text-sm text-gray-700">No published newsletters yet.</p>
         ) : (
