@@ -92,9 +92,6 @@ export default function Community() {
         
         <section className="text-center mb-16" aria-labelledby="community-heading">
           <h1 id="community-heading" className="text-4xl font-bold mb-4 text-purple-900 tracking-tight">Community</h1>
-          <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-4">
-            The Elevate(Her) community is a supportive network of women in tech where you can connect, learn, and grow together.
-          </p>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Join your peers on their journey to success and be the first to know when community events launch.
           </p>
