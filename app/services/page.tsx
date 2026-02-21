@@ -103,6 +103,31 @@ export default async function Services({ searchParams }: ServicesPageProps) {
             </Link>
           )}
 
+          {/* Job Search Support */}
+          <Link href="/services/job-search" className="block">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 sm:p-8 transform hover:scale-105 transition-transform duration-300">
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-purple-900">Job Search Support</h2>
+              <ul className="space-y-2 sm:space-y-3 text-gray-600 text-sm sm:text-base">
+                <li className="flex items-start">
+                  <span className="text-purple-500 mr-2">•</span>
+                  Targeted strategy
+                </li>
+                <li className="flex items-start">
+                  <span className="text-purple-500 mr-2">•</span>
+                  Resume and LinkedIn optimisation
+                </li>
+                <li className="flex items-start">
+                  <span className="text-purple-500 mr-2">•</span>
+                  Tailored applications
+                </li>
+                <li className="flex items-start">
+                  <span className="text-purple-500 mr-2">•</span>
+                  Interview preparation and practice
+                </li>
+              </ul>
+            </div>
+          </Link>
+
           {/* Workshops */}
           {shouldShowService('workshops') && (
             <Link href="/services/workshops" className="block">
