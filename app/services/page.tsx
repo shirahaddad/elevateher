@@ -14,12 +14,12 @@ export default async function Services({ searchParams }: ServicesPageProps) {
   const shouldShowService = (serviceName: string) => {
     // Individual services filter
     if (isIndividualFilter) {
-      const individualServices = ['career-advising', 'mentoring', 'exec-coaching'];
+      const individualServices = ['career-clarity', 'mentoring', 'exec-coaching'];
       return individualServices.includes(serviceName);
     }
-    // Packages filter: only show Career Advising and Mentoring
+    // Packages filter: only show Career Clarity and Mentoring
     if (isPackagesFilter) {
-      const packageServices = ['career-advising', 'mentoring'];
+      const packageServices = ['career-clarity', 'mentoring'];
       return packageServices.includes(serviceName);
     }
     // Default: show all services
@@ -49,11 +49,11 @@ export default async function Services({ searchParams }: ServicesPageProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-          {/* Career Advising */}
-          {shouldShowService('career-advising') && (
-            <Link href="/services/career-advising" className="block">
+          {/* Career Clarity */}
+          {shouldShowService('career-clarity') && (
+            <Link href="/services/career-clarity" className="block">
               <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 sm:p-8 transform hover:scale-105 transition-transform duration-300">
-                <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-purple-900">Career Advising</h2>
+                <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-purple-900">Career Clarity</h2>
                 <ul className="space-y-2 sm:space-y-3 text-gray-600 text-sm sm:text-base">
                   <li className="flex items-start">
                     <span className="text-purple-500 mr-2">•</span>

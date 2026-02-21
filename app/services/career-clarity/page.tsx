@@ -11,15 +11,15 @@ const series = [
     title: 'Foundation for Lift-Off',
     price: '$795',
     details: {
-      bestFor: 'Women exploring a new leadership path or preparing for a role change who want targeted support and momentum.',
+      bestFor: 'Women who want clarity on their career direction - whether leveling up in your current workplace or exploring what\'s next.',
       included: [
         '🌱 3 one-on-one coaching sessions',
         '📊 Strengths-based assessment & leadership style evaluation',
-        '📝 Resume review + custom action plan',
-        '🎯 Interview prep or goal alignment strategy',
-        '💬 1 asynchronous support exchange between sessions (voice/text/email)'
+        '📝 Goal alignment & custom action plan',
+        '🎯 Clarity on next steps (in role or beyond)',
+        '💬 Asynchronous support between sessions (community/email)'
       ],
-      outcome: 'Clarity on your leadership identity and next steps toward an aligned role.'
+      outcome: 'Clarity on your professional identity and next steps toward an aligned direction.'
     }
   },
   {
@@ -32,13 +32,13 @@ const series = [
       bestFor: 'Women stepping into a new leadership role or looking to level up with confidence and strategic direction.',
       included: [
         '🌱 6 one-on-one coaching sessions',
-        '📊 Full leadership style & career clarity assessment',
-        '📝 Resume + LinkedIn alignment session',
-        '🎯 Behavioral interview prep & storytelling practice',
+        '📊 Leadership style & career clarity assessment',
+        '📝 Career narrative & alignment session',
+        '🎯 Storytelling and strategic communication practice',
         '📈 Goal tracking & weekly action items',
-        '💬 3 asynchronous support exchanges between sessions (voice/text/email)'
+        '💬 Asynchronous support exchanges between sessions (community/email)'
       ],
-      outcome: 'Confidence, strategy, and assets in place to lead boldly or land the role that\'s meant for you.'
+      outcome: 'Confidence, strategy, and clarity in place to lead boldly and move toward what\'s meant for you.'
     }
   },
   {
@@ -48,21 +48,22 @@ const series = [
     title: 'Full System Upgrade',
     price: '$2295',
     details: {
-      bestFor: 'Women in tech ready for major growth, role transitions, or defining their personal brand.',
+      bestFor: 'Women in tech who are ready for a major career transition and want to reassess their skills, refine their personal brand, and intentionally reshape their professional identity.',
       included: [
         '🌱 9 one-on-one coaching sessions',
         '📊 In-depth leadership identity & mindset framework',
-        '📝 Resume, LinkedIn, & personal brand overhaul',
-        '🎯 Mock interviews, presentations, or stakeholder conversation feedback',
+        '📝 Personal brand and narrative clarity',
+        '🎯 Presentations and high-stakes conversation feedback',
         '📈 Personalized career strategy map',
-        '💬 Unlimited asynchronous support between sessions (voice/text/email)'
+        '📋 Goal tracking & weekly action items',
+        '💬 Asynchronous support between sessions (community/email)'
       ],
-      outcome: 'Executive-level clarity, communication, and presence—ready for whatever\'s next.'
+      outcome: 'Executive-level clarity, communication, and presence.'
     }
   }
 ];
 
-export default function CareerAdvising() {
+export default function CareerClarity() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-8 py-16">
@@ -81,13 +82,10 @@ export default function CareerAdvising() {
           Back to Services
         </Link>
         
-        <section className="text-center mb-16" aria-labelledby="career-advising-heading">
-          <h1 id="career-advising-heading" className="text-4xl font-bold mb-4 text-purple-900 tracking-tight">Career Advising</h1>
-          <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-4">
-            Elevate(Her) career advising is 1:1 coaching for women in tech: choose from Bootstrap (3 sessions), Configuration (6), or Command Line (9) packages.
-          </p>
+        <section className="text-center mb-16" aria-labelledby="career-clarity-heading">
+          <h1 id="career-clarity-heading" className="text-4xl font-bold mb-4 text-purple-900 tracking-tight">Career Clarity</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Personalized coaching that blends reflection, strategic guidance, and accountability to support your career growth and leadership journey.
+            Personalized coaching that blends reflection, strategic guidance, and accountability to support clarity in your career.
           </p>
         </section>
 
@@ -151,4 +149,4 @@ export default function CareerAdvising() {
       </div>
     </div>
   );
-} 
+}

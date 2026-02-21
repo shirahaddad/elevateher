@@ -12,6 +12,11 @@ if (process.env.ANALYZE === 'true') {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      { source: '/services/career-advising', destination: '/services/career-clarity', permanent: true },
+    ];
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
