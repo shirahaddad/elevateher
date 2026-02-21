@@ -30,7 +30,7 @@ export default function Privacy() {
               <li>Name and contact information (email address, phone number)</li>
               <li>Professional information (job title, company)</li>
               <li>Communication preferences</li>
-              <li>Information you provide through our contact forms or questionnaires</li>
+              <li>Information you provide through our contact forms</li>
             </ul>
           </div>
 

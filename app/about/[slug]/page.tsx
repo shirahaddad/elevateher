@@ -90,7 +90,7 @@ export default async function Page({
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-16">
           <Link
-            href="/questionnaire"
+            href="/learn-more"
             className="inline-block bg-purple-600 text-white px-10 py-3 rounded-full text-lg font-semibold hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl"
           >
             Work with {member.name.split(' ')[0]}

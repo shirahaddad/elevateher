@@ -135,7 +135,7 @@ export default function CareerClarity() {
 
                 <div className="mt-8">
                   <Link 
-                    href={`/questionnaire?source=${item.name.toLowerCase()}`}
+                    href="/learn-more"
                     className="w-full bg-purple-600 text-white px-6 py-3 rounded-lg text-center font-semibold hover:bg-purple-700 transition-colors"
                   >
                     Start with {item.name}

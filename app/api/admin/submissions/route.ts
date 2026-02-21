@@ -1,48 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
 import { supabaseAdmin } from '@/lib/supabase';
-
-export async function PATCH(request: Request) {
-  try {
-    const { id, processed } = await request.json();
-    console.log('PATCH request received with:', { id, processed });
-
-    if (!id || typeof processed !== 'boolean') {
-      console.log('Invalid request data:', { id, processed });
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
-    }
-
-    const { error } = await supabaseAdmin
-      .from('questionnaire_submissions')
-      .update({ processed })
-      .eq('id', id);
-
-    if (error) {
-      console.error('Supabase error details:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      });
-      return NextResponse.json(
-        { error: `Failed to update submission: ${error.message}` },
-        { status: 500 }
-      );
-    }
-
-    console.log('Successfully updated submission:', { id, processed });
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error processing request:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
 
 export async function DELETE(request: Request) {
   try {
@@ -56,7 +13,7 @@ export async function DELETE(request: Request) {
     }
 
     const { error } = await supabaseAdmin
-      .from('questionnaire_submissions')
+      .from('learn_more_submissions')
       .delete()
       .eq('id', id);
 
@@ -86,7 +43,7 @@ export async function GET(request: Request) {
     const offset = (page - 1) * limit;
 
     const { data, error, count } = await supabaseAdmin
-      .from('questionnaire_submissions')
+      .from('learn_more_submissions')
       .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -107,4 +64,4 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-} 
+}

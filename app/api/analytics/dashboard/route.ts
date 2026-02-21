@@ -119,11 +119,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Get existing submission data
-    const { data: questionnaireSubmissions } = await supabaseAdmin
-      .from('questionnaire_submissions')
-      .select('created_at, source')
-      .gte('created_at', startDateISO);
-
     const { data: learnMoreSubmissions } = await supabaseAdmin
       .from('learn_more_submissions')
       .select('created_at')
@@ -136,7 +131,6 @@ export async function GET(request: NextRequest) {
 
     // Combine existing submission data
     const existingFormStats = [
-      { form: 'questionnaire', count: questionnaireSubmissions?.length || 0 },
       { form: 'learn_more', count: learnMoreSubmissions?.length || 0 },
       { form: 'workshop_waitlist', count: waitlistSubmissions?.length || 0 },
     ];

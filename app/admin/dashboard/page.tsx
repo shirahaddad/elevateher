@@ -158,10 +158,10 @@ export default function AdminDashboard() {
           >
             <div className="flex items-center mb-3">
               <div className="text-2xl mr-3">📋</div>
-              <h3 className="text-lg font-semibold">Questionnaire Submissions</h3>
+              <h3 className="text-lg font-semibold">Learn More Submissions</h3>
             </div>
             <p className="text-purple-100 text-sm">
-              Review and manage client submissions
+              Review and manage learn-more form submissions
             </p>
           </Link>
 

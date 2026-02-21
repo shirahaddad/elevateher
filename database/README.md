@@ -100,6 +100,7 @@ LIMIT 10;
 
 ```sql
 -- List all indexes on specific tables
+-- Note: questionnaire_submissions is legacy; the app no longer writes to it.
 SELECT indexname, tablename 
 FROM pg_indexes 
 WHERE tablename IN ('posts', 'tags', 'post_tags', 'questionnaire_submissions', 'learn_more_submissions')

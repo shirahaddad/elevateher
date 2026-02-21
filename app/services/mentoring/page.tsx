@@ -142,7 +142,7 @@ export default function Mentoring() {
                     </Link>
                   ) : (
                     <Link 
-                      href={`/questionnaire?source=${option.name.toLowerCase().replace(' ', '-')}`}
+                      href="/learn-more"
                       className="w-full bg-purple-600 text-white px-6 py-3 rounded-lg text-center font-semibold hover:bg-purple-700 transition-colors block"
                     >
                       Start with {option.name}

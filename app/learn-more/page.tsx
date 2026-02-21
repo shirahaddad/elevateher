@@ -2,8 +2,10 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { learnMoreFormSchema } from '@/lib/validation/base';
 import { useAnalytics } from '@/components/analytics/AnalyticsTracker';
+import { INTRODUCTION_SCHEDULING_URL } from '@/lib/constants';
 
 function LearnMoreForm() {
   const router = useRouter();
@@ -90,6 +92,18 @@ function LearnMoreForm() {
           <h1 className="text-4xl font-bold mb-6 text-purple-900 tracking-tight">Learn More</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Fill out your name and email and we'll reach out with more details.
+          </p>
+          <p className="text-gray-600 mt-4">
+            Prefer to book a time?{' '}
+            <Link
+              href={INTRODUCTION_SCHEDULING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-600 font-medium hover:text-purple-700 underline"
+            >
+              Schedule an introduction call
+            </Link>
+            .
           </p>
         </div>
 

@@ -42,7 +42,7 @@ npm run db:analytics
 ### Step 3: Test the Implementation
 1. Visit your website
 2. Navigate between pages
-3. Submit a form (questionnaire or learn-more)
+3. Submit a form (learn-more)
 4. Check the admin analytics dashboard at `/admin/analytics`
 
 ## 📊 Available Analytics Data

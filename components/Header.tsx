@@ -46,7 +46,7 @@ export default function Header() {
           <NavLink href="/blog" current={pathname === '/blog' || pathname?.startsWith('/blog/')}>
             Blog
           </NavLink>
-          <NavLink href="/questionnaire" current={pathname === '/questionnaire'}>
+          <NavLink href="/learn-more" current={pathname === '/learn-more'}>
             Get Started
           </NavLink>
         </div>
@@ -106,10 +106,10 @@ export default function Header() {
             Blog
           </Link>
           <Link
-            href="/questionnaire"
+            href="/learn-more"
             className="text-white hover:text-purple-200"
             onClick={() => setIsMenuOpen(false)}
-            aria-current={pathname === '/questionnaire' ? 'page' : undefined}
+            aria-current={pathname === '/learn-more' ? 'page' : undefined}
           >
             Get Started
           </Link>
