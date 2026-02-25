@@ -352,3 +352,43 @@ export async function sendWorkshopWaitlistEmail(data: WorkshopWaitlistData) {
     };
   }
 }
+
+/**
+ * Sends a notification email to the admin when someone registers for a specific workshop.
+ */
+export async function sendWorkshopRegistrationAdminEmail(data: {
+  workshopTitle: string;
+  workshopDate: string;
+  name: string;
+  email: string;
+}) {
+  const { workshopTitle, workshopDate, name, email } = data;
+
+  const html = `
+    <h1>New workshop registration</h1>
+    <p><strong>Workshop:</strong> ${workshopTitle}</p>
+    <p><strong>Date/time:</strong> ${workshopDate}</p>
+    <p><strong>Name:</strong> ${name}</p>
+    <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+  `;
+
+  try {
+    const { data: resendData, error } = await resend.emails.send({
+      from: fromEmail,
+      to: adminEmail,
+      subject: `New workshop registration: ${workshopTitle}`,
+      html,
+    });
+
+    if (error) throw error;
+    console.log('Workshop registration email sent. Response:', resendData);
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending workshop registration email:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? { message: error.message, name: error.name, stack: error.stack } : 'Unknown error',
+    };
+  }
+}

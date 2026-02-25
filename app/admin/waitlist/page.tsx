@@ -130,6 +130,16 @@ export default function WaitlistPage() {
           >
             Workshops
           </button>
+          <button
+            onClick={() => handleCategoryFilter('workshop-registration')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              selectedCategory === 'workshop-registration' 
+                ? 'bg-purple-600 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Workshop registration
+          </button>
         </div>
         
         <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -141,6 +151,7 @@ export default function WaitlistPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Workshop</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mailing List</th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -166,6 +177,19 @@ export default function WaitlistPage() {
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                         {entry.category}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {entry.workshop_id != null ? (
+                        entry.workshops?.title ? (
+                          <a href={`/services/workshops/${entry.workshops.slug}`} className="text-purple-600 hover:text-purple-800" target="_blank" rel="noopener noreferrer">
+                            {entry.workshops.title}
+                          </a>
+                        ) : (
+                          <span>ID: {entry.workshop_id}</span>
+                        )
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {entry.mailing_list ? (

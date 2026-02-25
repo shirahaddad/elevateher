@@ -15,7 +15,7 @@ export async function GET(request: Request) {
 
     let query = supabaseAdmin
       .from('waitlist')
-      .select('*', { count: 'exact' })
+      .select('*, workshops(title, slug)', { count: 'exact' })
       .order('created_at', { ascending: false });
 
     // Filter by category if provided

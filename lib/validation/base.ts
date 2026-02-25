@@ -217,3 +217,16 @@ export const workshopWaitlistSchema = z.object({
   // Honeypot field for spam prevention - must be empty
   website: z.string().max(0).optional(),
 });
+
+/**
+ * Workshop event registration form validation schema
+ * Used when registering for a specific workshop (name, email, optional mailing list).
+ */
+export const workshopRegistrationSchema = z.object({
+  workshopSlug: z.string().min(1, 'Workshop is required'),
+  name: nameSchema,
+  email: emailSchema,
+  mailingList: z.boolean().default(false),
+  // Honeypot field for spam prevention - must be empty
+  website: z.string().max(0).optional(),
+});

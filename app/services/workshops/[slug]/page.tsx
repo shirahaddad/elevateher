@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { workshopService } from '@/lib/api/services/workshops/workshop.service';
 import MarkdownPreview from '@/components/blog/MarkdownPreview';
 import ResourceSection from '@/components/workshops/ResourceSection';
+import WorkshopRegistrationForm from '@/components/workshops/WorkshopRegistrationForm';
 import type { Metadata } from 'next';
 
 function formatEst(iso?: string) {
@@ -70,19 +71,13 @@ export default async function WorkshopDetailPage({
             )}
           </div>
 
-          {workshop.registration_url && (
+          {(workshop.status === 'NEXT' || workshop.status === 'FUTURE') && (
             <div className="mt-8">
-              <a
-                href={workshop.registration_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full text-center bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl hover:bg-purple-700"
-              >
-                Register on Zoom
-              </a>
-              <p className="text-xs text-gray-500 text-center mt-2">
-                You’ll be taken to Zoom to complete your registration.
-              </p>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Register</h2>
+              <WorkshopRegistrationForm
+                workshopSlug={slug}
+                workshopTitle={workshop.title}
+              />
             </div>
           )}
 

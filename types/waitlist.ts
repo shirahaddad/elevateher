@@ -6,4 +6,7 @@ export interface WaitlistEntry {
   mailing_list: boolean;
   category: string;
   linkedin?: string | null;
+  workshop_id?: number | null;
+  /** Populated by admin API when category is workshop-registration */
+  workshops?: { title: string; slug: string } | null;
 } 
