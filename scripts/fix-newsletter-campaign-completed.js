@@ -2,6 +2,8 @@
 
 /**
  * Mark stuck newsletter campaigns as completed.
+ * Use when a campaign shows "in progress" but the send finished (e.g. browser error,
+ * timeout, or page closed). Run from project root with .env.local loaded.
  * Usage:
  *   node scripts/fix-newsletter-campaign-completed.js           # fix most recent in-progress campaign
  *   node scripts/fix-newsletter-campaign-completed.js <id>      # fix campaign by ID

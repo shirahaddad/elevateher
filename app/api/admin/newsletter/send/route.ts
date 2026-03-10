@@ -6,6 +6,8 @@ import { Resend } from 'resend';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+// Allow long runs so broadcast doesn't hit serverless timeout (e.g. Vercel 60s default)
+export const maxDuration = 300;
 
 type SendBody = {
   html: string;
